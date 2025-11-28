@@ -4,7 +4,7 @@ MAX_NAME_LEN   EQU 64
 MAX_BIRTH_LEN  EQU 32
 MAX_ZODIAC_LEN EQU 32
 BITS           EQU 16
-NUM_FORTUNES   EQU 8
+NUM_FORTUNES_PER_CAT EQU 24   ; 每類籤詩數量
 
 .data
 promptTitle      BYTE "=== 個人資料籤詩產生器 ===",0
@@ -21,15 +21,18 @@ fortuneHeader    BYTE 0Dh,0Ah,"--- 你的籤 ---",0Dh,0Ah,0
 ; ================================
 ; 愛情運勢 (fortunesLove)
 ; ================================
-fortunesLove DWORD \
-    OFFSET love_great_1, OFFSET love_great_2, OFFSET love_great_3, \
-    OFFSET love_good_1, OFFSET love_good_2, OFFSET love_good_3, \
-    OFFSET love_small_1, OFFSET love_small_2, OFFSET love_small_3, \
-    OFFSET love_luck_1, OFFSET love_luck_2, OFFSET love_luck_3, \
-    OFFSET love_minor_1, OFFSET love_minor_2, OFFSET love_minor_3, \
-    OFFSET love_bad_1, OFFSET love_bad_2, OFFSET love_bad_3, \
-    OFFSET love_sbad_1, OFFSET love_sbad_2, OFFSET love_sbad_3, \
-    OFFSET love_worst_1, OFFSET love_worst_2, OFFSET love_worst_3
+fortunesLove DWORD OFFSET love_great_1, OFFSET love_great_2
+         DWORD OFFSET love_great_3, OFFSET love_good_1
+         DWORD OFFSET love_good_2, OFFSET love_good_3
+         DWORD OFFSET love_small_1, OFFSET love_small_2
+         DWORD OFFSET love_small_3, OFFSET love_luck_1
+         DWORD OFFSET love_luck_2, OFFSET love_luck_3
+         DWORD OFFSET love_minor_1, OFFSET love_minor_2
+         DWORD OFFSET love_minor_3, OFFSET love_bad_1
+         DWORD OFFSET love_bad_2, OFFSET love_bad_3
+         DWORD OFFSET love_sbad_1, OFFSET love_sbad_2
+         DWORD OFFSET love_sbad_3, OFFSET love_worst_1
+         DWORD OFFSET love_worst_2, OFFSET love_worst_3
 
 
 ; ===== 大吉 (Love) =====
@@ -77,15 +80,18 @@ love_worst_3 BYTE "愛情大凶：暫時冷靜，明天再試會比較順。",0
 ; ================================
 ; 學業運勢 (fortunesStudy)
 ; ================================
-fortunesStudy DWORD \
-    OFFSET study_great_1, OFFSET study_great_2, OFFSET study_great_3, \
-    OFFSET study_good_1,  OFFSET study_good_2,  OFFSET study_good_3, \
-    OFFSET study_small_1, OFFSET study_small_2, OFFSET study_small_3, \
-    OFFSET study_luck_1,  OFFSET study_luck_2,  OFFSET study_luck_3, \
-    OFFSET study_minor_1, OFFSET study_minor_2, OFFSET study_minor_3, \
-    OFFSET study_bad_1,   OFFSET study_bad_2,   OFFSET study_bad_3, \
-    OFFSET study_sbad_1,  OFFSET study_sbad_2,  OFFSET study_sbad_3, \
-    OFFSET study_worst_1, OFFSET study_worst_2, OFFSET study_worst_3
+fortunesStudy DWORD OFFSET study_great_1, OFFSET study_great_2
+          DWORD OFFSET study_great_3, OFFSET study_good_1
+          DWORD OFFSET study_good_2, OFFSET study_good_3
+          DWORD OFFSET study_small_1, OFFSET study_small_2
+          DWORD OFFSET study_small_3, OFFSET study_luck_1
+          DWORD OFFSET study_luck_2, OFFSET study_luck_3
+          DWORD OFFSET study_minor_1, OFFSET study_minor_2
+          DWORD OFFSET study_minor_3, OFFSET study_bad_1
+          DWORD OFFSET study_bad_2, OFFSET study_bad_3
+          DWORD OFFSET study_sbad_1, OFFSET study_sbad_2
+          DWORD OFFSET study_sbad_3, OFFSET study_worst_1
+          DWORD OFFSET study_worst_2, OFFSET study_worst_3
 
 ; ===== 大吉 (Study) =====
 study_great_1 BYTE "學業大吉：讀書效率爆發，理解力滿點。",0
@@ -132,15 +138,18 @@ study_worst_3 BYTE "學業大凶：念書容易煩躁，慢慢來比較好。",0
 ; ================================
 ; 健康＋財運 (fortunesHealth)
 ; ================================
-fortunesHealth DWORD \
-    OFFSET health_great_1, OFFSET health_great_2, OFFSET health_great_3, \
-    OFFSET health_good_1,  OFFSET health_good_2,  OFFSET health_good_3, \
-    OFFSET health_small_1, OFFSET health_small_2, OFFSET health_small_3, \
-    OFFSET health_luck_1,  OFFSET health_luck_2,  OFFSET health_luck_3, \
-    OFFSET health_minor_1, OFFSET health_minor_2, OFFSET health_minor_3, \
-    OFFSET health_bad_1,   OFFSET health_bad_2,   OFFSET health_bad_3, \
-    OFFSET health_sbad_1,  OFFSET health_sbad_2,  OFFSET health_sbad_3, \
-    OFFSET health_worst_1, OFFSET health_worst_2, OFFSET health_worst_3
+fortunesHealth DWORD OFFSET health_great_1, OFFSET health_great_2
+           DWORD OFFSET health_great_3, OFFSET health_good_1
+           DWORD OFFSET health_good_2, OFFSET health_good_3
+           DWORD OFFSET health_small_1, OFFSET health_small_2
+           DWORD OFFSET health_small_3, OFFSET health_luck_1
+           DWORD OFFSET health_luck_2, OFFSET health_luck_3
+           DWORD OFFSET health_minor_1, OFFSET health_minor_2
+           DWORD OFFSET health_minor_3, OFFSET health_bad_1
+           DWORD OFFSET health_bad_2, OFFSET health_bad_3
+           DWORD OFFSET health_sbad_1, OFFSET health_sbad_2
+           DWORD OFFSET health_sbad_3, OFFSET health_worst_1
+           DWORD OFFSET health_worst_2, OFFSET health_worst_3
 
 ; ===== 大吉 (Health & Wealth) =====
 health_great_1 BYTE "健康財運大吉：精神飽滿，財運走上坡！",0
@@ -184,17 +193,25 @@ health_worst_3 BYTE "大凶：身體需要休息，別硬撐。",0
 
 
 ; ================================
-; 顯示分類菜單（新增）
+; 顯示分類菜單
 ; ================================
-menuPrompt BYTE 0Dh,0Ah,"請選擇想求的運勢：",0Dh,0Ah,
-           "1 = 愛情運勢",0Dh,0Ah,
-           "2 = 學業運勢",0Dh,0Ah,
-           "3 = 健康與財運",0Dh,0Ah,
+menuPrompt BYTE 0Dh,0Ah,0Dh,0Ah,
+           "+------------------------------+",0Dh,0Ah,
+           "|    測測你今天的運勢          |",0Dh,0Ah,
+           "+------------------------------+",0Dh,0Ah,
+           "| 1. 愛情運勢                  |",0Dh,0Ah,
+           "| 2. 學業運勢                  |",0Dh,0Ah,
+           "| 3. 健康與財運                |",0Dh,0Ah,
+           "+------------------------------+",0Dh,0Ah,
            "請輸入 1 / 2 / 3：",0
+
+errorMsg     BYTE 0Dh,0Ah,"[輸入無效！預設為愛情運勢]",0Dh,0Ah,0
 
 choiceInput BYTE 4 DUP(?)     ; 暫存使用者輸入
 choiceVal  DWORD ?            ; 1~3
 
+; 跳轉表：對應三種運勢的陣列位址
+fortunesTables DWORD OFFSET fortunesLove, OFFSET fortunesStudy, OFFSET fortunesHealth
 
 ; 緩衝區與變數
 nameBuf   BYTE MAX_NAME_LEN   DUP(?)
@@ -204,6 +221,7 @@ binBuf    BYTE BITS+1 DUP(?)
 
 hashVal   DWORD ?
 indexVal  DWORD ?
+
 .code
 start@0 PROC
     call Clrscr
@@ -365,58 +383,47 @@ bits_done:
     mov choiceVal, eax      ; 1 / 2 / 3
 
     ;---------------------------------------
+    ; 驗證輸入範圍 (1~3)
+    ;---------------------------------------
+    cmp eax, 1
+    jl  invalid_choice      ; < 1
+    cmp eax, 3
+    jg  invalid_choice      ; > 3
+    jmp valid_choice
+
+invalid_choice:
+    mov edx, OFFSET errorMsg
+    call WriteString
+    mov choiceVal, 1        ; 預設為愛情運勢
+
+valid_choice:
+    ;---------------------------------------
     ; index = hashVal % 24  (每類 24 筆籤)
     ;---------------------------------------
     mov eax, hashVal
-    mov ebx, 24
+    mov ebx, NUM_FORTUNES_PER_CAT
     cdq
     idiv ebx                ; 商在 EAX, 餘數在 EDX
     mov indexVal, edx       ; 0..23
 
     ;---------------------------------------
-    ; 根據 choiceVal 決定使用哪一組 fortunes
+    ; 使用跳轉表選擇運勢陣列
     ;---------------------------------------
     mov eax, choiceVal
-    cmp eax, 1
-    je  choose_love
-    cmp eax, 2
-    je  choose_study
-    cmp eax, 3
-    je  choose_health
-
-    ; 非 1~3，預設使用愛情
-    jmp choose_love
-
-; ===== 愛情運勢 =====
-choose_love:
-    mov eax, indexVal       ; index (0..23)
-    shl eax, 2              ; *4 (DWORD)
-    mov edx, OFFSET fortunesLove
+    dec eax                    ; 1->0, 2->1, 3->2
+    shl eax, 2                 ; *4 (DWORD)
+    mov edx, OFFSET fortunesTables
     add edx, eax
-    mov edx, [edx]          ; edx = fortunesLove[index]
-    jmp print_fortune
+    mov edx, [edx]             ; 取得對應的 fortunes 陣列位址
 
-; ===== 學業運勢 =====
-choose_study:
+    ; 計算該籤詩在陣列中的位置
     mov eax, indexVal
-    shl eax, 2
-    mov edx, OFFSET fortunesStudy
+    shl eax, 2                 ; *4
     add edx, eax
-    mov edx, [edx]          ; edx = fortunesStudy[index]
-    jmp print_fortune
+    mov edx, [edx]             ; 取得籤詩字串位址
 
-; ===== 健康與財運 =====
-choose_health:
-    mov eax, indexVal
-    shl eax, 2
-    mov edx, OFFSET fortunesHealth
-    add edx, eax
-    mov edx, [edx]          ; edx = fortunesHealth[index]
-    jmp print_fortune
-
-; ===== 統一顯示籤詩 =====
-print_fortune:
-    mov ebx, edx            ; EBX 暫存字串位址
+    ; 顯示籤詩
+    mov ebx, edx               ; EBX 暫存字串位址
 
     mov edx, OFFSET fortuneHeader
     call WriteString
@@ -424,6 +431,8 @@ print_fortune:
     mov edx, ebx
     call WriteString
     call CrLf
+    call CrLf
+    call WaitMsg
 
     exit
 start@0 ENDP

@@ -41,6 +41,85 @@ unsigned int simple_hash(const char *name, const char *birth, const char *zodiac
     return h;
 }
 
+int show_menu() {
+    int choice;
+    printf("\n");
+    printf("+----------------------------+\n");
+    printf("|  測測你今天的運勢          |\n");
+    printf("+----------------------------+\n");
+    printf("| 1. 愛情運勢                |\n");
+    printf("| 2. 金錢運勢                |\n");
+    printf("| 3. 學業運勢                |\n");
+    printf("| 0. 離開                    |\n");
+    printf("+----------------------------+\n");
+    printf("請選擇 (0-3): ");
+    scanf("%d", &choice);
+    getchar(); // 吃掉換行
+    return choice;
+}
+
+// 取得不同類型的籤詩
+void get_fortune(int type, unsigned int hash) {
+    // 愛情運勢
+    const char *love_fortunes[] = {
+        "大吉：今天桃花運爆棚，有機會遇到對的人！",
+        "中吉：感情穩定發展，適合約會。",
+        "小吉：單身者有機會認識新朋友。",
+        "吉：另一半會給你驚喜。",
+        "末吉：感情需要多溝通，別悶著。",
+        "凶：今天別吵架，冷靜點。",
+        "小凶：給彼此一點空間會更好。",
+        "大凶：今天專心工作吧，感情先放一邊。"
+    };
+
+    // 金錢運勢
+    const char *money_fortunes[] = {
+        "大吉：有意外之財，可以小試手氣！",
+        "中吉：收入穩定，可以考慮投資。",
+        "小吉：記得記帳，財運會更好。",
+        "吉：適合談薪水或談生意。",
+        "末吉：不要衝動購物，三思而後行。",
+        "凶：今天錢包看緊一點。",
+        "小凶：避免借錢給別人。",
+        "大凶：今天不適合做重大財務決定。"
+    };
+
+    // 學業運勢
+    const char *study_fortunes[] = {
+        "大吉：今天讀書效率超高，把握時間！",
+        "中吉：適合複習舊的內容，會有新領悟。",
+        "小吉：多和同學討論，會有收穫。",
+        "吉：考試運不錯，保持信心。",
+        "末吉：專注力普通，少滑手機。",
+        "凶：今天適合休息，別硬撐。",
+        "小凶：讀不下書就先放鬆一下。",
+        "大凶：今天不適合熬夜，早點睡！"
+    };
+
+    const char **fortunes;
+    int num_fortunes = 8;
+
+    switch(type) {
+        case 1:
+            fortunes = love_fortunes;
+            printf("\n=== 愛情運勢 ===\n");
+            break;
+        case 2:
+            fortunes = money_fortunes;
+            printf("\n=== 金錢運勢 ===\n");
+            break;
+        case 3:
+            fortunes = study_fortunes;
+            printf("\n=== 學業運勢 ===\n");
+            break;
+        default:
+            return;
+    }
+
+    int index = (int)(hash % num_fortunes);
+    printf("%s\n", fortunes[index]);
+}
+
 // 把整數轉成二進位字串（高位在前）
 void to_binary(unsigned int x, char *out, int bits) {
     for (int i = 0; i < bits; i++) {
@@ -55,6 +134,22 @@ int main(void) {
     char name[MAX_NAME_LEN];
     char birth[MAX_BIRTH_LEN];
     char zodiac[MAX_ZODIAC_LEN];
+
+     // 進入選單循環
+    while(1) {
+        int choice = show_menu();
+        
+        if (choice == 0) {
+            printf("\n感謝使用，掰掰！\n");
+            break;
+        }
+        
+        if (choice >= 1 && choice <= 3) {
+            get_fortune(choice, h);
+        } else {
+            printf("無效的選擇，請重新輸入。\n");
+        }
+    }
 
     printf("=== 個人資料籤詩產生器 ===\n");
     printf("請輸入英文名字: ");
@@ -73,27 +168,21 @@ int main(void) {
     char bin[BITS + 1];
     to_binary(h, bin, BITS);
 
-    printf("\n--- 計算結果 ---\n");
-    printf("Hash 整數值: %u\n", h);
-    printf("Hash 二進位(%d bits): %s\n", BITS, bin);
-
-    // 籤詩列表（你可以改成自己的內容）
-    const char *fortunes[] = {
-        "大吉：今天超適合開始新的計畫。",
-        "中吉：平穩的一天，好好累積實力。",
-        "小吉：多聽別人的建議會有收穫。",
-        "吉：適合跟朋友合作，會有好結果。",
-        "末吉：事情進展慢一點，但不要急。",
-        "凶：先冷靜一下，今天少做重大決定。",
-        "小凶：注意休息，不要太熬夜。",
-        "大凶：先睡一覺，明天會更好。"
-    };
-    const int NUM_FORTUNES = (int)(sizeof(fortunes) / sizeof(fortunes[0]));
-
-    int index = (int)(h % NUM_FORTUNES);
-
-    printf("\n--- 你的籤 ---\n");
-    printf("%s\n", fortunes[index]);
+     // 進入選單循環
+    while(1) {
+        int choice = show_menu();
+        
+        if (choice == 0) {
+            printf("\n感謝使用，掰掰！\n");
+            break;
+        }
+        
+        if (choice >= 1 && choice <= 3) {
+            get_fortune(choice, h);
+        } else {
+            printf("無效的選擇，請重新輸入。\n");
+        }
+    }
 
     return 0;
 }
