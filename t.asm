@@ -4,10 +4,25 @@ MAX_NAME_LEN   EQU 64
 MAX_BIRTH_LEN  EQU 32
 MAX_ZODIAC_LEN EQU 32
 BITS           EQU 16
-NUM_FORTUNES_PER_CAT EQU 24   ; 每類籤詩數量
+NUM_FORTUNES_PER_CAT EQU 24
 
 .data
-promptTitle      BYTE "=== 個人資料籤詩產生器 ===",0
+; ================================
+; 標題和選單 (移到最前面)
+; ================================
+welcomeTitle BYTE "+------------------------------+",0Dh,0Ah,
+             "| 測測你今天的運勢             |",0Dh,0Ah,
+             "+------------------------------+",0Dh,0Ah,0
+
+menuPrompt BYTE "| 1. 愛情運勢                  |",0Dh,0Ah,
+           "| 2. 學業運勢                  |",0Dh,0Ah,
+           "| 3. 健康與財運                |",0Dh,0Ah,
+           "+------------------------------+",0Dh,0Ah,
+           "請輸入 1 / 2 / 3：",0
+
+errorMsg     BYTE 0Dh,0Ah,"[輸入無效！預設為愛情運勢]",0Dh,0Ah,0
+
+promptTitle      BYTE 0Dh,0Ah,"=== 請輸入個人資料 ===",0Dh,0Ah,0
 promptEnterName  BYTE "請輸入英文名字: ",0
 promptEnterBirth BYTE "請輸入生日 (例如 2005-03-14 或 20050314): ",0
 promptEnterZod   BYTE "請輸入星座 (例如 Aries / Taurus / Gemini ...): ",0
@@ -192,25 +207,10 @@ health_worst_2 BYTE "大凶：財運不佳，建議不要做決策。",0
 health_worst_3 BYTE "大凶：身體需要休息，別硬撐。",0
 
 
-; ================================
-; 顯示分類菜單
-; ================================
-menuPrompt BYTE 0Dh,0Ah,0Dh,0Ah,
-           "+------------------------------+",0Dh,0Ah,
-           "|    測測你今天的運勢          |",0Dh,0Ah,
-           "+------------------------------+",0Dh,0Ah,
-           "| 1. 愛情運勢                  |",0Dh,0Ah,
-           "| 2. 學業運勢                  |",0Dh,0Ah,
-           "| 3. 健康與財運                |",0Dh,0Ah,
-           "+------------------------------+",0Dh,0Ah,
-           "請輸入 1 / 2 / 3：",0
+choiceInput BYTE 4 DUP(?)
+choiceVal  DWORD ?
 
-errorMsg     BYTE 0Dh,0Ah,"[輸入無效！預設為愛情運勢]",0Dh,0Ah,0
-
-choiceInput BYTE 4 DUP(?)     ; 暫存使用者輸入
-choiceVal  DWORD ?            ; 1~3
-
-; 跳轉表：對應三種運勢的陣列位址
+; 跳轉表
 fortunesTables DWORD OFFSET fortunesLove, OFFSET fortunesStudy, OFFSET fortunesHealth
 
 ; 緩衝區與變數
@@ -226,10 +226,46 @@ indexVal  DWORD ?
 start@0 PROC
     call Clrscr
 
-    ; 顯示標題
+    ;---------------------------------------
+    ; 1. 先顯示選單
+    ;---------------------------------------
+    mov edx, OFFSET welcomeTitle
+    call WriteString
+    
+    mov edx, OFFSET menuPrompt
+    call WriteString
+
+    ; 讀入使用者選擇 (1/2/3)
+    mov edx, OFFSET choiceInput
+    mov ecx, 4
+    call ReadString
+
+    ; choiceVal = choiceInput[0] - '0'
+    mov dl, BYTE PTR choiceInput
+    sub dl, '0'
+    movzx eax, dl
+    mov choiceVal, eax
+
+    ; 驗證輸入範圍 (1~3)
+    cmp eax, 1
+    jl  invalid_choice
+    cmp eax, 3
+    jg  invalid_choice
+    jmp valid_choice
+
+invalid_choice:
+    mov edx, OFFSET errorMsg
+    call WriteString
+    mov choiceVal, 1        ; 預設為愛情運勢
+
+valid_choice:
+    ;---------------------------------------
+    ; 2. 顯示個人資料輸入提示
+    ;---------------------------------------
+    call Clrscr;
+
     mov edx, OFFSET promptTitle
     call WriteString
-    call CrLf
 
     ; 輸入名字
     mov edx, OFFSET promptEnterName
@@ -253,12 +289,10 @@ start@0 PROC
     call ReadString
 
     ;---------------------------------------
-    ; simple_hash: h = 0; P = 131;
-    ; 對 name / birth / zodiac 每字元做：
-    ;   h = h * 131 + (unsigned char)c
+    ; 3. Hash 計算
     ;---------------------------------------
-    xor eax, eax          ; EAX = h = 0
-    mov ebx, 131          ; EBX = P
+    xor eax, eax
+    mov ebx, 131
 
     ; hash nameBuf
     mov esi, OFFSET nameBuf
@@ -266,13 +300,12 @@ hash_name_loop:
     mov dl, [esi]
     cmp dl, 0
     je  hash_birth_start
-    imul eax, ebx         ; h = h * 131
+    imul eax, ebx
     movzx edx, dl
-    add eax, edx          ; h += (unsigned char)c
+    add eax, edx
     inc esi
     jmp hash_name_loop
 
-    ; hash birthBuf
 hash_birth_start:
     mov esi, OFFSET birthBuf
 hash_birth_loop:
@@ -285,7 +318,6 @@ hash_birth_loop:
     inc esi
     jmp hash_birth_loop
 
-    ; hash zodiacBuf
 hash_zod_start:
     mov esi, OFFSET zodiacBuf
 hash_zod_loop:
@@ -299,19 +331,19 @@ hash_zod_loop:
     jmp hash_zod_loop
 
 hash_done:
-    mov hashVal, eax      ; 存 hash 結果
+    mov hashVal, eax
 
+    call Clrscr
     ;---------------------------------------
-    ; to_binary: 把 hashVal 轉成 16-bit 0/1 字串到 binBuf
+    ; 4. 二進位轉換
     ;---------------------------------------
-    mov eax, hashVal      ; x
-    mov edi, OFFSET binBuf ; out 指標
-    mov ecx, BITS         ; bits = 16
+    mov eax, hashVal
+    mov edi, OFFSET binBuf
+    mov ecx, BITS
 
-    ; 先算出 mask = 1 << (BITS - 1)
     mov ebx, 1
     mov edx, BITS
-    dec edx               ; edx = bits - 1
+    dec edx
 mask_build_loop:
     cmp edx, 0
     jle mask_ready
@@ -319,10 +351,9 @@ mask_build_loop:
     dec edx
     jmp mask_build_loop
 mask_ready:
-    ; EBX = mask (最高位)
 
-    xor esi, esi          ; i = 0
-    mov edx, BITS         ; remaining bits count
+    xor esi, esi
+    mov edx, BITS
 
 bit_loop:
     cmp edx, 0
@@ -337,93 +368,43 @@ bit_zero:
     mov BYTE PTR [edi+esi], '0'
 
 bit_next:
-    shr ebx, 1            ; mask >>= 1
-    inc esi               ; i++
-    dec edx               ; remaining--
+    shr ebx, 1
+    inc esi
+    dec edx
     jmp bit_loop
 
 bits_done:
-    mov BYTE PTR [edi+esi], 0   ; 字串終止符號
+    mov BYTE PTR [edi+esi], 0
+
 
     ;---------------------------------------
-    ; 顯示 hash 結果
-    ;---------------------------------------
-    mov edx, OFFSET resultHeader
-    call WriteString
-
-    ; Hash 整數值:
-    mov edx, OFFSET hashIntMsg
-    call WriteString
-    mov eax, hashVal
-    call WriteDec
-    call CrLf
-
-    ; Hash 二進位:
-    mov edx, OFFSET hashBinMsg
-    call WriteString
-    mov edx, OFFSET binBuf
-    call WriteString
-    call CrLf
-
-    ;---------------------------------------
-    ; 顯示分類選單：1=愛情, 2=學業, 3=健康與財運
-    ;---------------------------------------
-    mov edx, OFFSET menuPrompt
-    call WriteString
-
-    ; 讀入使用者輸入 (1/2/3)
-    mov edx, OFFSET choiceInput
-    mov ecx, 4
-    call ReadString
-
-    ; choiceVal = choiceInput[0] - '0'
-    mov dl, BYTE PTR choiceInput
-    sub dl, '0'
-    movzx eax, dl
-    mov choiceVal, eax      ; 1 / 2 / 3
-
-    ;---------------------------------------
-    ; 驗證輸入範圍 (1~3)
-    ;---------------------------------------
-    cmp eax, 1
-    jl  invalid_choice      ; < 1
-    cmp eax, 3
-    jg  invalid_choice      ; > 3
-    jmp valid_choice
-
-invalid_choice:
-    mov edx, OFFSET errorMsg
-    call WriteString
-    mov choiceVal, 1        ; 預設為愛情運勢
-
-valid_choice:
-    ;---------------------------------------
-    ; index = hashVal % 24  (每類 24 筆籤)
+    ; 6. 計算籤詩索引
     ;---------------------------------------
     mov eax, hashVal
     mov ebx, NUM_FORTUNES_PER_CAT
     cdq
-    idiv ebx                ; 商在 EAX, 餘數在 EDX
-    mov indexVal, edx       ; 0..23
+    idiv ebx
+    mov indexVal, edx
 
     ;---------------------------------------
-    ; 使用跳轉表選擇運勢陣列
+    ; 7. 使用跳轉表選擇運勢陣列
     ;---------------------------------------
     mov eax, choiceVal
-    dec eax                    ; 1->0, 2->1, 3->2
-    shl eax, 2                 ; *4 (DWORD)
+    dec eax
+    shl eax, 2
     mov edx, OFFSET fortunesTables
     add edx, eax
-    mov edx, [edx]             ; 取得對應的 fortunes 陣列位址
+    mov edx, [edx]
 
-    ; 計算該籤詩在陣列中的位置
     mov eax, indexVal
-    shl eax, 2                 ; *4
+    shl eax, 2
     add edx, eax
-    mov edx, [edx]             ; 取得籤詩字串位址
+    mov edx, [edx]
 
-    ; 顯示籤詩
-    mov ebx, edx               ; EBX 暫存字串位址
+    ;---------------------------------------
+    ; 8. 顯示籤詩
+    ;---------------------------------------
+    mov ebx, edx
 
     mov edx, OFFSET fortuneHeader
     call WriteString
