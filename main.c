@@ -7,7 +7,7 @@
 #define BITS           16   // 要輸出幾個 bits，可以改成 32 之類
 
 // 簡單讀一行，去掉最後的 '\n'
-void read_line(char buf, int size) {
+void read_line(char *buf, int size) {
     if (fgets(buf, size, stdin) != NULL) {
         int len = (int)strlen(buf);
         if (len > 0 && buf[len - 1] == '\n') {
@@ -17,24 +17,24 @@ void read_line(char buf, int size) {
 }
 
 // 簡單 hash：把 name / birthday / zodiac 串起來走一遍
-unsigned int simple_hash(const charname, const char birth, const charzodiac) {
+unsigned int simple_hash(const char *name, const char *birth, const char *zodiac) {
     unsigned int h = 0;
     const unsigned int P = 131;  // 一個隨便選的質數
 
-    const char p;
+    const char *p;
 
     // 先吃名字
-    for (p = name;p != '\0'; p++) {
-        h = h * P + (unsigned char)(p);
+    for (p = name;*p != '\0'; p++) {
+        h = h * P + (unsigned char)(*p);
     }
 
     // 再吃生日
-    for (p = birth;p != '\0'; p++) {
-        h = h * P + (unsigned char)(p);
+    for (p = birth;*p != '\0'; p++) {
+        h = h * P + (unsigned char)(*p);
     }
 
     // 再吃星座
-    for (p = zodiac;p != '\0'; p++) {
+    for (p = zodiac;*p != '\0'; p++) {
         h = h * P + (unsigned char)(*p);
     }
 
@@ -42,7 +42,7 @@ unsigned int simple_hash(const charname, const char birth, const charzodiac) {
 }
 
 // 把整數轉成二進位字串（高位在前）
-void to_binary(unsigned int x, char out, int bits) {
+void to_binary(unsigned int x, char *out, int bits) {
     for (int i = 0; i < bits; i++) {
         // 從最高位開始取
         unsigned int mask = 1u << (bits - 1 - i);
@@ -78,7 +78,7 @@ int main(void) {
     printf("Hash 二進位(%d bits): %s\n", BITS, bin);
 
     // 籤詩列表（你可以改成自己的內容）
-    const charfortunes[] = {
+    const char *fortunes[] = {
         "大吉：今天超適合開始新的計畫。",
         "中吉：平穩的一天，好好累積實力。",
         "小吉：多聽別人的建議會有收穫。",
