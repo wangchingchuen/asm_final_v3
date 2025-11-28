@@ -220,20 +220,258 @@ zodiacBuf BYTE MAX_ZODIAC_LEN DUP(?)
 binBuf    BYTE BITS+1 DUP(?)
 
 hashVal   DWORD ?
-indexVal  DWORD ?
+indexVal  DWORD ?; ================================
+; 動畫用字串
+; ================================
+introStars BYTE \
+"            *        *        *",0Dh,0Ah,\
+"      *         今日運勢占卜        *",0Dh,0Ah,\
+"  *        *        *       *   ",0Dh,0Ah,0
+
+loadingMsg BYTE 0Dh,0Ah,"抽籤中，請稍候...",0
+
+progressMsg BYTE 0Dh,0Ah,"抽籤進度：",0
+
+fireFrame1 BYTE \
+"           .            ",0Dh,0Ah,\
+0Dh,0Ah,\
+0Dh,0Ah,0
+
+fireFrame2 BYTE \
+"           *            ",0Dh,0Ah,\
+"          * *           ",0Dh,0Ah,\
+0Dh,0Ah,0
+
+fireFrame3 BYTE \
+"        .  *  .         ",0Dh,0Ah,\
+"       *  ***  *        ",0Dh,0Ah,\
+"        .  *  .         ",0Dh,0Ah,0
+
+heartFrame BYTE \
+"      **     **         ",0Dh,0Ah,\
+"     ****   ****        ",0Dh,0Ah,\
+"     ****** *****       ",0Dh,0Ah,\
+"      *********         ",0Dh,0Ah,\
+"        *****           ",0Dh,0Ah,\
+"          *             ",0Dh,0Ah,0
+
+
+.code
+
+; ==================================================
+; 動畫工具：打字機效果
+;  呼叫前：
+;    EDX = 字串位址
+;    ECX = 每個字延遲毫秒 (例如 20~60)
+; ==================================================
+Typewriter PROC USES eax ebx edx esi
+    mov esi, edx       ; esi 指向字串
+    mov ebx, ecx       ; delay 存到 ebx
+
+NextChar:
+    mov al, [esi]
+    cmp al, 0
+    je  Done
+
+    call WriteChar     ; WriteChar 用 AL
+
+    mov eax, ebx
+    call Delay
+
+    inc esi
+    jmp NextChar
+
+Done:
+    ret
+Typewriter ENDP
+
+; ==================================================
+; 旋轉棒 Loading 動畫
+;  顯示類似：| / - \ 轉圈
+; ==================================================
+Spinner PROC USES eax ecx
+    mov ecx, 10        ; 轉 10 圈，可自行調整
+
+spin_loop:
+    ; |
+    mov al, '|'
+    call WriteChar
+    mov eax, 60
+    call Delay
+    mov al, 8          ; Backspace
+    call WriteChar
+
+    ; /
+    mov al, '/'
+    call WriteChar
+    mov eax, 60
+    call Delay
+    mov al, 8
+    call WriteChar
+
+    ; -
+    mov al, '-'
+    call WriteChar
+    mov eax, 60
+    call Delay
+    mov al, 8
+    call WriteChar
+
+    ; \
+    mov al, '\'
+    call WriteChar
+    mov eax, 60
+    call Delay
+    mov al, 8
+    call WriteChar
+
+    loop spin_loop
+    ret
+Spinner ENDP
+
+
+; ==================================================
+; 簡單進度條動畫：[##########] 100%
+; 每一格都畫在「新的一行」，不做光標回朔，超安全版本
+; ==================================================
+ProgressBar PROC USES eax ebx ecx edx esi
+
+    mov esi, 0              ; esi = 已填格數 (0..10)
+
+bar_loop:
+    cmp esi, 11
+    jge bar_done            ; 跑到 0~10 共 11 步，最後是 100%
+
+    ; 顯示「抽籤進度：」
+    mov edx, OFFSET progressMsg
+    call WriteString
+
+    ; 印 [
+    mov al, '['
+    call WriteChar
+
+    ; 已填滿部分（'#'）
+    mov ecx, esi
+filled_loop:
+    cmp ecx, 0
+    je filled_done
+    mov al, '#'
+    call WriteChar
+    dec ecx
+    jmp filled_loop
+filled_done:
+
+    ; 未填滿部分（空白）
+    mov ecx, 10
+    sub ecx, esi
+empty_loop:
+    cmp ecx, 0
+    je empty_done
+    mov al, ' '
+    call WriteChar
+    dec ecx
+    jmp empty_loop
+empty_done:
+
+    ; 印 ]
+    mov al, ']'
+    call WriteChar
+
+    ; 空格
+    mov al, ' '
+    call WriteChar
+
+    ; 百分比 = esi * 10
+    mov eax, esi
+    mov ebx, 10
+    mul ebx          ; EDX:EAX = EAX * 10，這裡數字小，EDX 會是 0
+    call WriteDec
+
+    mov al, '%'
+    call WriteChar
+
+    call CrLf        ; 換下一行顯示下一個進度
+
+    ; 延遲一下
+    mov eax, 150
+    call Delay
+
+    inc esi
+    jmp bar_loop
+
+bar_done:
+    ret
+ProgressBar ENDP
+
+; ==================================================
+; 抽完籤後的小煙火 + 愛心動畫
+; ==================================================
+FireworkAndHeart PROC USES eax edx
+    ; 煙火 frame 1
+    call Clrscr
+    mov edx, OFFSET fireFrame1
+    call WriteString
+    mov eax, 200
+    call Delay
+
+    ; frame 2
+    call Clrscr
+    mov edx, OFFSET fireFrame2
+    call WriteString
+    mov eax, 200
+    call Delay
+
+    ; frame 3
+    call Clrscr
+    mov edx, OFFSET fireFrame3
+    call WriteString
+    mov eax, 300
+    call Delay
+
+    ; 愛心
+    call Clrscr
+    mov edx, OFFSET heartFrame
+    call WriteString
+    mov eax, 500
+    call Delay
+
+    ret
+FireworkAndHeart ENDP
+
+
+; ==================================================
+; 開場星星 + 標題打字
+; ==================================================
+IntroScreen PROC USES eax edx ecx
+    call Clrscr
+
+    ; 星星背景
+    mov edx, OFFSET introStars
+    mov ecx, 10          ; 打字速度較快
+    call Typewriter
+
+    call CrLf
+    call CrLf
+
+    ; 原本的邊框標題也用打字機印出
+    mov edx, OFFSET welcomeTitle
+    mov ecx, 10
+    call Typewriter
+
+    ret
+IntroScreen ENDP
 
 .code
 start@0 PROC
-    call Clrscr
+    ;---------------------------------------
+    ; 1. 開場動畫 + 選單
+    ;---------------------------------------
+    call IntroScreen      ; 會清屏＋印星星＋標題
 
-    ;---------------------------------------
-    ; 1. 先顯示選單
-    ;---------------------------------------
-    mov edx, OFFSET welcomeTitle
-    call WriteString
-    
+    ; 顯示選單，用打字機印
     mov edx, OFFSET menuPrompt
-    call WriteString
+    mov ecx, 5           ; 比較快一點
+    call Typewriter
 
     ; 讀入使用者選擇 (1/2/3)
     mov edx, OFFSET choiceInput
@@ -262,7 +500,7 @@ valid_choice:
     ;---------------------------------------
     ; 2. 顯示個人資料輸入提示
     ;---------------------------------------
-    call Clrscr;
+    call Clrscr
 
     mov edx, OFFSET promptTitle
     call WriteString
@@ -289,7 +527,7 @@ valid_choice:
     call ReadString
 
     ;---------------------------------------
-    ; 3. Hash 計算
+    ; 3. Hash 計算 (沿用你的原本邏輯)
     ;---------------------------------------
     xor eax, eax
     mov ebx, 131
@@ -333,10 +571,11 @@ hash_zod_loop:
 hash_done:
     mov hashVal, eax
 
+    ;---------------------------------------
+    ; 4. 二進位轉換 (你的原本做法，可保留)
+    ;---------------------------------------
     call Clrscr
-    ;---------------------------------------
-    ; 4. 二進位轉換
-    ;---------------------------------------
+
     mov eax, hashVal
     mov edi, OFFSET binBuf
     mov ecx, BITS
@@ -376,45 +615,77 @@ bit_next:
 bits_done:
     mov BYTE PTR [edi+esi], 0
 
+    ;---------------------------------------
+    ; 5. 顯示 Hash 結果（讓玩家感覺有過程）
+    ;---------------------------------------
+    mov edx, OFFSET resultHeader
+    call WriteString
+
+    mov edx, OFFSET hashIntMsg
+    call WriteString
+    mov eax, hashVal
+    call WriteDec
+    call CrLf
+
+    mov edx, OFFSET hashBinMsg
+    call WriteString
+    mov edx, OFFSET binBuf
+    call WriteString
+    call CrLf
 
     ;---------------------------------------
-    ; 6. 計算籤詩索引
+    ; 6. 抽籤動畫：Loading + 旋轉棒 + 進度條
+    ;---------------------------------------
+    mov edx, OFFSET loadingMsg
+    call WriteString
+    call Spinner
+    call ProgressBar
+
+
+    ;---------------------------------------
+    ; 7. 計算籤詩索引
     ;---------------------------------------
     mov eax, hashVal
     mov ebx, NUM_FORTUNES_PER_CAT
-    cdq
-    idiv ebx
-    mov indexVal, edx
+    ; 建議用 unsigned div，避免負數問題
+    xor edx, edx
+    div ebx
+    mov indexVal, edx          ; 0 ~ NUM_FORTUNES_PER_CAT-1
 
     ;---------------------------------------
-    ; 7. 使用跳轉表選擇運勢陣列
+    ; 8. 使用跳轉表選擇運勢陣列
     ;---------------------------------------
     mov eax, choiceVal
     dec eax
     shl eax, 2
     mov edx, OFFSET fortunesTables
     add edx, eax
-    mov edx, [edx]
+    mov edx, [edx]             ; edx = 該分類 fortunes 陣列起始
 
     mov eax, indexVal
     shl eax, 2
     add edx, eax
-    mov edx, [edx]
+    mov edx, [edx]             ; edx = 最終選到的籤詩字串位址
 
     ;---------------------------------------
-    ; 8. 顯示籤詩
+    ; 9. 顯示籤詩（打字機效果）
     ;---------------------------------------
-    mov ebx, edx
+    call Clrscr
+    mov ebx, edx               ; 先存起來
 
     mov edx, OFFSET fortuneHeader
     call WriteString
 
-    mov edx, ebx
-    call WriteString
+    mov edx, ebx               ; 籤詩位址
+    mov ecx, 30                ; 打字稍微慢一點
+    call Typewriter
     call CrLf
     call CrLf
-    call WaitMsg
 
+    ; 小煙火 + 愛心動畫
+    call FireworkAndHeart
+
+    call WaitMsg
     exit
 start@0 ENDP
 
