@@ -8,21 +8,34 @@ NUM_FORTUNES_PER_CAT EQU 24
 
 .data
 ESC_CODE EQU 27
+pressRightMsg BYTE 0Dh, 0Ah, "按右鍵繼續...", 0
+progressInit BYTE 0Dh, 0Ah, "抽籤進度：", 0
+barBlock     BYTE "█", 0
+pctBack      BYTE ESC_CODE, "[4D", 0     ; 往左 4 格覆蓋百分比
+setLoveBg    BYTE ESC_CODE, "[48;2;235;214;214;30m", 0   ; #EBD6D6 粉色
+setStudyBg   BYTE ESC_CODE, "[48;2;196;225;225;30m", 0   ; #C4E1E1 青色
+setHealthBg  BYTE ESC_CODE, "[48;2;255;248;215;30m", 0   ; #FFF8D7 黃色
+
+currentBg    DWORD 0    ; 0=白色, 1=粉色, 2=青色, 3=黃色
+; 白底黑字設定
+setWhiteBg   BYTE ESC_CODE, "[47;30m", 0
+clearAll     BYTE ESC_CODE, "[2J", ESC_CODE, "[H", 0
+resetColor   BYTE ESC_CODE, "[0m", 0
 ; ================================
 ; 愛心
 ; ================================
-love_heart1  BYTE ESC_CODE, "[38;5;213m", "      ░░░░░      ░░░░░      ", ESC_CODE, "[0m", 0Dh, 0Ah, 0
-love_heart2  BYTE ESC_CODE, "[38;5;218m", "    ░░▒▒▒▒░░    ░░▒▒▒▒░░    ", ESC_CODE, "[0m", 0Dh, 0Ah, 0
-love_heart3  BYTE ESC_CODE, "[38;5;219m", "   ░▒▒▓▓▓▓▒▒░░░░▒▒▓▓▓▓▒▒░   ", ESC_CODE, "[0m", 0Dh, 0Ah, 0
-love_heart4  BYTE ESC_CODE, "[38;5;197m", "  ░▒▓▓████▓▓▒▒▒▒▓▓████▓▓▒░  ", ESC_CODE, "[0m", 0Dh, 0Ah, 0
-love_heart5  BYTE ESC_CODE, "[38;5;198m", "  ░▒▓███████▓▓▓▓███████▓▒░  ", ESC_CODE, "[0m", 0Dh, 0Ah, 0
-love_heart6  BYTE ESC_CODE, "[38;5;199m", "  ░▒▓████████████████▓▓▒░  ", ESC_CODE, "[0m", 0Dh, 0Ah, 0
-love_heart7  BYTE ESC_CODE, "[38;5;200m", "   ░▒▓██████████████▓▓▒░   ", ESC_CODE, "[0m", 0Dh, 0Ah, 0
-love_heart8  BYTE ESC_CODE, "[38;5;201m", "    ░▒▓████████████▓▒░    ", ESC_CODE, "[0m", 0Dh, 0Ah, 0
-love_heart9  BYTE ESC_CODE, "[38;5;213m", "     ░▒▓██████████▓▒░     ", ESC_CODE, "[0m", 0Dh, 0Ah, 0
-love_heart10 BYTE ESC_CODE, "[38;5;218m", "       ░▒▓██████▓▒░       ", ESC_CODE, "[0m", 0Dh, 0Ah, 0
-love_heart11 BYTE ESC_CODE, "[38;5;219m", "        ░▒▓████▓▒░        ", ESC_CODE, "[0m", 0Dh, 0Ah, 0
-love_heart12 BYTE ESC_CODE, "[38;5;225m", "          ░▒▓▓▒░          ", ESC_CODE, "[0m", 0Dh, 0Ah, 0
+love_heart1  BYTE ESC_CODE, "[38;5;213m", "      ░░░░░      ░░░░░      ", ESC_CODE, "[0;48;2;235;214;214;30m", 0Dh, 0Ah, 0
+love_heart2  BYTE ESC_CODE, "[38;5;218m", "    ░░▒▒▒▒░░    ░░▒▒▒▒░░    ", ESC_CODE, "[0;48;2;235;214;214;30m", 0Dh, 0Ah, 0
+love_heart3  BYTE ESC_CODE, "[38;5;219m", "   ░▒▒▓▓▓▓▒▒░░░░▒▒▓▓▓▓▒▒░   ", ESC_CODE, "[0;48;2;235;214;214;30m", 0Dh, 0Ah, 0
+love_heart4  BYTE ESC_CODE, "[38;5;197m", "  ░▒▓▓████▓▓▒▒▒▒▓▓████▓▓▒░  ", ESC_CODE, "[0;48;2;235;214;214;30m", 0Dh, 0Ah, 0
+love_heart5  BYTE ESC_CODE, "[38;5;198m", "  ░▒▓███████▓▓▓▓███████▓▒░  ", ESC_CODE, "[0;48;2;235;214;214;30m", 0Dh, 0Ah, 0
+love_heart6  BYTE ESC_CODE, "[38;5;199m", "  ░▒▓████████████████▓▓▒░  ", ESC_CODE, "[0;48;2;235;214;214;30m", 0Dh, 0Ah, 0
+love_heart7  BYTE ESC_CODE, "[38;5;200m", "   ░▒▓██████████████▓▓▒░   ", ESC_CODE, "[0;48;2;235;214;214;30m", 0Dh, 0Ah, 0
+love_heart8  BYTE ESC_CODE, "[38;5;201m", "    ░▒▓████████████▓▒░    ", ESC_CODE, "[0;48;2;235;214;214;30m", 0Dh, 0Ah, 0
+love_heart9  BYTE ESC_CODE, "[38;5;213m", "     ░▒▓██████████▓▒░     ", ESC_CODE, "[0;48;2;235;214;214;30m", 0Dh, 0Ah, 0
+love_heart10 BYTE ESC_CODE, "[38;5;218m", "       ░▒▓██████▓▒░       ", ESC_CODE, "[0;48;2;235;214;214;30m", 0Dh, 0Ah, 0
+love_heart11 BYTE ESC_CODE, "[38;5;219m", "        ░▒▓████▓▒░        ", ESC_CODE, "[0;48;2;235;214;214;30m", 0Dh, 0Ah, 0
+love_heart12 BYTE ESC_CODE, "[38;5;225m", "          ░▒▓▓▒░          ", ESC_CODE, "[0;48;2;235;214;214;30m", 0Dh, 0Ah, 0
 
 ; ================================
 ; 標題和選單
@@ -216,8 +229,6 @@ introStars BYTE \
 
 loadingMsg BYTE 0Dh,0Ah,"抽籤中，請稍候...",0
 
-progressMsg BYTE 0Dh,0Ah,"抽籤進度：",0
-
 fireFrame1 BYTE \
 "           .            ",0Dh,0Ah,\
 0Dh,0Ah,\
@@ -243,12 +254,36 @@ heartFrame BYTE \
 
 .code
 
+WaitRightKey PROC USES eax
+wait_loop:
+    call ReadKey
+    cmp ah, 77        ; 右鍵的 scan code
+    jne wait_loop
+    ret
+WaitRightKey ENDP
+
+SetWhiteBackground PROC
+    mov edx, OFFSET setWhiteBg
+    call WriteString
+    mov edx, OFFSET clearAll
+    call WriteString
+    ret
+SetWhiteBackground ENDP
+
+ResetColors PROC
+    mov edx, OFFSET resetColor
+    call WriteString
+    ret
+ResetColors ENDP
+
 
 ; ==================================================
 ; 顯示愛心
 ; ==================================================
 show_love_heart PROC
-    call Clrscr
+    mov edx, OFFSET setLoveBg
+    call WriteString
+    call ClearWithBg
     
     mov edx, OFFSET love_heart1
     call WriteString
@@ -345,63 +380,113 @@ Spinner ENDP
 ; 進度條動畫
 ; ==================================================
 ProgressBar PROC USES eax ebx ecx edx esi
-
-    mov esi, 0
-
-bar_loop:
-    cmp esi, 11
-    jge bar_done
-
-    mov edx, OFFSET progressMsg
+    ; 印出標題
+    mov edx, OFFSET progressInit
     call WriteString
-
-    mov al, '['
-    call WriteChar
-
-    mov ecx, esi
-filled_loop:
+    
+    ; 印出 20 個空白 + "  0%"
+    mov ecx, 20
+init_space:
     cmp ecx, 0
-    je filled_done
-    mov al, '#'
-    call WriteChar
-    dec ecx
-    jmp filled_loop
-filled_done:
-
-    mov ecx, 10
-    sub ecx, esi
-empty_loop:
-    cmp ecx, 0
-    je empty_done
+    je init_space_done
     mov al, ' '
     call WriteChar
     dec ecx
-    jmp empty_loop
-empty_done:
-
-    mov al, ']'
-    call WriteChar
-
+    jmp init_space
+init_space_done:
     mov al, ' '
     call WriteChar
-
-    mov eax, esi
-    mov ebx, 10
-    mul ebx
-    call WriteDec
-
+    mov al, ' '
+    call WriteChar
+    mov al, '0'
+    call WriteChar
     mov al, '%'
     call WriteChar
+    
+    mov esi, 1
 
-    call CrLf
+bar_loop:
+    cmp esi, 20
+    jg bar_done
+    
+    ; 往左移 24 格（回到進度條最左邊）
+    mov ecx, 24
+go_back:
+    cmp ecx, 0
+    je go_back_done
+    mov al, 8
+    call WriteChar
+    dec ecx
+    jmp go_back
+go_back_done:
+    
+    ; 印方塊
+    mov ecx, esi
+fill_loop:
+    cmp ecx, 0
+    je fill_done
+    mov edx, OFFSET barBlock
+    call WriteString
+    dec ecx
+    jmp fill_loop
+fill_done:
 
-    mov eax, 150
+    ; 印空白補滿到 20 格
+    mov ecx, 20
+    sub ecx, esi
+space_loop:
+    cmp ecx, 0
+    je space_done
+    mov al, ' '
+    call WriteChar
+    dec ecx
+    jmp space_loop
+space_done:
+
+    ; 印固定寬度百分比 (4 字元: 空白+數字+%)
+    mov eax, esi
+    mov ebx, 5
+    mul ebx              ; eax = 百分比
+    
+    cmp eax, 100
+    jge print_pct
+    cmp eax, 10
+    jge one_space
+    ; 一位數，印兩個空白
+    push eax
+    mov al, ' '
+    call WriteChar
+    mov al, ' '
+    call WriteChar
+    pop eax
+    jmp print_pct
+one_space:
+    ; 兩位數，印一個空白
+    push eax
+    mov al, ' '
+    call WriteChar
+    pop eax
+print_pct:
+    call WriteDec
+    mov al, '%'
+    call WriteChar
+    
+    ; 判斷是否到 100%
+    cmp esi, 20
+    jne normal_delay
+    ; 100% 停 2 秒
+    mov eax, 2000
     call Delay
-
+    jmp bar_done
+normal_delay:
+    mov eax, 100
+    call Delay
+    
     inc esi
     jmp bar_loop
 
 bar_done:
+    call CrLf
     ret
 ProgressBar ENDP
 
@@ -409,25 +494,25 @@ ProgressBar ENDP
 ; 煙火 + 愛心動畫
 ; ==================================================
 FireworkAndHeart PROC USES eax edx
-    call Clrscr
+    call ClearWithBg
     mov edx, OFFSET fireFrame1
     call WriteString
     mov eax, 200
     call Delay
 
-    call Clrscr
+    call ClearWithBg
     mov edx, OFFSET fireFrame2
     call WriteString
     mov eax, 200
     call Delay
 
-    call Clrscr
+    call ClearWithBg
     mov edx, OFFSET fireFrame3
     call WriteString
     mov eax, 300
     call Delay
 
-    call Clrscr
+    call ClearWithBg
     mov edx, OFFSET heartFrame
     call WriteString
     mov eax, 500
@@ -440,7 +525,7 @@ FireworkAndHeart ENDP
 ; 開場星星 + 標題打字
 ; ==================================================
 IntroScreen PROC USES eax edx ecx
-    call Clrscr
+    call ClearWithBg
 
     mov edx, OFFSET introStars
     mov ecx, 10
@@ -456,10 +541,44 @@ IntroScreen PROC USES eax edx ecx
     ret
 IntroScreen ENDP
 
+SetLoveBackground PROC
+    mov edx, OFFSET setLoveBg
+    call WriteString
+    mov edx, OFFSET clearAll
+    call WriteString
+    ret
+SetLoveBackground ENDP
+
+ClearWithBg PROC
+    cmp currentBg, 1
+    je use_love_bg
+    cmp currentBg, 2
+    je use_study_bg
+    cmp currentBg, 3
+    je use_health_bg
+    ; 預設白色背景
+    mov edx, OFFSET setWhiteBg
+    jmp do_clear
+use_love_bg:
+    mov edx, OFFSET setLoveBg
+    jmp do_clear
+use_study_bg:
+    mov edx, OFFSET setStudyBg
+    jmp do_clear
+use_health_bg:
+    mov edx, OFFSET setHealthBg
+do_clear:
+    call WriteString
+    mov edx, OFFSET clearAll
+    call WriteString
+    ret
+ClearWithBg ENDP
+
 ; ==================================================
 ; 主程式
 ; ==================================================
 start@0 PROC
+    call SetWhiteBackground
     ;---------------------------------------
     ; 2. 開場動畫 + 選單
     ;---------------------------------------
@@ -491,10 +610,23 @@ invalid_choice:
     mov choiceVal, 1
 
 valid_choice:
+  mov eax, choiceVal
+    mov currentBg, eax    ; 直接用 1/2/3 當旗標
+
+    call ClearWithBg      ; 立即切換背景
+
+; 如果選擇愛情運勢，切換粉色背景
+    cmp choiceVal, 1
+    jne skip_love_bg
+    mov edx, OFFSET setLoveBg
+    call WriteString
+    mov edx, OFFSET clearAll
+    call WriteString
+skip_love_bg:
     ;---------------------------------------
     ; 3. 輸入個人資料
     ;---------------------------------------
-    call Clrscr
+    call ClearWithBg
 
     mov edx, OFFSET promptTitle
     call WriteString
@@ -564,7 +696,7 @@ hash_done:
     ;---------------------------------------
     ; 5. 二進位轉換
     ;---------------------------------------
-    call Clrscr
+    call ClearWithBg
 
     mov eax, hashVal
     mov edi, OFFSET binBuf
@@ -674,7 +806,7 @@ skip_heart:
     ;---------------------------------------
     ; 11. 顯示籤詩
     ;---------------------------------------
-    call Clrscr
+    call ClearWithBg
 
     mov edx, OFFSET fortuneHeader
     call WriteString
@@ -683,10 +815,14 @@ skip_heart:
     mov ecx, 30
     call Typewriter
     call CrLf
+    
+    mov edx, OFFSET pressRightMsg
+    call WriteString
+    call WaitRightKey
+    
     call CrLf
 
     call FireworkAndHeart
-
     call WaitMsg
     exit
 start@0 ENDP
