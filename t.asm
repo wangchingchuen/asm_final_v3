@@ -8,6 +8,31 @@ NUM_FORTUNES_PER_CAT EQU 24
 
 .data
 ESC_CODE EQU 27
+zodiacMenu BYTE 0Dh, 0Ah, "請選擇星座 (上下鍵選擇，Enter確認)：", 0Dh, 0Ah, 0
+
+zodiac1  BYTE "Aries", 0
+zodiac2  BYTE "Taurus", 0
+zodiac3  BYTE "Gemini", 0
+zodiac4  BYTE "Cancer", 0
+zodiac5  BYTE "Leo", 0
+zodiac6  BYTE "Virgo", 0
+zodiac7  BYTE "Libra", 0
+zodiac8  BYTE "Scorpio", 0
+zodiac9  BYTE "Sagittarius", 0
+zodiac10 BYTE "Capricorn", 0
+zodiac11 BYTE "Aquarius", 0
+zodiac12 BYTE "Pisces", 0
+
+zodiacList DWORD OFFSET zodiac1, OFFSET zodiac2, OFFSET zodiac3
+           DWORD OFFSET zodiac4, OFFSET zodiac5, OFFSET zodiac6
+           DWORD OFFSET zodiac7, OFFSET zodiac8, OFFSET zodiac9
+           DWORD OFFSET zodiac10, OFFSET zodiac11, OFFSET zodiac12
+
+zodiacSel  DWORD 0           ; 目前選擇 (0-11)
+arrowMark  BYTE "> ", 0
+spaceMark  BYTE "  ", 0
+clearLine  BYTE ESC_CODE, "[K", 0    ; 清除該行
+cursorUp12 BYTE ESC_CODE, "[12A", 0  ; 游標上移 12 行
 pressRightMsg BYTE 0Dh, 0Ah, "按右鍵繼續...", 0
 progressInit BYTE 0Dh, 0Ah, "抽籤進度：", 0
 barBlock     BYTE "█", 0
@@ -253,6 +278,104 @@ heartFrame BYTE \
 "          *             ",0Dh,0Ah,0
 
 .code
+
+SelectZodiac PROC USES eax ebx ecx edx esi
+    mov zodiacSel, 0
+    
+    ; 印出選單標題
+    mov edx, OFFSET zodiacMenu
+    call WriteString
+    
+    ; 印出 12 個星座
+    call DrawZodiacList
+
+select_loop:
+    call ReadKey
+    
+    cmp ah, 72        ; 上鍵
+    je go_up
+    cmp ah, 80        ; 下鍵
+    je go_down
+    cmp al, 13        ; Enter
+    je select_done
+    jmp select_loop
+
+go_up:
+    cmp zodiacSel, 0
+    je select_loop
+    dec zodiacSel
+    call DrawZodiacList
+    jmp select_loop
+
+go_down:
+    cmp zodiacSel, 11
+    je select_loop
+    inc zodiacSel
+    call DrawZodiacList
+    jmp select_loop
+
+select_done:
+    ; 把選擇的星座複製到 zodiacBuf
+    mov eax, zodiacSel
+    shl eax, 2
+    mov esi, OFFSET zodiacList
+    add esi, eax
+    mov esi, [esi]       ; esi = 選中星座字串
+    
+    mov edi, OFFSET zodiacBuf
+copy_zodiac:
+    mov al, [esi]
+    mov [edi], al
+    cmp al, 0
+    je copy_done
+    inc esi
+    inc edi
+    jmp copy_zodiac
+copy_done:
+    ret
+SelectZodiac ENDP
+
+DrawZodiacList PROC USES eax ebx ecx edx esi
+    ; 游標上移 12 行
+    mov edx, OFFSET cursorUp12
+    call WriteString
+    
+    mov ecx, 0      ; 計數器 0-11
+    
+draw_loop:
+    cmp ecx, 12
+    jge draw_done
+    
+    ; 清除該行
+    mov edx, OFFSET clearLine
+    call WriteString
+    
+    ; 印箭頭或空白
+    cmp ecx, zodiacSel
+    jne no_arrow
+    mov edx, OFFSET arrowMark
+    call WriteString
+    jmp print_name
+no_arrow:
+    mov edx, OFFSET spaceMark
+    call WriteString
+
+print_name:
+    ; 印星座名稱
+    mov eax, ecx
+    shl eax, 2
+    mov esi, OFFSET zodiacList
+    add esi, eax
+    mov edx, [esi]
+    call WriteString
+    call CrLf
+    
+    inc ecx
+    jmp draw_loop
+
+draw_done:
+    ret
+DrawZodiacList ENDP
 
 WaitRightKey PROC USES eax
 wait_loop:
@@ -643,11 +766,13 @@ skip_love_bg:
     mov ecx, MAX_BIRTH_LEN
     call ReadString
 
-    mov edx, OFFSET promptEnterZod
-    call WriteString
-    mov edx, OFFSET zodiacBuf
-    mov ecx, MAX_ZODIAC_LEN
-    call ReadString
+    ; 先印 12 行空白給選單用
+    mov ecx, 12
+    print_blank:
+    call CrLf
+    loop print_blank
+    
+    call SelectZodiac
 
     ;---------------------------------------
     ; 4. Hash 計算
@@ -736,24 +861,6 @@ bit_next:
 
 bits_done:
     mov BYTE PTR [edi+esi], 0
-
-    ;---------------------------------------
-    ; 6. 顯示 Hash 結果
-    ;---------------------------------------
-    mov edx, OFFSET resultHeader
-    call WriteString
-
-    mov edx, OFFSET hashIntMsg
-    call WriteString
-    mov eax, hashVal
-    call WriteDec
-    call CrLf
-
-    mov edx, OFFSET hashBinMsg
-    call WriteString
-    mov edx, OFFSET binBuf
-    call WriteString
-    call CrLf
 
     ;---------------------------------------
     ; 7. 抽籤動畫
