@@ -234,12 +234,151 @@ health_worst_3 BYTE "大凶：身體需要休息，別硬撐。",0
 choiceInput BYTE 4 DUP(?)
 choiceVal  DWORD ?
 
+; ===== 愛情問題 (5 題) =====
+question1Msg BYTE 0Dh,0Ah,"Q1. 愛情的觸感是什麼？",0Dh,0Ah,\
+                    "1) 堅實的    2) 柔滑的",0Dh,0Ah,\
+                    "3) 輕盈的    4) 溫軟的",0Dh,0Ah,\
+                    "請輸入 1-4：",0
+
+question2Msg BYTE 0Dh,0Ah,"Q2. 你在愛情中的步伐像什麼？",0Dh,0Ah,\
+                    "1) 穩穩走    2) 緩緩靠近",0Dh,0Ah,\
+                    "3) 偶爾衝動  4) 直覺行動",0Dh,0Ah,\
+                    "請輸入 1-4：",0
+
+question3Msg BYTE 0Dh,0Ah,"Q3. 如果把戀愛比喻成天氣，你是？",0Dh,0Ah,\
+                    "1) 晴朗無雲  2) 微風和煦",0Dh,0Ah,\
+                    "3) 陣雨轉晴  4) 流星夜空",0Dh,0Ah,\
+                    "請輸入 1-4：",0
+
+question4Msg BYTE 0Dh,0Ah,"Q4. 你最期待的愛情狀態是？",0Dh,0Ah,\
+                    "1) 安定踏實  2) 溫柔互動",0Dh,0Ah,\
+                    "3) 心動火花  4) 劇烈浪漫",0Dh,0Ah,\
+                    "請輸入 1-4：",0
+
+question5Msg BYTE 0Dh,0Ah,"Q5. 當你想念一個人時，你會？",0Dh,0Ah,\
+                    "1) 默默等待  2) 傳訊問候",0Dh,0Ah,\
+                    "3) 計畫見面  4) 直接衝去找他",0Dh,0Ah,\
+                    "請輸入 1-4：",0
+
+qInput   BYTE 4 DUP(?)      ; 讀每一題的 1~4
+qSum     DWORD ?            ; 五題總分
+
+loveLevelHeader BYTE 0Dh,0Ah,"--- 愛情等級小評語 ---",0Dh,0Ah,0
+loveLevel_1 BYTE "你現在的愛情等級是：拉完了（加油好嗎）。",0
+loveLevel_2 BYTE "你現在的愛情等級是：NPC（偶爾也可以主動一下）。",0
+loveLevel_3 BYTE "你現在的愛情等級是：人上人（穩穩發光的類型）。",0
+loveLevel_4 BYTE "你現在的愛情等級是：頂級（魅力值已經很高了）。",0
+loveLevel_5 BYTE "你現在的愛情等級是：夯（今天超級戀愛 buff）。",0
+
+loveLevelTable DWORD OFFSET loveLevel_1, OFFSET loveLevel_2, \
+                     OFFSET loveLevel_3, OFFSET loveLevel_4, \
+                     OFFSET loveLevel_5
+loveLevelPtr   DWORD ?      ; 存放選好的等級字串位址
+
+
 fortunesTables DWORD OFFSET fortunesLove, OFFSET fortunesStudy, OFFSET fortunesHealth
 
 nameBuf   BYTE MAX_NAME_LEN   DUP(?)
 birthBuf  BYTE MAX_BIRTH_LEN  DUP(?)
 zodiacBuf BYTE MAX_ZODIAC_LEN DUP(?)
 binBuf    BYTE BITS+1 DUP(?)
+
+; ===== 學業問題 (5 題) =====
+studyQ1Msg BYTE 0Dh,0Ah,"Q1. 今天的讀書狀態？",0Dh,0Ah,\
+                    "1) 完全讀不下去",0Dh,0Ah,\
+                    "2) 勉強硬撐一下",0Dh,0Ah,\
+                    "3) 有進度還可以",0Dh,0Ah,\
+                    "4) 超專心效率爆棚",0Dh,0Ah,\
+                    "請輸入 1-4：",0
+
+studyQ2Msg BYTE 0Dh,0Ah,"Q2. 你的讀書節奏比較像？",0Dh,0Ah,\
+                    "1) 考前一天爆肝",0Dh,0Ah,\
+                    "2) 靈感來才讀",0Dh,0Ah,\
+                    "3) 每天固定一點點",0Dh,0Ah,\
+                    "4) 早早規劃超前部署",0Dh,0Ah,\
+                    "請輸入 1-4：",0
+
+studyQ3Msg BYTE 0Dh,0Ah,"Q3. 面對考試時，你的心情？",0Dh,0Ah,\
+                    "1) 完全放飛自我",0Dh,0Ah,\
+                    "2) 有點慌但還撐著",0Dh,0Ah,\
+                    "3) 還算有把握",0Dh,0Ah,\
+                    "4) 信心滿滿等放榜",0Dh,0Ah,\
+                    "請輸入 1-4：",0
+
+studyQ4Msg BYTE 0Dh,0Ah,"Q4. 你和待辦清單的關係？",0Dh,0Ah,\
+                    "1) 看了就關掉",0Dh,0Ah,\
+                    "2) 做一點點就分心",0Dh,0Ah,\
+                    "3) 大部分能完成",0Dh,0Ah,\
+                    "4) 幾乎都能照計畫走",0Dh,0Ah,\
+                    "請輸入 1-4：",0
+
+studyQ5Msg BYTE 0Dh,0Ah,"Q5. 最近吸收新知的感覺？",0Dh,0Ah,\
+                    "1) 進去 0 出來 0",0Dh,0Ah,\
+                    "2) 有聽沒有很懂",0Dh,0Ah,\
+                    "3) 多看幾次就懂",0Dh,0Ah,\
+                    "4) 一看就懂還能教人",0Dh,0Ah,\
+                    "請輸入 1-4：",0
+
+studyLevelHeader BYTE 0Dh,0Ah,"--- 學業等級小評語 ---",0Dh,0Ah,0
+studyLevel_1 BYTE "你的學業等級是：拉完了（課本先打開一下好嗎）。",0
+studyLevel_2 BYTE "你的學業等級是：NPC（有上線，但存在感還能再提升）。",0
+studyLevel_3 BYTE "你的學業等級是：人上人（穩定輸出，越來越強）。",0
+studyLevel_4 BYTE "你的學業等級是：頂級（讀書節奏很可以）。",0
+studyLevel_5 BYTE "你的學業等級是：夯（今天腦袋是黃金狀態）。",0
+
+studyLevelTable DWORD OFFSET studyLevel_1, OFFSET studyLevel_2, \
+                       OFFSET studyLevel_3, OFFSET studyLevel_4, \
+                       OFFSET studyLevel_5
+studyLevelPtr   DWORD ?      ; 存放選好的學業等級字串位址
+
+; ===== 健康＋財運問題 (5 題) =====
+healthQ1Msg BYTE 0Dh,0Ah,"Q1. 最近身體的感覺？",0Dh,0Ah,\
+                     "1) 超累只想躺",0Dh,0Ah,\
+                     "2) 容易疲倦",0Dh,0Ah,\
+                     "3) 還算有精神",0Dh,0Ah,\
+                     "4) 精力充沛想到處跑",0Dh,0Ah,\
+                     "請輸入 1-4：",0
+
+healthQ2Msg BYTE 0Dh,0Ah,"Q2. 你的作息比較像？",0Dh,0Ah,\
+                     "1) 爆炸熬夜型",0Dh,0Ah,\
+                     "2) 常常晚睡追東西",0Dh,0Ah,\
+                     "3) 偶爾晚睡但會補眠",0Dh,0Ah,\
+                     "4) 規律早睡早起",0Dh,0Ah,\
+                     "請輸入 1-4：",0
+
+healthQ3Msg BYTE 0Dh,0Ah,"Q3. 你對自己錢包的感覺？",0Dh,0Ah,\
+                     "1) 已經乾掉了",0Dh,0Ah,\
+                     "2) 快要見底有點怕",0Dh,0Ah,\
+                     "3) 還算 OK 可以撐",0Dh,0Ah,\
+                     "4) 滿滿的很安心",0Dh,0Ah,\
+                     "請輸入 1-4：",0
+
+healthQ4Msg BYTE 0Dh,0Ah,"Q4. 面對花錢你的反應？",0Dh,0Ah,\
+                     "1) 先刷再說之後再煩惱",0Dh,0Ah,\
+                     "2) 有點衝動但會猶豫一下",0Dh,0Ah,\
+                     "3) 會想一下再決定",0Dh,0Ah,\
+                     "4) 一定先算清楚再花",0Dh,0Ah,\
+                     "請輸入 1-4：",0
+
+healthQ5Msg BYTE 0Dh,0Ah,"Q5. 你最近照顧自己的程度？",0Dh,0Ah,\
+                     "1) 幾乎放生自己",0Dh,0Ah,\
+                     "2) 偶爾才想到要休息",0Dh,0Ah,\
+                     "3) 有刻意調整飲食/休息",0Dh,0Ah,\
+                     "4) 穩定運動又好好睡覺",0Dh,0Ah,\
+                     "請輸入 1-4：",0
+
+healthLevelHeader BYTE 0Dh,0Ah,"--- 健康與財運等級小評語 ---",0Dh,0Ah,0
+healthLevel_1 BYTE "你的健康財運等級是：拉完了（拜託先睡飽跟存一點錢）。",0
+healthLevel_2 BYTE "你的健康財運等級是：NPC（還在場上，但要多照顧自己）。",0
+healthLevel_3 BYTE "你的健康財運等級是：人上人（身心逐漸穩定起來）。",0
+healthLevel_4 BYTE "你的健康財運等級是：頂級（狀態良好，運勢跟著走高）。",0
+healthLevel_5 BYTE "你的健康財運等級是：夯（整體氣場超好，適合展開行動）。",0
+
+healthLevelTable DWORD OFFSET healthLevel_1, OFFSET healthLevel_2, \
+                        OFFSET healthLevel_3, OFFSET healthLevel_4, \
+                        OFFSET healthLevel_5
+healthLevelPtr   DWORD ?      ; 存放選好的健康財運等級字串位址
+
 
 hashVal   DWORD ?
 indexVal  DWORD ?
@@ -879,59 +1018,383 @@ bits_done:
     div ebx
     mov indexVal, edx
 
-    ;---------------------------------------
-    ; 9. 選擇運勢陣列
-    ;---------------------------------------
-    mov eax, choiceVal
-    dec eax
-    shl eax, 2
-    mov edx, OFFSET fortunesTables
-    add edx, eax
-    mov edx, [edx]
+;---------------------------------------
+; 9. 選擇運勢陣列
+;---------------------------------------
+mov eax, choiceVal
+dec eax
+shl eax, 2
+mov edx, OFFSET fortunesTables
+add edx, eax
+mov edx, [edx]
 
-    mov eax, indexVal
-    shl eax, 2
-    add edx, eax
-    mov edx, [edx]
+mov eax, indexVal
+shl eax, 2
+add edx, eax
+mov edx, [edx]
 
-    ;---------------------------------------
-    ; 10. 如果是愛情運勢,顯示愛心
-    ;---------------------------------------
-    mov ebx, edx  ; 保存籤詩位址
+;---------------------------------------
+; 10. 根據選擇 (1 愛情 / 2 學業 / 3 健康財運)
+;     問五題 & 計算對應等級
+;---------------------------------------
+mov ebx, edx      ; 保存籤詩位址（之後要印籤詩）
 
-    mov eax, choiceVal
-    cmp eax, 1
-    jne skip_heart
-    
+mov eax, choiceVal
+cmp eax, 1
+je do_love_questions
+cmp eax, 2
+je do_study_questions
+cmp eax, 3
+je do_health_questions
+jmp after_questions      ; 理論上不會到這裡
+
+; ===== 愛情：五題 + 愛情等級 + 愛心動畫 =====
+do_love_questions:
+    xor eax, eax
+    mov qSum, eax
+
+    ; ---- 愛情 Q1 ----
+    mov edx, OFFSET question1Msg
+    call WriteString
+    mov edx, OFFSET qInput
+    mov ecx, 4
+    call ReadString
+    mov dl, BYTE PTR qInput
+    sub dl, '0'
+    movzx eax, dl
+    add qSum, eax
+
+    ; ---- 愛情 Q2 ----
+    mov edx, OFFSET question2Msg
+    call WriteString
+    mov edx, OFFSET qInput
+    mov ecx, 4
+    call ReadString
+    mov dl, BYTE PTR qInput
+    sub dl, '0'
+    movzx eax, dl
+    add qSum, eax
+
+    ; ---- 愛情 Q3 ----
+    mov edx, OFFSET question3Msg
+    call WriteString
+    mov edx, OFFSET qInput
+    mov ecx, 4
+    call ReadString
+    mov dl, BYTE PTR qInput
+    sub dl, '0'
+    movzx eax, dl
+    add qSum, eax
+
+    ; ---- 愛情 Q4 ----
+    mov edx, OFFSET question4Msg
+    call WriteString
+    mov edx, OFFSET qInput
+    mov ecx, 4
+    call ReadString
+    mov dl, BYTE PTR qInput
+    sub dl, '0'
+    movzx eax, dl
+    add qSum, eax
+
+    ; ---- 愛情 Q5 ----
+    mov edx, OFFSET question5Msg
+    call WriteString
+    mov edx, OFFSET qInput
+    mov ecx, 4
+    call ReadString
+    mov dl, BYTE PTR qInput
+    sub dl, '0'
+    movzx eax, dl
+    add qSum, eax
+
+    ; ==== 用 qSum 算愛情等級 index (0~4) ====
+    ; 總分範圍：5~20
+    mov eax, qSum
+
+    cmp eax, 8
+    jl  love_level_0        ; < 8  → 拉完了
+    cmp eax, 12
+    jl  love_level_1        ; < 12 → NPC
+    cmp eax, 16
+    jl  love_level_2        ; < 16 → 人上人
+    cmp eax, 19
+    jl  love_level_3        ; < 19 → 頂級
+    jmp love_level_4        ; >=19 → 夯
+
+love_level_0:
+    mov eax, 0
+    jmp love_level_done
+love_level_1:
+    mov eax, 1
+    jmp love_level_done
+love_level_2:
+    mov eax, 2
+    jmp love_level_done
+love_level_3:
+    mov eax, 3
+    jmp love_level_done
+love_level_4:
+    mov eax, 4
+
+love_level_done:
+    ; eax = 等級 index (0~4)
+    mov ecx, eax
+    shl ecx, 2                    ; *4
+    mov edx, OFFSET loveLevelTable
+    add edx, ecx
+    mov edx, [edx]                ; edx = loveLevel_x 的位址
+    mov loveLevelPtr, edx
+
+    ; 愛情專屬動畫
     call show_love_heart
-    
     mov eax, 2000
     call Delay
 
-skip_heart:
+    jmp after_questions
 
-    ;---------------------------------------
-    ; 11. 顯示籤詩
-    ;---------------------------------------
-    call ClearWithBg
+; ===== 學業：五題 + 學業等級 =====
+do_study_questions:
+    xor eax, eax
+    mov qSum, eax
 
-    mov edx, OFFSET fortuneHeader
+    ; ---- 學業 Q1 ----
+    mov edx, OFFSET studyQ1Msg
     call WriteString
+    mov edx, OFFSET qInput
+    mov ecx, 4
+    call ReadString
+    mov dl, BYTE PTR qInput
+    sub dl, '0'
+    movzx eax, dl
+    add qSum, eax
 
-    mov edx, ebx
-    mov ecx, 30
-    call Typewriter
-    call CrLf
-    
-    mov edx, OFFSET pressRightMsg
+    ; ---- 學業 Q2 ----
+    mov edx, OFFSET studyQ2Msg
     call WriteString
-    call WaitRightKey
-    
+    mov edx, OFFSET qInput
+    mov ecx, 4
+    call ReadString
+    mov dl, BYTE PTR qInput
+    sub dl, '0'
+    movzx eax, dl
+    add qSum, eax
+
+    ; ---- 學業 Q3 ----
+    mov edx, OFFSET studyQ3Msg
+    call WriteString
+    mov edx, OFFSET qInput
+    mov ecx, 4
+    call ReadString
+    mov dl, BYTE PTR qInput
+    sub dl, '0'
+    movzx eax, dl
+    add qSum, eax
+
+    ; ---- 學業 Q4 ----
+    mov edx, OFFSET studyQ4Msg
+    call WriteString
+    mov edx, OFFSET qInput
+    mov ecx, 4
+    call ReadString
+    mov dl, BYTE PTR qInput
+    sub dl, '0'
+    movzx eax, dl
+    add qSum, eax
+
+    ; ---- 學業 Q5 ----
+    mov edx, OFFSET studyQ5Msg
+    call WriteString
+    mov edx, OFFSET qInput
+    mov ecx, 4
+    call ReadString
+    mov dl, BYTE PTR qInput
+    sub dl, '0'
+    movzx eax, dl
+    add qSum, eax
+
+    ; ==== 用 qSum 算學業等級 index (0~4) ====
+    mov eax, qSum
+
+    cmp eax, 8
+    jl  study_level_0
+    cmp eax, 12
+    jl  study_level_1
+    cmp eax, 16
+    jl  study_level_2
+    cmp eax, 19
+    jl  study_level_3
+    jmp study_level_4
+
+study_level_0:
+    mov eax, 0
+    jmp study_level_done
+study_level_1:
+    mov eax, 1
+    jmp study_level_done
+study_level_2:
+    mov eax, 2
+    jmp study_level_done
+study_level_3:
+    mov eax, 3
+    jmp study_level_done
+study_level_4:
+    mov eax, 4
+
+study_level_done:
+    mov ecx, eax
+    shl ecx, 2
+    mov edx, OFFSET studyLevelTable
+    add edx, ecx
+    mov edx, [edx]
+    mov studyLevelPtr, edx
+
+    jmp after_questions
+
+; ===== 健康＋財運：五題 + 健康財運等級 =====
+do_health_questions:
+    xor eax, eax
+    mov qSum, eax
+
+    ; ---- 健康財運 Q1 ----
+    mov edx, OFFSET healthQ1Msg
+    call WriteString
+    mov edx, OFFSET qInput
+    mov ecx, 4
+    call ReadString
+    mov dl, BYTE PTR qInput
+    sub dl, '0'
+    movzx eax, dl
+    add qSum, eax
+
+    ; ---- 健康財運 Q2 ----
+    mov edx, OFFSET healthQ2Msg
+    call WriteString
+    mov edx, OFFSET qInput
+    mov ecx, 4
+    call ReadString
+    mov dl, BYTE PTR qInput
+    sub dl, '0'
+    movzx eax, dl
+    add qSum, eax
+
+    ; ---- 健康財運 Q3 ----
+    mov edx, OFFSET healthQ3Msg
+    call WriteString
+    mov edx, OFFSET qInput
+    mov ecx, 4
+    call ReadString
+    mov dl, BYTE PTR qInput
+    sub dl, '0'
+    movzx eax, dl
+    add qSum, eax
+
+    ; ---- 健康財運 Q4 ----
+    mov edx, OFFSET healthQ4Msg
+    call WriteString
+    mov edx, OFFSET qInput
+    mov ecx, 4
+    call ReadString
+    mov dl, BYTE PTR qInput
+    sub dl, '0'
+    movzx eax, dl
+    add qSum, eax
+
+    ; ---- 健康財運 Q5 ----
+    mov edx, OFFSET healthQ5Msg
+    call WriteString
+    mov edx, OFFSET qInput
+    mov ecx, 4
+    call ReadString
+    mov dl, BYTE PTR qInput
+    sub dl, '0'
+    movzx eax, dl
+    add qSum, eax
+
+    ; ==== 用 qSum 算健康財運等級 index (0~4) ====
+    mov eax, qSum
+
+    cmp eax, 8
+    jl  health_level_0
+    cmp eax, 12
+    jl  health_level_1
+    cmp eax, 16
+    jl  health_level_2
+    cmp eax, 19
+    jl  health_level_3
+    jmp health_level_4
+
+health_level_0:
+    mov eax, 0
+    jmp health_level_done
+health_level_1:
+    mov eax, 1
+    jmp health_level_done
+health_level_2:
+    mov eax, 2
+    jmp health_level_done
+health_level_3:
+    mov eax, 3
+    jmp health_level_done
+health_level_4:
+    mov eax, 4
+
+health_level_done:
+    mov ecx, eax
+    shl ecx, 2
+    mov edx, OFFSET healthLevelTable
+    add edx, ecx
+    mov edx, [edx]
+    mov healthLevelPtr, edx
+
+    jmp after_questions
+
+after_questions:
+
+
+; ===== 根據選項顯示對應等級 =====
+mov eax, choiceVal
+cmp eax, 1
+je print_love_level
+cmp eax, 2
+je print_study_level
+cmp eax, 3
+je print_health_level
+jmp no_any_level
+
+print_love_level:
+    mov edx, OFFSET loveLevelHeader
+    call WriteString
+    mov edx, loveLevelPtr
+    call WriteString
+    call CrLf
+    call CrLf
+    jmp no_any_level
+
+print_study_level:
+    mov edx, OFFSET studyLevelHeader
+    call WriteString
+    mov edx, studyLevelPtr
+    call WriteString
+    call CrLf
+    call CrLf
+    jmp no_any_level
+
+print_health_level:
+    mov edx, OFFSET healthLevelHeader
+    call WriteString
+    mov edx, healthLevelPtr
+    call WriteString
+    call CrLf
     call CrLf
 
-    call FireworkAndHeart
-    call WaitMsg
-    exit
+no_any_level:
+
+
+call WaitMsg
+exit
+
+
 start@0 ENDP
 
 END start@0
