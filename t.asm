@@ -8,7 +8,6 @@ NUM_FORTUNES_PER_CAT EQU 24
 
 .data
 ESC_CODE EQU 27
-INCLUDE torii_ansi.asm
 ; ================================
 ; 愛心
 ; ================================
@@ -244,43 +243,6 @@ heartFrame BYTE \
 
 .code
 
-; ==================================================
-; 顯示鳥居門
-; ==================================================
-show_torii_gate PROC
-    call Clrscr
-    
-    mov edx, OFFSET torii_line1
-    call WriteString
-    mov edx, OFFSET torii_line2
-    call WriteString
-    mov edx, OFFSET torii_line3
-    call WriteString
-    mov edx, OFFSET torii_line4
-    call WriteString
-    mov edx, OFFSET torii_line5
-    call WriteString
-    mov edx, OFFSET torii_line6
-    call WriteString
-    mov edx, OFFSET torii_line7
-    call WriteString
-    mov edx, OFFSET torii_line8
-    call WriteString
-    mov edx, OFFSET torii_line9
-    call WriteString
-    mov edx, OFFSET torii_line10
-    call WriteString
-    mov edx, OFFSET torii_line11
-    call WriteString
-    mov edx, OFFSET torii_line12
-    call WriteString
-    mov edx, OFFSET torii_line13
-    call WriteString
-    mov edx, OFFSET torii_line14
-    call WriteString
-    
-    ret
-show_torii_gate ENDP
 
 ; ==================================================
 ; 顯示愛心
@@ -498,14 +460,6 @@ IntroScreen ENDP
 ; 主程式
 ; ==================================================
 start@0 PROC
-    ;---------------------------------------
-    ; 1. 顯示鳥居門 (開場)
-    ;---------------------------------------
-    call show_torii_gate
-    
-    mov eax, 5000
-    call Delay
-    
     ;---------------------------------------
     ; 2. 開場動畫 + 選單
     ;---------------------------------------
