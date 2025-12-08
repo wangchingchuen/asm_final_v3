@@ -1,5 +1,26 @@
 INCLUDE Irvine32.inc
 
+; =============================================================
+; ★ 修復點 1：顯式宣告 Windows API Beep 原型
+; =============================================================
+Beep PROTO,
+    dwFreq:DWORD,
+    dwDuration:DWORD
+
+; 頻率表 (Hz)
+NOTE_C4  EQU 262
+NOTE_D4  EQU 294
+NOTE_E4  EQU 330
+NOTE_F4  EQU 349
+NOTE_G4  EQU 392
+NOTE_A4  EQU 440
+NOTE_B4  EQU 494
+NOTE_C5  EQU 523
+NOTE_D5  EQU 587
+NOTE_E5  EQU 659
+NOTE_G5  EQU 784
+NOTE_C6  EQU 1046
+
 MAX_NAME_LEN   EQU 64
 MAX_BIRTH_LEN  EQU 32
 MAX_ZODIAC_LEN EQU 32
@@ -8,429 +29,407 @@ NUM_FORTUNES_PER_CAT EQU 24
 
 .data
 ESC_CODE EQU 27
-zodiacMenu BYTE 0Dh, 0Ah, "請選擇星座 (上下鍵選擇，Enter確認)：", 0Dh, 0Ah, 0
 
-zodiac1  BYTE "Aries", 0
-zodiac2  BYTE "Taurus", 0
-zodiac3  BYTE "Gemini", 0
-zodiac4  BYTE "Cancer", 0
-zodiac5  BYTE "Leo", 0
-zodiac6  BYTE "Virgo", 0
-zodiac7  BYTE "Libra", 0
-zodiac8  BYTE "Scorpio", 0
-zodiac9  BYTE "Sagittarius", 0
-zodiac10 BYTE "Capricorn", 0
-zodiac11 BYTE "Aquarius", 0
-zodiac12 BYTE "Pisces", 0
+; ================================
+; ★ 1. 視覺風格設定 (置中與顏色)
+; ================================
+margin       BYTE "                      ", 0 ; 通用左邊距
 
-zodiacList DWORD OFFSET zodiac1, OFFSET zodiac2, OFFSET zodiac3
-           DWORD OFFSET zodiac4, OFFSET zodiac5, OFFSET zodiac6
-           DWORD OFFSET zodiac7, OFFSET zodiac8, OFFSET zodiac9
-           DWORD OFFSET zodiac10, OFFSET zodiac11, OFFSET zodiac12
+; 背景色
+setShrineBg  BYTE ESC_CODE, "[47;30m", 0                 ; 神社白底黑字
+setLoveBg    BYTE ESC_CODE, "[48;2;255;235;235;30m", 0   ; 愛情粉
+setStudyBg   BYTE ESC_CODE, "[48;2;240;255;240;30m", 0   ; 課業青
+setWealthBg  BYTE ESC_CODE, "[48;2;255;250;205;30m", 0   ; 財運金
 
-zodiacSel  DWORD 0           ; 目前選擇 (0-11)
-arrowMark  BYTE "> ", 0
-spaceMark  BYTE "  ", 0
-clearLine  BYTE ESC_CODE, "[K", 0    ; 清除該行
-cursorUp12 BYTE ESC_CODE, "[12A", 0  ; 游標上移 12 行
-pressRightMsg BYTE 0Dh, 0Ah, "按右鍵繼續...", 0
-progressInit BYTE 0Dh, 0Ah, "抽籤進度：", 0
-barBlock     BYTE "█", 0
-pctBack      BYTE ESC_CODE, "[4D", 0     ; 往左 4 格覆蓋百分比
-setLoveBg    BYTE ESC_CODE, "[48;2;235;214;214;30m", 0   ; #EBD6D6 粉色
-setStudyBg   BYTE ESC_CODE, "[48;2;196;225;225;30m", 0   ; #C4E1E1 青色
-setHealthBg  BYTE ESC_CODE, "[48;2;255;248;215;30m", 0   ; #FFF8D7 黃色
-
-currentBg    DWORD 0    ; 0=白色, 1=粉色, 2=青色, 3=黃色
-; 白底黑字設定
-setWhiteBg   BYTE ESC_CODE, "[47;30m", 0
 clearAll     BYTE ESC_CODE, "[2J", ESC_CODE, "[H", 0
 resetColor   BYTE ESC_CODE, "[0m", 0
-; ================================
-; 愛心
-; ================================
-love_heart1  BYTE ESC_CODE, "[38;5;213m", "      ░░░░░      ░░░░░      ", ESC_CODE, "[0;48;2;235;214;214;30m", 0Dh, 0Ah, 0
-love_heart2  BYTE ESC_CODE, "[38;5;218m", "    ░░▒▒▒▒░░    ░░▒▒▒▒░░    ", ESC_CODE, "[0;48;2;235;214;214;30m", 0Dh, 0Ah, 0
-love_heart3  BYTE ESC_CODE, "[38;5;219m", "   ░▒▒▓▓▓▓▒▒░░░░▒▒▓▓▓▓▒▒░   ", ESC_CODE, "[0;48;2;235;214;214;30m", 0Dh, 0Ah, 0
-love_heart4  BYTE ESC_CODE, "[38;5;197m", "  ░▒▓▓████▓▓▒▒▒▒▓▓████▓▓▒░  ", ESC_CODE, "[0;48;2;235;214;214;30m", 0Dh, 0Ah, 0
-love_heart5  BYTE ESC_CODE, "[38;5;198m", "  ░▒▓███████▓▓▓▓███████▓▒░  ", ESC_CODE, "[0;48;2;235;214;214;30m", 0Dh, 0Ah, 0
-love_heart6  BYTE ESC_CODE, "[38;5;199m", "  ░▒▓████████████████▓▓▒░  ", ESC_CODE, "[0;48;2;235;214;214;30m", 0Dh, 0Ah, 0
-love_heart7  BYTE ESC_CODE, "[38;5;200m", "   ░▒▓██████████████▓▓▒░   ", ESC_CODE, "[0;48;2;235;214;214;30m", 0Dh, 0Ah, 0
-love_heart8  BYTE ESC_CODE, "[38;5;201m", "    ░▒▓████████████▓▒░    ", ESC_CODE, "[0;48;2;235;214;214;30m", 0Dh, 0Ah, 0
-love_heart9  BYTE ESC_CODE, "[38;5;213m", "     ░▒▓██████████▓▒░     ", ESC_CODE, "[0;48;2;235;214;214;30m", 0Dh, 0Ah, 0
-love_heart10 BYTE ESC_CODE, "[38;5;218m", "       ░▒▓██████▓▒░       ", ESC_CODE, "[0;48;2;235;214;214;30m", 0Dh, 0Ah, 0
-love_heart11 BYTE ESC_CODE, "[38;5;219m", "        ░▒▓████▓▒░        ", ESC_CODE, "[0;48;2;235;214;214;30m", 0Dh, 0Ah, 0
-love_heart12 BYTE ESC_CODE, "[38;5;225m", "          ░▒▓▓▒░          ", ESC_CODE, "[0;48;2;235;214;214;30m", 0Dh, 0Ah, 0
+
+; 前景色 (更鮮豔)
+colorRed     BYTE ESC_CODE, "[1;31m", 0 
+colorGold    BYTE ESC_CODE, "[1;33m", 0 
+colorPink    BYTE ESC_CODE, "[1;35m", 0 
+colorCyan    BYTE ESC_CODE, "[1;36m", 0 
+colorWhite   BYTE ESC_CODE, "[1;37m", 0 
+
+currentBg    DWORD 0   ; 0=預設, 1=愛, 2=學, 3=財
 
 ; ================================
-; 標題和選單
+; ★ 2. 巨型置中鳥居 (Fancy 版)
 ; ================================
-welcomeTitle BYTE "+------------------------------+",0Dh,0Ah,
-             "| 測測你今天的運勢             |",0Dh,0Ah,
-             "+------------------------------+",0Dh,0Ah,0
-
-menuPrompt BYTE "| 1. 愛情運勢                  |",0Dh,0Ah,
-           "| 2. 學業運勢                  |",0Dh,0Ah,
-           "| 3. 健康與財運                |",0Dh,0Ah,
-           "+------------------------------+",0Dh,0Ah,
-           "請輸入 1 / 2 / 3：",0
-
-errorMsg     BYTE 0Dh,0Ah,"[輸入無效！預設為愛情運勢]",0Dh,0Ah,0
-
-promptTitle      BYTE 0Dh,0Ah,"=== 請輸入個人資料 ===",0Dh,0Ah,0
-promptEnterName  BYTE "請輸入英文名字: ",0
-promptEnterBirth BYTE "請輸入生日 (例如 2005-03-14 或 20050314): ",0
-promptEnterZod   BYTE "請輸入星座 (例如 Aries / Taurus / Gemini ...): ",0
-
-resultHeader     BYTE 0Dh,0Ah,"--- 計算結果 ---",0Dh,0Ah,0
-hashIntMsg       BYTE "Hash 整數值: ",0
-hashBinMsg       BYTE "Hash 二進位: ",0
-fortuneHeader    BYTE 0Dh,0Ah,"--- 你的籤 ---",0Dh,0Ah,0
+torii1  BYTE "                  ___________________________________________      ", 0Dh, 0Ah, 0
+torii2  BYTE "                 /___________________________________________\     ", 0Dh, 0Ah, 0
+torii3  BYTE "                  ||           |               |           ||      ", 0Dh, 0Ah, 0
+torii4  BYTE "                  ||           |   ★ 開 運 ★   |           ||      ", 0Dh, 0Ah, 0
+torii5  BYTE "                  ||           |___ _______ ___|           ||      ", 0Dh, 0Ah, 0
+torii6  BYTE "                  ||           |  御 |   | 守  |           ||      ", 0Dh, 0Ah, 0
+torii7  BYTE "                  ||           |  神 |   | 護  |           ||      ", 0Dh, 0Ah, 0
+torii8  BYTE "                  ||           |  籤 |   | 所  |           ||      ", 0Dh, 0Ah, 0
+torii9  BYTE "              ____||___________|_____|___|_____|___________||____  ", 0Dh, 0Ah, 0
+torii10 BYTE "             |___________________________________________________| ", 0Dh, 0Ah, 0
 
 ; ================================
-; 愛情運勢 (fortunesLove)
+; 選單與介面 (全部置中)
 ; ================================
-fortunesLove DWORD OFFSET love_great_1, OFFSET love_great_2
-         DWORD OFFSET love_great_3, OFFSET love_good_1
-         DWORD OFFSET love_good_2, OFFSET love_good_3
-         DWORD OFFSET love_small_1, OFFSET love_small_2
-         DWORD OFFSET love_small_3, OFFSET love_luck_1
-         DWORD OFFSET love_luck_2, OFFSET love_luck_3
-         DWORD OFFSET love_minor_1, OFFSET love_minor_2
-         DWORD OFFSET love_minor_3, OFFSET love_bad_1
-         DWORD OFFSET love_bad_2, OFFSET love_bad_3
-         DWORD OFFSET love_sbad_1, OFFSET love_sbad_2
-         DWORD OFFSET love_sbad_3, OFFSET love_worst_1
-         DWORD OFFSET love_worst_2, OFFSET love_worst_3
+welcomeTitle BYTE 0Dh,0Ah,
+             "                  ╔════════════════════════════════════╗",0Dh,0Ah,
+             "                  ║      ⛩  日式開運御神籤  ⛩      ║",0Dh,0Ah,
+             "                  ╚════════════════════════════════════╝",0Dh,0Ah,0
 
-love_great_1 BYTE "愛情大吉：你的魅力爆棚，任何告白都有成功機率！",0
-love_great_2 BYTE "愛情大吉：心中所想之人，也正默默注意著你。",0
-love_great_3 BYTE "愛情大吉：命運正在推你們靠近，把握每次相遇。",0
+menuPrompt BYTE 0Dh,0Ah,
+           "                    1. 🌸 愛情結緣 (浪漫風格)",0Dh,0Ah,
+           "                    2. 📖 學業成就 (書香風格)",0Dh,0Ah,
+           "                    3. 💰 金運招財 (土豪風格)",0Dh,0Ah,
+           0Dh,0Ah,
+           "                  ------------------------------------",0Dh,0Ah,
+           "                          請輸入選擇 (1-3)：",0
 
-love_good_1  BYTE "愛情中吉：彼此心意清晰，多交流會更甜蜜。",0
-love_good_2  BYTE "愛情中吉：互動順利，適合安排一個小約會。",0
-love_good_3  BYTE "愛情中吉：你們的距離正在縮短，耐心陪伴即可。",0
+errorMsg     BYTE 0Dh,0Ah,"                      [輸入錯誤，神明幫你選 1]",0Dh,0Ah,0
 
-love_small_1 BYTE "愛情小吉：對方對你抱持好感，給點時間發酵。",0
-love_small_2 BYTE "愛情小吉：適合傳訊息問候，能巧妙拉近距離。",0
-love_small_3 BYTE "愛情小吉：一些小互動會帶來好進展。",0
+; 輸入介面 (置中)
+promptTitle      BYTE 0Dh,0Ah,0Dh,0Ah,"                      === ✍ 請填寫參拜單 ✍ ===",0Dh,0Ah,0
+promptEnterName  BYTE "                      英文名字: ",0
+promptEnterBirth BYTE "                      出生日期: ",0
+promptEnterZod   BYTE "                      你的星座: ",0
 
-love_luck_1  BYTE "愛情吉：今天情緒穩定，氣氛容易營造。",0
-love_luck_2  BYTE "愛情吉：主動一點會有意外收穫。",0
-love_luck_3  BYTE "愛情吉：你散發的自然感，讓人很舒服。",0
-
-love_minor_1 BYTE "愛情末吉：互相試探較多，需要耐心。",0
-love_minor_2 BYTE "愛情末吉：容易誤會，說話前多想一下。",0
-love_minor_3 BYTE "愛情末吉：適合觀察，不急著行動。",0
-
-love_bad_1   BYTE "愛情凶：溝通可能卡住，保持冷靜。",0
-love_bad_2   BYTE "愛情凶：不要因為一時情緒做決定。",0
-love_bad_3   BYTE "愛情凶：暫時避開敏感話題。",0
-
-love_sbad_1  BYTE "愛情小凶：期待落空，但不影響長期。",0
-love_sbad_2  BYTE "愛情小凶：對方忙碌，回應較慢。",0
-love_sbad_3  BYTE "愛情小凶：不要過度猜測對方心情。",0
-
-love_worst_1 BYTE "愛情大凶：今天不適合談論未來或表白。",0
-love_worst_2 BYTE "愛情大凶：容易有爭執，保持距離較好。",0
-love_worst_3 BYTE "愛情大凶：暫時冷靜，明天再試會比較順。",0
+; 結果標題
+resultHeader     BYTE 0Dh,0Ah,0Dh,0Ah,"             ✧･ﾟ: *✧･ﾟ:* 神 明 的 指 引  *:･ﾟ✧*:･ﾟ✧",0Dh,0Ah,0
+fortuneHeader    BYTE 0Dh,0Ah,"             -------------------------------------------",0Dh,0Ah,0
+hashMsg          BYTE 0Dh,0Ah,"                      [靈魂共鳴值]: ",0
 
 ; ================================
-; 學業運勢 (fortunesStudy)
+; 運勢資料庫
 ; ================================
-fortunesStudy DWORD OFFSET study_great_1, OFFSET study_great_2
-          DWORD OFFSET study_great_3, OFFSET study_good_1
-          DWORD OFFSET study_good_2, OFFSET study_good_3
-          DWORD OFFSET study_small_1, OFFSET study_small_2
-          DWORD OFFSET study_small_3, OFFSET study_luck_1
-          DWORD OFFSET study_luck_2, OFFSET study_luck_3
-          DWORD OFFSET study_minor_1, OFFSET study_minor_2
-          DWORD OFFSET study_minor_3, OFFSET study_bad_1
-          DWORD OFFSET study_bad_2, OFFSET study_bad_3
-          DWORD OFFSET study_sbad_1, OFFSET study_sbad_2
-          DWORD OFFSET study_sbad_3, OFFSET study_worst_1
-          DWORD OFFSET study_worst_2, OFFSET study_worst_3
+fortunesLove DWORD OFFSET l1, OFFSET l2, OFFSET l3, OFFSET l4, OFFSET l5, OFFSET l6, OFFSET l7, OFFSET l8, OFFSET l9, OFFSET l10, OFFSET l11, OFFSET l12, OFFSET l13, OFFSET l14, OFFSET l15, OFFSET l16, OFFSET l17, OFFSET l18, OFFSET l19, OFFSET l20, OFFSET l21, OFFSET l22, OFFSET l23, OFFSET l24
+l1 BYTE "大吉：桃花盛開，轉角遇到愛。",0
+l2 BYTE "大吉：心有靈犀，對方也在想你。",0
+l3 BYTE "大吉：紅線已牽，大膽行動吧。",0
+l4 BYTE "中吉：氣氛曖昧，適合約會。",0
+l5 BYTE "中吉：多說好話，感情升溫。",0
+l6 BYTE "中吉：甜蜜互動，羨煞旁人。",0
+l7 BYTE "小吉：傳個訊息，會有回應。",0
+l8 BYTE "小吉：淡淡的幸福最長久。",0
+l9 BYTE "小吉：適合在咖啡廳偶遇。",0
+l10 BYTE "吉：平平淡淡也是真愛。",0
+l11 BYTE "吉：微笑是最好的武器。",0
+l12 BYTE "吉：放輕鬆，自然更有魅力。",0
+l13 BYTE "末吉：不要太急，慢慢來。",0
+l14 BYTE "末吉：容易會錯意，多觀察。",0
+l15 BYTE "末吉：適合單戀，享受過程。",0
+l16 BYTE "凶：溝通不良，今天少說話。",0
+l17 BYTE "凶：情緒不穩，容易吵架。",0
+l18 BYTE "凶：舊愛還是最美？別想了。",0
+l19 BYTE "小凶：對方已讀不回，別在意。",0
+l20 BYTE "小凶：落花有意流水無情。",0
+l21 BYTE "小凶：別做白日夢了，醒醒。",0
+l22 BYTE "大凶：今日不宜告白，會爆。",0
+l23 BYTE "大凶：爛桃花纏身，快跑。",0
+l24 BYTE "大凶：還是愛自己比較實在。",0
 
-study_great_1 BYTE "學業大吉：讀書效率爆發，理解力滿點。",0
-study_great_2 BYTE "學業大吉：難題突然迎刃而解，信心倍增。",0
-study_great_3 BYTE "學業大吉：今天超適合寫作業或準備考試！",0
+fortunesStudy DWORD OFFSET s1, OFFSET s2, OFFSET s3, OFFSET s4, OFFSET s5, OFFSET s6, OFFSET s7, OFFSET s8, OFFSET s9, OFFSET s10, OFFSET s11, OFFSET s12, OFFSET s13, OFFSET s14, OFFSET s15, OFFSET s16, OFFSET s17, OFFSET s18, OFFSET s19, OFFSET s20, OFFSET s21, OFFSET s22, OFFSET s23, OFFSET s24
+s1 BYTE "大吉：文昌帝君附體，過目不忘。",0
+s2 BYTE "大吉：考運爆棚，猜的都對。",0
+s3 BYTE "大吉：難題迎刃而解，如有神助。",0
+s4 BYTE "中吉：努力有回報，進步明顯。",0
+s5 BYTE "中吉：適合規劃讀書計畫。",0
+s6 BYTE "中吉：專注力提升，效率高。",0
+s7 BYTE "小吉：多背幾個單字，會有用。",0
+s8 BYTE "小吉：適合複習舊進度。",0
+s9 BYTE "小吉：和同學討論會有收穫。",0
+s10 BYTE "吉：按部就班，穩定發揮。",0
+s11 BYTE "吉：圖書館是你的幸運地。",0
+s12 BYTE "吉：保持平常心就好。",0
+s13 BYTE "末吉：容易分心，手機收起來。",0
+s14 BYTE "末吉：進度稍微落後。",0
+s15 BYTE "末吉：要補的洞有點多。",0
+s16 BYTE "凶：書都讀不進去，去睡覺。",0
+s17 BYTE "凶：考試容易粗心大意。",0
+s18 BYTE "凶：作業寫不完，眼神死。",0
+s19 BYTE "小凶：腦袋一片空白。",0
+s20 BYTE "小凶：容易被老師點名。",0
+s21 BYTE "小凶：今天適合放空，別讀了。",0
+s22 BYTE "大凶：不想面對成績單。",0
+s23 BYTE "大凶：書本對你使用了催眠術。",0
+s24 BYTE "大凶：建議重修，下學期再來。",0
 
-study_good_1  BYTE "學業中吉：進度穩定，適合排新的讀書計畫。",0
-study_good_2  BYTE "學業中吉：小小努力就有明顯成效。",0
-study_good_3  BYTE "學業中吉：與同學討論會有好結果。",0
-
-study_small_1 BYTE "學業小吉：適合複習，能補上弱點。",0
-study_small_2 BYTE "學業小吉：今天讀起來比平常順。",0
-study_small_3 BYTE "學業小吉：小突破讓你更有動力。",0
-
-study_luck_1  BYTE "學業吉：理解速度還不錯，保持節奏。",0
-study_luck_2  BYTE "學業吉：適合念你想念的科目。",0
-study_luck_3  BYTE "學業吉：讀書環境越安靜效果越好。",0
-
-study_minor_1 BYTE "學業末吉：進度稍慢，不要焦急。",0
-study_minor_2 BYTE "學業末吉：可能分心，需要整理心情。",0
-study_minor_3 BYTE "學業末吉：適合做簡單的內容，避免困難題。",0
-
-study_bad_1   BYTE "學業凶：容易卡住，不妨換一科讀。",0
-study_bad_2   BYTE "學業凶：注意專注力，避免分心。",0
-study_bad_3   BYTE "學業凶：適合休息一下再繼續。",0
-
-study_sbad_1  BYTE "學業小凶：計畫趕不上變化，調整一下即可。",0
-study_sbad_2  BYTE "學業小凶：今天念書可能不太順。",0
-study_sbad_3  BYTE "學業小凶：不要硬讀，容易疲倦。",0
-
-study_worst_1 BYTE "學業大凶：注意精神疲勞，不適合讀太久。",0
-study_worst_2 BYTE "學業大凶：進度停滯，建議休息一天。",0
-study_worst_3 BYTE "學業大凶：念書容易煩躁，慢慢來比較好。",0
-
-; ================================
-; 健康＋財運 (fortunesHealth)
-; ================================
-fortunesHealth DWORD OFFSET health_great_1, OFFSET health_great_2
-           DWORD OFFSET health_great_3, OFFSET health_good_1
-           DWORD OFFSET health_good_2, OFFSET health_good_3
-           DWORD OFFSET health_small_1, OFFSET health_small_2
-           DWORD OFFSET health_small_3, OFFSET health_luck_1
-           DWORD OFFSET health_luck_2, OFFSET health_luck_3
-           DWORD OFFSET health_minor_1, OFFSET health_minor_2
-           DWORD OFFSET health_minor_3, OFFSET health_bad_1
-           DWORD OFFSET health_bad_2, OFFSET health_bad_3
-           DWORD OFFSET health_sbad_1, OFFSET health_sbad_2
-           DWORD OFFSET health_sbad_3, OFFSET health_worst_1
-           DWORD OFFSET health_worst_2, OFFSET health_worst_3
-
-health_great_1 BYTE "健康財運大吉：精神飽滿，財運走上坡！",0
-health_great_2 BYTE "健康大吉：身體狀態極佳，活力滿點。",0
-health_great_3 BYTE "財運大吉：可能有小驚喜或意外收入。",0
-
-health_good_1  BYTE "中吉：狀態平穩，適合規劃新目標。",0
-health_good_2  BYTE "中吉：心情愉快，能量充足。",0
-health_good_3  BYTE "中吉：理財靈感提升，適合做計畫。",0
-
-health_small_1 BYTE "小吉：稍作運動能讓你更有精神。",0
-health_small_2 BYTE "小吉：財運略有提升，小花費也值得。",0
-health_small_3 BYTE "小吉：保持規律生活會讓運勢更好。",0
-
-health_luck_1  BYTE "吉：身心均衡，適合外出走走。",0
-health_luck_2  BYTE "吉：工作效率普通但穩定。",0
-health_luck_3  BYTE "吉：消費要節制，不衝動購物。",0
-
-health_minor_1 BYTE "末吉：稍微疲倦，注意休息。",0
-health_minor_2 BYTE "末吉：避免大額花費。",0
-health_minor_3 BYTE "末吉：精神狀態需要調整。",0
-
-health_bad_1   BYTE "凶：可能感到壓力，放慢步調。",0
-health_bad_2   BYTE "凶：小病痛容易出現，多喝水。",0
-health_bad_3   BYTE "凶：注意荷包，避免破財。",0
-
-health_sbad_1  BYTE "小凶：疲累累積，需要補眠。",0
-health_sbad_2  BYTE "小凶：財運下降，避免投資。",0
-health_sbad_3  BYTE "小凶：不適合外出太久。",0
-
-health_worst_1 BYTE "大凶：精神不濟，今日運勢較弱。",0
-health_worst_2 BYTE "大凶：財運不佳，建議不要做決策。",0
-health_worst_3 BYTE "大凶：身體需要休息，別硬撐。",0
+fortunesWealth DWORD OFFSET w1, OFFSET w2, OFFSET w3, OFFSET w4, OFFSET w5, OFFSET w6, OFFSET w7, OFFSET w8, OFFSET w9, OFFSET w10, OFFSET w11, OFFSET w12, OFFSET w13, OFFSET w14, OFFSET w15, OFFSET w16, OFFSET w17, OFFSET w18, OFFSET w19, OFFSET w20, OFFSET w21, OFFSET w22, OFFSET w23, OFFSET w24
+w1 BYTE "大吉：財神爺敲門，橫財就手！",0
+w2 BYTE "大吉：投資精準，回報超乎想像。",0
+w3 BYTE "大吉：走路都會撿到錢，氣勢如虹。",0
+w4 BYTE "中吉：正財穩定，適合存錢。",0
+w5 BYTE "中吉：有意外的小獎金或禮物。",0
+w6 BYTE "中吉：買東西會遇到超值折扣。",0
+w7 BYTE "小吉：發票可能會中兩百。",0
+w8 BYTE "小吉：收支平衡，小有結餘。",0
+w9 BYTE "小吉：適合做小額儲蓄。",0
+w10 BYTE "吉：不花就是賺，守財有道。",0
+w11 BYTE "吉：朋友請客，省了一餐。",0
+w12 BYTE "吉：財務狀況平穩。",0
+w13 BYTE "末吉：衝動購物前請三思。",0
+w14 BYTE "末吉：錢包有點破洞，注意花費。",0
+w15 BYTE "末吉：別借錢給別人。",0
+w16 BYTE "凶：今日不宜投資，風險高。",0
+w17 BYTE "凶：小心遺失錢包或悠遊卡。",0
+w18 BYTE "凶：容易買到雷貨。",0
+w19 BYTE "小凶：月底吃土預警。",0
+w20 BYTE "小凶：會有必要的意外支出。",0
+w21 BYTE "小凶：股票一片綠油油。",0
+w22 BYTE "大凶：破財消災，人沒事就好。",0
+w23 BYTE "大凶：詐騙猖獗，接電話要小心。",0
+w24 BYTE "大凶：窮神附體，乖乖待在家。",0
 
 choiceInput BYTE 4 DUP(?)
 choiceVal  DWORD ?
 
-; ===== 愛情問題 (5 題) =====
-question1Msg BYTE 0Dh,0Ah,"Q1. 愛情的觸感是什麼？",0Dh,0Ah,\
-                    "1) 堅實的    2) 柔滑的",0Dh,0Ah,\
-                    "3) 輕盈的    4) 溫軟的",0Dh,0Ah,\
-                    "請輸入 1-4：",0
+; 星座選單
+zodiacMenu BYTE 0Dh, 0Ah, "                      請選擇星座 (上下鍵，Enter確認)：", 0Dh, 0Ah, 0
+zodiac1  BYTE "Aries      ", 0
+zodiac2  BYTE "Taurus     ", 0
+zodiac3  BYTE "Gemini     ", 0
+zodiac4  BYTE "Cancer     ", 0
+zodiac5  BYTE "Leo        ", 0
+zodiac6  BYTE "Virgo      ", 0
+zodiac7  BYTE "Libra      ", 0
+zodiac8  BYTE "Scorpio    ", 0
+zodiac9  BYTE "Sagittarius", 0
+zodiac10 BYTE "Capricorn  ", 0
+zodiac11 BYTE "Aquarius   ", 0
+zodiac12 BYTE "Pisces     ", 0
+zodiacList DWORD OFFSET zodiac1, OFFSET zodiac2, OFFSET zodiac3, OFFSET zodiac4, OFFSET zodiac5, OFFSET zodiac6
+           DWORD OFFSET zodiac7, OFFSET zodiac8, OFFSET zodiac9, OFFSET zodiac10, OFFSET zodiac11, OFFSET zodiac12
+zodiacSel  DWORD 0           
+arrowMark  BYTE "  👉 ", 0      
+spaceMark  BYTE "     ", 0
+clearLine  BYTE ESC_CODE, "[K", 0    
+cursorUp12 BYTE ESC_CODE, "[12A", 0  
+pressRightMsg BYTE 0Dh, 0Ah, "                      按任意鍵領取神旨...", 0
 
-question2Msg BYTE 0Dh,0Ah,"Q2. 你在愛情中的步伐像什麼？",0Dh,0Ah,\
-                    "1) 穩穩走    2) 緩緩靠近",0Dh,0Ah,\
-                    "3) 偶爾衝動  4) 直覺行動",0Dh,0Ah,\
-                    "請輸入 1-4：",0
-
-question3Msg BYTE 0Dh,0Ah,"Q3. 如果把戀愛比喻成天氣，你是？",0Dh,0Ah,\
-                    "1) 晴朗無雲  2) 微風和煦",0Dh,0Ah,\
-                    "3) 陣雨轉晴  4) 流星夜空",0Dh,0Ah,\
-                    "請輸入 1-4：",0
-
-question4Msg BYTE 0Dh,0Ah,"Q4. 你最期待的愛情狀態是？",0Dh,0Ah,\
-                    "1) 安定踏實  2) 溫柔互動",0Dh,0Ah,\
-                    "3) 心動火花  4) 劇烈浪漫",0Dh,0Ah,\
-                    "請輸入 1-4：",0
-
-question5Msg BYTE 0Dh,0Ah,"Q5. 當你想念一個人時，你會？",0Dh,0Ah,\
-                    "1) 默默等待  2) 傳訊問候",0Dh,0Ah,\
-                    "3) 計畫見面  4) 直接衝去找他",0Dh,0Ah,\
-                    "請輸入 1-4：",0
-
-qInput   BYTE 4 DUP(?)      ; 讀每一題的 1~4
-qSum     DWORD ?            ; 五題總分
-
-loveLevelHeader BYTE 0Dh,0Ah,"--- 愛情等級小評語 ---",0Dh,0Ah,0
-loveLevel_1 BYTE "你現在的愛情等級是：拉完了（加油好嗎）。",0
-loveLevel_2 BYTE "你現在的愛情等級是：NPC（偶爾也可以主動一下）。",0
-loveLevel_3 BYTE "你現在的愛情等級是：人上人（穩穩發光的類型）。",0
-loveLevel_4 BYTE "你現在的愛情等級是：頂級（魅力值已經很高了）。",0
-loveLevel_5 BYTE "你現在的愛情等級是：夯（今天超級戀愛 buff）。",0
-
-loveLevelTable DWORD OFFSET loveLevel_1, OFFSET loveLevel_2, \
-                     OFFSET loveLevel_3, OFFSET loveLevel_4, \
-                     OFFSET loveLevel_5
-loveLevelPtr   DWORD ?      ; 存放選好的等級字串位址
-
-
-fortunesTables DWORD OFFSET fortunesLove, OFFSET fortunesStudy, OFFSET fortunesHealth
+fortunesTables DWORD OFFSET fortunesLove, OFFSET fortunesStudy, OFFSET fortunesWealth
 
 nameBuf   BYTE MAX_NAME_LEN   DUP(?)
 birthBuf  BYTE MAX_BIRTH_LEN  DUP(?)
 zodiacBuf BYTE MAX_ZODIAC_LEN DUP(?)
-binBuf    BYTE BITS+1 DUP(?)
-
-; ===== 學業問題 (5 題) =====
-studyQ1Msg BYTE 0Dh,0Ah,"Q1. 今天的讀書狀態？",0Dh,0Ah,\
-                    "1) 完全讀不下去",0Dh,0Ah,\
-                    "2) 勉強硬撐一下",0Dh,0Ah,\
-                    "3) 有進度還可以",0Dh,0Ah,\
-                    "4) 超專心效率爆棚",0Dh,0Ah,\
-                    "請輸入 1-4：",0
-
-studyQ2Msg BYTE 0Dh,0Ah,"Q2. 你的讀書節奏比較像？",0Dh,0Ah,\
-                    "1) 考前一天爆肝",0Dh,0Ah,\
-                    "2) 靈感來才讀",0Dh,0Ah,\
-                    "3) 每天固定一點點",0Dh,0Ah,\
-                    "4) 早早規劃超前部署",0Dh,0Ah,\
-                    "請輸入 1-4：",0
-
-studyQ3Msg BYTE 0Dh,0Ah,"Q3. 面對考試時，你的心情？",0Dh,0Ah,\
-                    "1) 完全放飛自我",0Dh,0Ah,\
-                    "2) 有點慌但還撐著",0Dh,0Ah,\
-                    "3) 還算有把握",0Dh,0Ah,\
-                    "4) 信心滿滿等放榜",0Dh,0Ah,\
-                    "請輸入 1-4：",0
-
-studyQ4Msg BYTE 0Dh,0Ah,"Q4. 你和待辦清單的關係？",0Dh,0Ah,\
-                    "1) 看了就關掉",0Dh,0Ah,\
-                    "2) 做一點點就分心",0Dh,0Ah,\
-                    "3) 大部分能完成",0Dh,0Ah,\
-                    "4) 幾乎都能照計畫走",0Dh,0Ah,\
-                    "請輸入 1-4：",0
-
-studyQ5Msg BYTE 0Dh,0Ah,"Q5. 最近吸收新知的感覺？",0Dh,0Ah,\
-                    "1) 進去 0 出來 0",0Dh,0Ah,\
-                    "2) 有聽沒有很懂",0Dh,0Ah,\
-                    "3) 多看幾次就懂",0Dh,0Ah,\
-                    "4) 一看就懂還能教人",0Dh,0Ah,\
-                    "請輸入 1-4：",0
-
-studyLevelHeader BYTE 0Dh,0Ah,"--- 學業等級小評語 ---",0Dh,0Ah,0
-studyLevel_1 BYTE "你的學業等級是：拉完了（課本先打開一下好嗎）。",0
-studyLevel_2 BYTE "你的學業等級是：NPC（有上線，但存在感還能再提升）。",0
-studyLevel_3 BYTE "你的學業等級是：人上人（穩定輸出，越來越強）。",0
-studyLevel_4 BYTE "你的學業等級是：頂級（讀書節奏很可以）。",0
-studyLevel_5 BYTE "你的學業等級是：夯（今天腦袋是黃金狀態）。",0
-
-studyLevelTable DWORD OFFSET studyLevel_1, OFFSET studyLevel_2, \
-                       OFFSET studyLevel_3, OFFSET studyLevel_4, \
-                       OFFSET studyLevel_5
-studyLevelPtr   DWORD ?      ; 存放選好的學業等級字串位址
-
-; ===== 健康＋財運問題 (5 題) =====
-healthQ1Msg BYTE 0Dh,0Ah,"Q1. 最近身體的感覺？",0Dh,0Ah,\
-                     "1) 超累只想躺",0Dh,0Ah,\
-                     "2) 容易疲倦",0Dh,0Ah,\
-                     "3) 還算有精神",0Dh,0Ah,\
-                     "4) 精力充沛想到處跑",0Dh,0Ah,\
-                     "請輸入 1-4：",0
-
-healthQ2Msg BYTE 0Dh,0Ah,"Q2. 你的作息比較像？",0Dh,0Ah,\
-                     "1) 爆炸熬夜型",0Dh,0Ah,\
-                     "2) 常常晚睡追東西",0Dh,0Ah,\
-                     "3) 偶爾晚睡但會補眠",0Dh,0Ah,\
-                     "4) 規律早睡早起",0Dh,0Ah,\
-                     "請輸入 1-4：",0
-
-healthQ3Msg BYTE 0Dh,0Ah,"Q3. 你對自己錢包的感覺？",0Dh,0Ah,\
-                     "1) 已經乾掉了",0Dh,0Ah,\
-                     "2) 快要見底有點怕",0Dh,0Ah,\
-                     "3) 還算 OK 可以撐",0Dh,0Ah,\
-                     "4) 滿滿的很安心",0Dh,0Ah,\
-                     "請輸入 1-4：",0
-
-healthQ4Msg BYTE 0Dh,0Ah,"Q4. 面對花錢你的反應？",0Dh,0Ah,\
-                     "1) 先刷再說之後再煩惱",0Dh,0Ah,\
-                     "2) 有點衝動但會猶豫一下",0Dh,0Ah,\
-                     "3) 會想一下再決定",0Dh,0Ah,\
-                     "4) 一定先算清楚再花",0Dh,0Ah,\
-                     "請輸入 1-4：",0
-
-healthQ5Msg BYTE 0Dh,0Ah,"Q5. 你最近照顧自己的程度？",0Dh,0Ah,\
-                     "1) 幾乎放生自己",0Dh,0Ah,\
-                     "2) 偶爾才想到要休息",0Dh,0Ah,\
-                     "3) 有刻意調整飲食/休息",0Dh,0Ah,\
-                     "4) 穩定運動又好好睡覺",0Dh,0Ah,\
-                     "請輸入 1-4：",0
-
-healthLevelHeader BYTE 0Dh,0Ah,"--- 健康與財運等級小評語 ---",0Dh,0Ah,0
-healthLevel_1 BYTE "你的健康財運等級是：拉完了（拜託先睡飽跟存一點錢）。",0
-healthLevel_2 BYTE "你的健康財運等級是：NPC（還在場上，但要多照顧自己）。",0
-healthLevel_3 BYTE "你的健康財運等級是：人上人（身心逐漸穩定起來）。",0
-healthLevel_4 BYTE "你的健康財運等級是：頂級（狀態良好，運勢跟著走高）。",0
-healthLevel_5 BYTE "你的健康財運等級是：夯（整體氣場超好，適合展開行動）。",0
-
-healthLevelTable DWORD OFFSET healthLevel_1, OFFSET healthLevel_2, \
-                        OFFSET healthLevel_3, OFFSET healthLevel_4, \
-                        OFFSET healthLevel_5
-healthLevelPtr   DWORD ?      ; 存放選好的健康財運等級字串位址
-
-
+qInput    BYTE 4 DUP(?)      
+qSum      DWORD ?            
+levelIndex DWORD ?           
 hashVal   DWORD ?
 indexVal  DWORD ?
 
-; ================================
-; 動畫用字串
-; ================================
-introStars BYTE \
-"            *        *        *",0Dh,0Ah,\
-"      *         今日運勢占卜        *",0Dh,0Ah,\
-"  *        *        *       *   ",0Dh,0Ah,0
+; ===== 問題（改回愛情版） =====
+q1Msg BYTE 0Dh,0Ah,"                      Q1. 愛情的觸感是什麼？",0Dh,0Ah,\
+                   "                      1) 堅實的    2) 柔滑的",0Dh,0Ah,\
+                   "                      3) 輕盈的    4) 溫軟的",0Dh,0Ah,\
+                   "                      請輸入 1-4：",0
 
-loadingMsg BYTE 0Dh,0Ah,"抽籤中，請稍候...",0
+q2Msg BYTE 0Dh,0Ah,"                      Q2. 你在愛情中的步伐像什麼？",0Dh,0Ah,\
+                   "                      1) 穩穩走    2) 緩緩靠近",0Dh,0Ah,\
+                   "                      3) 偶爾衝動  4) 直覺行動",0Dh,0Ah,\
+                   "                      請輸入 1-4：",0
 
-fireFrame1 BYTE \
-"           .            ",0Dh,0Ah,\
-0Dh,0Ah,\
-0Dh,0Ah,0
+q3Msg BYTE 0Dh,0Ah,"                      Q3. 如果把戀愛比喻成天氣，你是？",0Dh,0Ah,\
+                   "                      1) 晴朗無雲  2) 微風和煦",0Dh,0Ah,\
+                   "                      3) 陣雨轉晴  4) 流星夜空",0Dh,0Ah,\
+                   "                      請輸入 1-4：",0
 
-fireFrame2 BYTE \
-"           *            ",0Dh,0Ah,\
-"          * *           ",0Dh,0Ah,\
-0Dh,0Ah,0
+q4Msg BYTE 0Dh,0Ah,"                      Q4. 你最期待的愛情狀態是？",0Dh,0Ah,\
+                   "                      1) 安定踏實  2) 溫柔互動",0Dh,0Ah,\
+                   "                      3) 心動火花  4) 劇烈浪漫",0Dh,0Ah,\
+                   "                      請輸入 1-4：",0
 
-fireFrame3 BYTE \
-"        .  *  .         ",0Dh,0Ah,\
-"       *  ***  *        ",0Dh,0Ah,\
-"        .  *  .         ",0Dh,0Ah,0
+q5Msg BYTE 0Dh,0Ah,"                      Q5. 當你想念一個人時，你會？",0Dh,0Ah,\
+                   "                      1) 默默等待  2) 傳訊問候",0Dh,0Ah,\
+                   "                      3) 計畫見面  4) 直接衝去找他",0Dh,0Ah,\
+                   "                      請輸入 1-4：",0
 
-heartFrame BYTE \
-"      **     **         ",0Dh,0Ah,\
-"     ****   ****        ",0Dh,0Ah,\
-"     ****** *****       ",0Dh,0Ah,\
-"      *********         ",0Dh,0Ah,\
-"        *****           ",0Dh,0Ah,\
-"          *             ",0Dh,0Ah,0
+levelHeader BYTE 0Dh,0Ah,"                      [靈力等級評定]: ",0
+level1 BYTE "拉完了",0
+level2 BYTE "NPC",0
+level3 BYTE "人上人",0
+level4 BYTE "頂級",0
+level5 BYTE "夯",0
+levelTable DWORD OFFSET level1, OFFSET level2, OFFSET level3, OFFSET level4, OFFSET level5
+levelPtr DWORD ?
+
+loadingMsg BYTE 0Dh,0Ah,"                      祈願傳送中...",0
+
+; 動畫符號
+heartChars    BYTE "♥o*~.+", 0
+moneyChars    BYTE "$¥€£¢", 0
 
 .code
 
-SelectZodiac PROC USES eax ebx ecx edx esi
-    mov zodiacSel, 0
+; ==================================================
+; ★ 3. 音樂函式庫
+; ==================================================
+
+; --- 開場主題曲 ---
+PlayIntroMusic PROC USES eax
+    INVOKE Beep, NOTE_C4, 150
+    INVOKE Beep, NOTE_E4, 150
+    INVOKE Beep, NOTE_G4, 150
+    INVOKE Beep, NOTE_C5, 300
+    INVOKE Beep, NOTE_G4, 150
+    INVOKE Beep, NOTE_C5, 500
+    ret
+PlayIntroMusic ENDP
+
+; --- 確認音效 ---
+PlayCoinSound PROC USES eax
+    INVOKE Beep, NOTE_B4, 100
+    INVOKE Beep, NOTE_E5, 200
+    ret
+PlayCoinSound ENDP
+
+; --- 移動游標音效 ---
+PlayMoveSound PROC USES eax
+    INVOKE Beep, NOTE_A4, 50
+    ret
+PlayMoveSound ENDP
+
+; --- 結果發表音效（目前不呼叫） ---
+PlayWinSound PROC USES eax
+    INVOKE Beep, NOTE_C5, 100
+    INVOKE Beep, NOTE_D5, 100
+    INVOKE Beep, NOTE_E5, 100
+    INVOKE Beep, NOTE_G5, 100
+    INVOKE Beep, NOTE_C6, 600
+    ret
+PlayWinSound ENDP
+
+; ==================================================
+; ★ 4. Fancy 霓虹神社開場 (置中 + 閃爍)
+; ==================================================
+ShrineIntro PROC USES eax ecx edx
+    call SetShrineBackground
     
-    ; 印出選單標題
-    mov edx, OFFSET zodiacMenu
+    ; 播放開場音樂
+    call PlayIntroMusic
+    
+    ; 霓虹燈閃爍效果
+    mov ecx, 3 
+flash_loop:
+    push ecx
+    
+    ; 顏色 1: 紅
+    mov edx, OFFSET colorRed
+    call WriteString
+    call DrawTorii
+    mov eax, 300
+    call Delay
+    call ClearWithBg
+    
+    ; 顏色 2: 金
+    mov edx, OFFSET colorGold
+    call WriteString
+    call DrawTorii
+    mov eax, 300
+    call Delay
+    call ClearWithBg
+
+    ; 顏色 3: 白
+    mov edx, OFFSET colorWhite
+    call WriteString
+    call DrawTorii
+    mov eax, 300
+    call Delay
+    call ClearWithBg
+
+    pop ecx
+    loop flash_loop
+
+    ; 最後定格在紅色
+    mov edx, OFFSET colorRed
+    call WriteString
+    call DrawTorii
+    
+    ret
+ShrineIntro ENDP
+
+DrawTorii PROC USES edx
+    mov edx, OFFSET torii1
+    call WriteString
+    mov edx, OFFSET torii2
+    call WriteString
+    mov edx, OFFSET torii3
+    call WriteString
+    mov edx, OFFSET torii4
+    call WriteString
+    mov edx, OFFSET torii5
+    call WriteString
+    mov edx, OFFSET torii6
+    call WriteString
+    mov edx, OFFSET torii7
+    call WriteString
+    mov edx, OFFSET torii8
+    call WriteString
+    mov edx, OFFSET torii9
+    call WriteString
+    mov edx, OFFSET torii10
+    call WriteString
+    ret
+DrawTorii ENDP
+
+; ==================================================
+; ★ 5. 華麗的置中動畫
+; ==================================================
+
+; 通用等待動畫
+FancyLoading PROC USES eax ecx edx
+    mov edx, OFFSET loadingMsg
     call WriteString
     
-    ; 印出 12 個星座
+    mov ecx, 10
+loading_loop:
+    mov al, '.'
+    call WriteChar
+    mov eax, 100
+    call Delay
+    loop loading_loop
+    
+    call ClearWithBg
+    ret
+FancyLoading ENDP
+
+; 金幣雨動畫
+WealthRain PROC USES eax ecx edx esi
+    mov edx, OFFSET colorGold
+    call WriteString
+    mov ecx, 60
+w_loop:
+    mov eax, 20      ; 行
+    call RandomRange
+    mov dh, al
+    mov eax, 60      ; 列 (限制在中間區域)
+    call RandomRange
+    add al, 10       ; 左邊偏移
+    mov dl, al
+    call Gotoxy
+    
+    mov eax, 5
+    call RandomRange
+    mov esi, OFFSET moneyChars
+    add esi, eax
+    mov al, [esi]
+    call WriteChar
+    
+    mov eax, 30
+    call Delay
+    loop w_loop
+    call ClearWithBg
+    ret
+WealthRain ENDP
+
+; ==================================================
+; 輔助函式
+; ==================================================
+
+SelectZodiac PROC USES eax ebx ecx edx esi
+    mov zodiacSel, 0
+    mov edx, OFFSET zodiacMenu
+    call WriteString
     call DrawZodiacList
 
 select_loop:
     call ReadKey
-    
     cmp ah, 72        ; 上鍵
     je go_up
     cmp ah, 80        ; 下鍵
@@ -443,24 +442,23 @@ go_up:
     cmp zodiacSel, 0
     je select_loop
     dec zodiacSel
+    call PlayMoveSound
     call DrawZodiacList
     jmp select_loop
-
 go_down:
     cmp zodiacSel, 11
     je select_loop
     inc zodiacSel
+    call PlayMoveSound
     call DrawZodiacList
     jmp select_loop
-
 select_done:
-    ; 把選擇的星座複製到 zodiacBuf
+    call PlayCoinSound
     mov eax, zodiacSel
     shl eax, 2
     mov esi, OFFSET zodiacList
     add esi, eax
-    mov esi, [esi]       ; esi = 選中星座字串
-    
+    mov esi, [esi]       
     mov edi, OFFSET zodiacBuf
 copy_zodiac:
     mov al, [esi]
@@ -475,21 +473,19 @@ copy_done:
 SelectZodiac ENDP
 
 DrawZodiacList PROC USES eax ebx ecx edx esi
-    ; 游標上移 12 行
     mov edx, OFFSET cursorUp12
     call WriteString
-    
-    mov ecx, 0      ; 計數器 0-11
-    
+    mov ecx, 0      
 draw_loop:
     cmp ecx, 12
     jge draw_done
-    
-    ; 清除該行
     mov edx, OFFSET clearLine
     call WriteString
     
-    ; 印箭頭或空白
+    ; 置中空白
+    mov edx, OFFSET margin
+    call WriteString
+
     cmp ecx, zodiacSel
     jne no_arrow
     mov edx, OFFSET arrowMark
@@ -498,9 +494,7 @@ draw_loop:
 no_arrow:
     mov edx, OFFSET spaceMark
     call WriteString
-
 print_name:
-    ; 印星座名稱
     mov eax, ecx
     shl eax, 2
     mov esi, OFFSET zodiacList
@@ -508,29 +502,40 @@ print_name:
     mov edx, [esi]
     call WriteString
     call CrLf
-    
     inc ecx
     jmp draw_loop
-
 draw_done:
     ret
 DrawZodiacList ENDP
 
-WaitRightKey PROC USES eax
-wait_loop:
-    call ReadKey
-    cmp ah, 77        ; 右鍵的 scan code
-    jne wait_loop
-    ret
-WaitRightKey ENDP
-
-SetWhiteBackground PROC
-    mov edx, OFFSET setWhiteBg
+SetShrineBackground PROC
+    mov edx, OFFSET setShrineBg
     call WriteString
     mov edx, OFFSET clearAll
     call WriteString
     ret
-SetWhiteBackground ENDP
+SetShrineBackground ENDP
+
+ClearWithBg PROC
+    cmp currentBg, 1
+    je use_love
+    cmp currentBg, 2
+    je use_study
+    cmp currentBg, 3
+    je use_wealth
+    mov edx, OFFSET setShrineBg
+    jmp do_c
+use_love: mov edx, OFFSET setLoveBg
+    jmp do_c
+use_study: mov edx, OFFSET setStudyBg
+    jmp do_c
+use_wealth: mov edx, OFFSET setWealthBg
+do_c:
+    call WriteString
+    mov edx, OFFSET clearAll
+    call WriteString
+    ret
+ClearWithBg ENDP
 
 ResetColors PROC
     mov edx, OFFSET resetColor
@@ -538,319 +543,22 @@ ResetColors PROC
     ret
 ResetColors ENDP
 
-
 ; ==================================================
-; 顯示愛心
-; ==================================================
-show_love_heart PROC
-    mov edx, OFFSET setLoveBg
-    call WriteString
-    call ClearWithBg
-    
-    mov edx, OFFSET love_heart1
-    call WriteString
-    mov edx, OFFSET love_heart2
-    call WriteString
-    mov edx, OFFSET love_heart3
-    call WriteString
-    mov edx, OFFSET love_heart4
-    call WriteString
-    mov edx, OFFSET love_heart5
-    call WriteString
-    mov edx, OFFSET love_heart6
-    call WriteString
-    mov edx, OFFSET love_heart7
-    call WriteString
-    mov edx, OFFSET love_heart8
-    call WriteString
-    mov edx, OFFSET love_heart9
-    call WriteString
-    mov edx, OFFSET love_heart10
-    call WriteString
-    mov edx, OFFSET love_heart11
-    call WriteString
-    mov edx, OFFSET love_heart12
-    call WriteString
-    
-    ret
-show_love_heart ENDP
-
-; ==================================================
-; 打字機效果
-; ==================================================
-Typewriter PROC USES eax ebx edx esi
-    mov esi, edx
-    mov ebx, ecx
-
-NextChar:
-    mov al, [esi]
-    cmp al, 0
-    je  Done
-
-    call WriteChar
-
-    mov eax, ebx
-    call Delay
-
-    inc esi
-    jmp NextChar
-
-Done:
-    ret
-Typewriter ENDP
-
-; ==================================================
-; 旋轉棒 Loading 動畫
-; ==================================================
-Spinner PROC USES eax ecx
-    mov ecx, 10
-
-spin_loop:
-    mov al, '|'
-    call WriteChar
-    mov eax, 60
-    call Delay
-    mov al, 8
-    call WriteChar
-
-    mov al, '/'
-    call WriteChar
-    mov eax, 60
-    call Delay
-    mov al, 8
-    call WriteChar
-
-    mov al, '-'
-    call WriteChar
-    mov eax, 60
-    call Delay
-    mov al, 8
-    call WriteChar
-
-    mov al, '\'
-    call WriteChar
-    mov eax, 60
-    call Delay
-    mov al, 8
-    call WriteChar
-
-    loop spin_loop
-    ret
-Spinner ENDP
-
-; ==================================================
-; 進度條動畫
-; ==================================================
-ProgressBar PROC USES eax ebx ecx edx esi
-    ; 印出標題
-    mov edx, OFFSET progressInit
-    call WriteString
-    
-    ; 印出 20 個空白 + "  0%"
-    mov ecx, 20
-init_space:
-    cmp ecx, 0
-    je init_space_done
-    mov al, ' '
-    call WriteChar
-    dec ecx
-    jmp init_space
-init_space_done:
-    mov al, ' '
-    call WriteChar
-    mov al, ' '
-    call WriteChar
-    mov al, '0'
-    call WriteChar
-    mov al, '%'
-    call WriteChar
-    
-    mov esi, 1
-
-bar_loop:
-    cmp esi, 20
-    jg bar_done
-    
-    ; 往左移 24 格（回到進度條最左邊）
-    mov ecx, 24
-go_back:
-    cmp ecx, 0
-    je go_back_done
-    mov al, 8
-    call WriteChar
-    dec ecx
-    jmp go_back
-go_back_done:
-    
-    ; 印方塊
-    mov ecx, esi
-fill_loop:
-    cmp ecx, 0
-    je fill_done
-    mov edx, OFFSET barBlock
-    call WriteString
-    dec ecx
-    jmp fill_loop
-fill_done:
-
-    ; 印空白補滿到 20 格
-    mov ecx, 20
-    sub ecx, esi
-space_loop:
-    cmp ecx, 0
-    je space_done
-    mov al, ' '
-    call WriteChar
-    dec ecx
-    jmp space_loop
-space_done:
-
-    ; 印固定寬度百分比 (4 字元: 空白+數字+%)
-    mov eax, esi
-    mov ebx, 5
-    mul ebx              ; eax = 百分比
-    
-    cmp eax, 100
-    jge print_pct
-    cmp eax, 10
-    jge one_space
-    ; 一位數，印兩個空白
-    push eax
-    mov al, ' '
-    call WriteChar
-    mov al, ' '
-    call WriteChar
-    pop eax
-    jmp print_pct
-one_space:
-    ; 兩位數，印一個空白
-    push eax
-    mov al, ' '
-    call WriteChar
-    pop eax
-print_pct:
-    call WriteDec
-    mov al, '%'
-    call WriteChar
-    
-    ; 判斷是否到 100%
-    cmp esi, 20
-    jne normal_delay
-    ; 100% 停 2 秒
-    mov eax, 2000
-    call Delay
-    jmp bar_done
-normal_delay:
-    mov eax, 100
-    call Delay
-    
-    inc esi
-    jmp bar_loop
-
-bar_done:
-    call CrLf
-    ret
-ProgressBar ENDP
-
-; ==================================================
-; 煙火 + 愛心動畫
-; ==================================================
-FireworkAndHeart PROC USES eax edx
-    call ClearWithBg
-    mov edx, OFFSET fireFrame1
-    call WriteString
-    mov eax, 200
-    call Delay
-
-    call ClearWithBg
-    mov edx, OFFSET fireFrame2
-    call WriteString
-    mov eax, 200
-    call Delay
-
-    call ClearWithBg
-    mov edx, OFFSET fireFrame3
-    call WriteString
-    mov eax, 300
-    call Delay
-
-    call ClearWithBg
-    mov edx, OFFSET heartFrame
-    call WriteString
-    mov eax, 500
-    call Delay
-
-    ret
-FireworkAndHeart ENDP
-
-; ==================================================
-; 開場星星 + 標題打字
-; ==================================================
-IntroScreen PROC USES eax edx ecx
-    call ClearWithBg
-
-    mov edx, OFFSET introStars
-    mov ecx, 10
-    call Typewriter
-
-    call CrLf
-    call CrLf
-
-    mov edx, OFFSET welcomeTitle
-    mov ecx, 10
-    call Typewriter
-
-    ret
-IntroScreen ENDP
-
-SetLoveBackground PROC
-    mov edx, OFFSET setLoveBg
-    call WriteString
-    mov edx, OFFSET clearAll
-    call WriteString
-    ret
-SetLoveBackground ENDP
-
-ClearWithBg PROC
-    cmp currentBg, 1
-    je use_love_bg
-    cmp currentBg, 2
-    je use_study_bg
-    cmp currentBg, 3
-    je use_health_bg
-    ; 預設白色背景
-    mov edx, OFFSET setWhiteBg
-    jmp do_clear
-use_love_bg:
-    mov edx, OFFSET setLoveBg
-    jmp do_clear
-use_study_bg:
-    mov edx, OFFSET setStudyBg
-    jmp do_clear
-use_health_bg:
-    mov edx, OFFSET setHealthBg
-do_clear:
-    call WriteString
-    mov edx, OFFSET clearAll
-    call WriteString
-    ret
-ClearWithBg ENDP
-
-; ==================================================
-; 主程式
+; ★ 主程式
 ; ==================================================
 start@0 PROC
-    call SetWhiteBackground
-    ;---------------------------------------
-    ; 2. 開場動畫 + 選單
-    ;---------------------------------------
-    call IntroScreen
-
+    call Randomize          
+    
+    ; 1. 豪華開場
+    call ShrineIntro
+    
+    ; 2. 選單 (置中)
+    call SetShrineBackground
+    mov edx, OFFSET welcomeTitle
+    call WriteString
     mov edx, OFFSET menuPrompt
-    mov ecx, 5
-    call Typewriter
+    call WriteString
 
-    ; 讀入使用者選擇
     mov edx, OFFSET choiceInput
     mov ecx, 4
     call ReadString
@@ -872,529 +580,225 @@ invalid_choice:
     mov choiceVal, 1
 
 valid_choice:
-  mov eax, choiceVal
-    mov currentBg, eax    ; 直接用 1/2/3 當旗標
+    call PlayCoinSound
+    mov eax, choiceVal
+    mov currentBg, eax    
+    call ClearWithBg      
 
-    call ClearWithBg      ; 立即切換背景
-
-; 如果選擇愛情運勢，切換粉色背景
-    cmp choiceVal, 1
-    jne skip_love_bg
-    mov edx, OFFSET setLoveBg
-    call WriteString
-    mov edx, OFFSET clearAll
-    call WriteString
-skip_love_bg:
-    ;---------------------------------------
-    ; 3. 輸入個人資料
-    ;---------------------------------------
+    ; 3. 輸入資料 (置中)
     call ClearWithBg
-
     mov edx, OFFSET promptTitle
     call WriteString
-
     mov edx, OFFSET promptEnterName
     call WriteString
     mov edx, OFFSET nameBuf
     mov ecx, MAX_NAME_LEN
     call ReadString
-
     mov edx, OFFSET promptEnterBirth
     call WriteString
     mov edx, OFFSET birthBuf
     mov ecx, MAX_BIRTH_LEN
     call ReadString
 
-    ; 先印 12 行空白給選單用
     mov ecx, 12
-    print_blank:
+print_blank:
     call CrLf
     loop print_blank
-    
     call SelectZodiac
 
-    ;---------------------------------------
-    ; 4. Hash 計算
-    ;---------------------------------------
+    ; 4. 計算 Hash（簡化版：只用名字）
     xor eax, eax
     mov ebx, 131
-
     mov esi, OFFSET nameBuf
-hash_name_loop:
+hash_loop:
     mov dl, [esi]
     cmp dl, 0
-    je  hash_birth_start
+    je hash_done
     imul eax, ebx
     movzx edx, dl
     add eax, edx
     inc esi
-    jmp hash_name_loop
-
-hash_birth_start:
-    mov esi, OFFSET birthBuf
-hash_birth_loop:
-    mov dl, [esi]
-    cmp dl, 0
-    je  hash_zod_start
-    imul eax, ebx
-    movzx edx, dl
-    add eax, edx
-    inc esi
-    jmp hash_birth_loop
-
-hash_zod_start:
-    mov esi, OFFSET zodiacBuf
-hash_zod_loop:
-    mov dl, [esi]
-    cmp dl, 0
-    je  hash_done
-    imul eax, ebx
-    movzx edx, dl
-    add eax, edx
-    inc esi
-    jmp hash_zod_loop
-
+    jmp hash_loop
 hash_done:
     mov hashVal, eax
 
-    ;---------------------------------------
-    ; 5. 二進位轉換
-    ;---------------------------------------
+    ; 5. 動畫轉場
+    cmp choiceVal, 3
+    jne normal_anim
+    call WealthRain
+    jmp anim_finish
+normal_anim:
+    call FancyLoading
+anim_finish:
+
+    ; 6. 問問題＆算 qSum
+    call ClearWithBg
+    xor eax, eax
+    mov qSum, eax
+
+    mov edx, OFFSET q1Msg
+    call WriteString
+    mov edx, OFFSET qInput
+    mov ecx, 4
+    call ReadString
+    mov dl, BYTE PTR qInput
+    sub dl, '0'
+    movzx eax, dl
+    add qSum, eax
+    
+    mov edx, OFFSET q2Msg
+    call WriteString
+    mov edx, OFFSET qInput
+    mov ecx, 4
+    call ReadString
+    mov dl, BYTE PTR qInput
+    sub dl, '0'
+    movzx eax, dl
+    add qSum, eax
+
+    mov edx, OFFSET q3Msg
+    call WriteString
+    mov edx, OFFSET qInput
+    mov ecx, 4
+    call ReadString
+    mov dl, BYTE PTR qInput
+    sub dl, '0'
+    movzx eax, dl
+    add qSum, eax
+
+    mov edx, OFFSET q4Msg
+    call WriteString
+    mov edx, OFFSET qInput
+    mov ecx, 4
+    call ReadString
+    mov dl, BYTE PTR qInput
+    sub dl, '0'
+    movzx eax, dl
+    add qSum, eax
+
+    mov edx, OFFSET q5Msg
+    call WriteString
+    mov edx, OFFSET qInput
+    mov ecx, 4
+    call ReadString
+    mov dl, BYTE PTR qInput
+    sub dl, '0'
+    movzx eax, dl
+    add qSum, eax
+
+    ; 7. 將 qSum 轉成 0~4 等級 index
+    mov eax, qSum        ; 5~20
+
+    cmp eax, 8
+    jl  l_1
+    cmp eax, 12
+    jl  l_2
+    cmp eax, 15
+    jl  l_3
+    cmp eax, 18
+    jl  l_4
+    jmp l_5
+
+l_1: mov eax, 0
+     jmp l_done
+l_2: mov eax, 1
+     jmp l_done
+l_3: mov eax, 2
+     jmp l_done
+l_4: mov eax, 3
+     jmp l_done
+l_5: mov eax, 4
+l_done:
+    mov levelIndex, eax          ; 記住等級 0~4
+
+    mov ecx, eax
+    shl ecx, 2
+    mov edx, OFFSET levelTable
+    add edx, ecx
+    mov edx, [edx]
+    mov levelPtr, edx
+
+    ; 8. 顯示結果（不再播放 PlayWinSound）
     call ClearWithBg
 
-    mov eax, hashVal
-    mov edi, OFFSET binBuf
-    mov ecx, BITS
-
-    mov ebx, 1
-    mov edx, BITS
-    dec edx
-mask_build_loop:
-    cmp edx, 0
-    jle mask_ready
-    shl ebx, 1
-    dec edx
-    jmp mask_build_loop
-mask_ready:
-
-    xor esi, esi
-    mov edx, BITS
-
-bit_loop:
-    cmp edx, 0
-    jle bits_done
-
-    test eax, ebx
-    jz  bit_zero
-    mov BYTE PTR [edi+esi], '1'
-    jmp bit_next
-
-bit_zero:
-    mov BYTE PTR [edi+esi], '0'
-
-bit_next:
-    shr ebx, 1
-    inc esi
-    dec edx
-    jmp bit_loop
-
-bits_done:
-    mov BYTE PTR [edi+esi], 0
-
-    ;---------------------------------------
-    ; 7. 抽籤動畫
-    ;---------------------------------------
-    mov edx, OFFSET loadingMsg
+    mov edx, OFFSET resultHeader
     call WriteString
-    call Spinner
-    call ProgressBar
 
-    ;---------------------------------------
-    ; 8. 計算籤詩索引
-    ;---------------------------------------
+    mov edx, OFFSET hashMsg
+    call WriteString
+    mov eax, hashVal
+    call WriteDec
+    call CrLf
+
+    ; 計算運勢字串 index
     mov eax, hashVal
     mov ebx, NUM_FORTUNES_PER_CAT
     xor edx, edx
-    div ebx
-    mov indexVal, edx
+    div ebx                 ; EDX = hashVal % 24
 
-;---------------------------------------
-; 9. 選擇運勢陣列
-;---------------------------------------
-mov eax, choiceVal
-dec eax
-shl eax, 2
-mov edx, OFFSET fortunesTables
-add edx, eax
-mov edx, [edx]
+    mov eax, choiceVal
+    dec eax
+    shl eax, 2
+    mov ebx, OFFSET fortunesTables
+    add ebx, eax
+    mov ebx, [ebx]          ; ebx = 該類別 fortunes 開頭
 
-mov eax, indexVal
-shl eax, 2
-add edx, eax
-mov edx, [edx]
+    shl edx, 2
+    add ebx, edx
+    mov ebx, [ebx]          ; ebx = 某一條籤詩位址
 
-;---------------------------------------
-; 10. 根據選擇 (1 愛情 / 2 學業 / 3 健康財運)
-;     問五題 & 計算對應等級
-;---------------------------------------
-mov ebx, edx      ; 保存籤詩位址（之後要印籤詩）
-
-mov eax, choiceVal
-cmp eax, 1
-je do_love_questions
-cmp eax, 2
-je do_study_questions
-cmp eax, 3
-je do_health_questions
-jmp after_questions      ; 理論上不會到這裡
-
-; ===== 愛情：五題 + 愛情等級 + 愛心動畫 =====
-do_love_questions:
-    xor eax, eax
-    mov qSum, eax
-
-    ; ---- 愛情 Q1 ----
-    mov edx, OFFSET question1Msg
+    ; 顯示籤詩
+    mov edx, OFFSET fortuneHeader
     call WriteString
-    mov edx, OFFSET qInput
-    mov ecx, 4
-    call ReadString
-    mov dl, BYTE PTR qInput
-    sub dl, '0'
-    movzx eax, dl
-    add qSum, eax
-
-    ; ---- 愛情 Q2 ----
-    mov edx, OFFSET question2Msg
+    
+    mov edx, OFFSET margin
     call WriteString
-    mov edx, OFFSET qInput
-    mov ecx, 4
-    call ReadString
-    mov dl, BYTE PTR qInput
-    sub dl, '0'
-    movzx eax, dl
-    add qSum, eax
-
-    ; ---- 愛情 Q3 ----
-    mov edx, OFFSET question3Msg
+    mov edx, OFFSET colorRed
     call WriteString
-    mov edx, OFFSET qInput
-    mov ecx, 4
-    call ReadString
-    mov dl, BYTE PTR qInput
-    sub dl, '0'
-    movzx eax, dl
-    add qSum, eax
-
-    ; ---- 愛情 Q4 ----
-    mov edx, OFFSET question4Msg
-    call WriteString
-    mov edx, OFFSET qInput
-    mov ecx, 4
-    call ReadString
-    mov dl, BYTE PTR qInput
-    sub dl, '0'
-    movzx eax, dl
-    add qSum, eax
-
-    ; ---- 愛情 Q5 ----
-    mov edx, OFFSET question5Msg
-    call WriteString
-    mov edx, OFFSET qInput
-    mov ecx, 4
-    call ReadString
-    mov dl, BYTE PTR qInput
-    sub dl, '0'
-    movzx eax, dl
-    add qSum, eax
-
-    ; ==== 用 qSum 算愛情等級 index (0~4) ====
-    ; 總分範圍：5~20
-    mov eax, qSum
-
-    cmp eax, 8
-    jl  love_level_0        ; < 8  → 拉完了
-    cmp eax, 12
-    jl  love_level_1        ; < 12 → NPC
-    cmp eax, 16
-    jl  love_level_2        ; < 16 → 人上人
-    cmp eax, 19
-    jl  love_level_3        ; < 19 → 頂級
-    jmp love_level_4        ; >=19 → 夯
-
-love_level_0:
-    mov eax, 0
-    jmp love_level_done
-love_level_1:
-    mov eax, 1
-    jmp love_level_done
-love_level_2:
-    mov eax, 2
-    jmp love_level_done
-love_level_3:
-    mov eax, 3
-    jmp love_level_done
-love_level_4:
-    mov eax, 4
-
-love_level_done:
-    ; eax = 等級 index (0~4)
-    mov ecx, eax
-    shl ecx, 2                    ; *4
-    mov edx, OFFSET loveLevelTable
-    add edx, ecx
-    mov edx, [edx]                ; edx = loveLevel_x 的位址
-    mov loveLevelPtr, edx
-
-    ; 愛情專屬動畫
-    call show_love_heart
-    mov eax, 2000
-    call Delay
-
-    jmp after_questions
-
-; ===== 學業：五題 + 學業等級 =====
-do_study_questions:
-    xor eax, eax
-    mov qSum, eax
-
-    ; ---- 學業 Q1 ----
-    mov edx, OFFSET studyQ1Msg
-    call WriteString
-    mov edx, OFFSET qInput
-    mov ecx, 4
-    call ReadString
-    mov dl, BYTE PTR qInput
-    sub dl, '0'
-    movzx eax, dl
-    add qSum, eax
-
-    ; ---- 學業 Q2 ----
-    mov edx, OFFSET studyQ2Msg
-    call WriteString
-    mov edx, OFFSET qInput
-    mov ecx, 4
-    call ReadString
-    mov dl, BYTE PTR qInput
-    sub dl, '0'
-    movzx eax, dl
-    add qSum, eax
-
-    ; ---- 學業 Q3 ----
-    mov edx, OFFSET studyQ3Msg
-    call WriteString
-    mov edx, OFFSET qInput
-    mov ecx, 4
-    call ReadString
-    mov dl, BYTE PTR qInput
-    sub dl, '0'
-    movzx eax, dl
-    add qSum, eax
-
-    ; ---- 學業 Q4 ----
-    mov edx, OFFSET studyQ4Msg
-    call WriteString
-    mov edx, OFFSET qInput
-    mov ecx, 4
-    call ReadString
-    mov dl, BYTE PTR qInput
-    sub dl, '0'
-    movzx eax, dl
-    add qSum, eax
-
-    ; ---- 學業 Q5 ----
-    mov edx, OFFSET studyQ5Msg
-    call WriteString
-    mov edx, OFFSET qInput
-    mov ecx, 4
-    call ReadString
-    mov dl, BYTE PTR qInput
-    sub dl, '0'
-    movzx eax, dl
-    add qSum, eax
-
-    ; ==== 用 qSum 算學業等級 index (0~4) ====
-    mov eax, qSum
-
-    cmp eax, 8
-    jl  study_level_0
-    cmp eax, 12
-    jl  study_level_1
-    cmp eax, 16
-    jl  study_level_2
-    cmp eax, 19
-    jl  study_level_3
-    jmp study_level_4
-
-study_level_0:
-    mov eax, 0
-    jmp study_level_done
-study_level_1:
-    mov eax, 1
-    jmp study_level_done
-study_level_2:
-    mov eax, 2
-    jmp study_level_done
-study_level_3:
-    mov eax, 3
-    jmp study_level_done
-study_level_4:
-    mov eax, 4
-
-study_level_done:
-    mov ecx, eax
-    shl ecx, 2
-    mov edx, OFFSET studyLevelTable
-    add edx, ecx
-    mov edx, [edx]
-    mov studyLevelPtr, edx
-
-    jmp after_questions
-
-; ===== 健康＋財運：五題 + 健康財運等級 =====
-do_health_questions:
-    xor eax, eax
-    mov qSum, eax
-
-    ; ---- 健康財運 Q1 ----
-    mov edx, OFFSET healthQ1Msg
-    call WriteString
-    mov edx, OFFSET qInput
-    mov ecx, 4
-    call ReadString
-    mov dl, BYTE PTR qInput
-    sub dl, '0'
-    movzx eax, dl
-    add qSum, eax
-
-    ; ---- 健康財運 Q2 ----
-    mov edx, OFFSET healthQ2Msg
-    call WriteString
-    mov edx, OFFSET qInput
-    mov ecx, 4
-    call ReadString
-    mov dl, BYTE PTR qInput
-    sub dl, '0'
-    movzx eax, dl
-    add qSum, eax
-
-    ; ---- 健康財運 Q3 ----
-    mov edx, OFFSET healthQ3Msg
-    call WriteString
-    mov edx, OFFSET qInput
-    mov ecx, 4
-    call ReadString
-    mov dl, BYTE PTR qInput
-    sub dl, '0'
-    movzx eax, dl
-    add qSum, eax
-
-    ; ---- 健康財運 Q4 ----
-    mov edx, OFFSET healthQ4Msg
-    call WriteString
-    mov edx, OFFSET qInput
-    mov ecx, 4
-    call ReadString
-    mov dl, BYTE PTR qInput
-    sub dl, '0'
-    movzx eax, dl
-    add qSum, eax
-
-    ; ---- 健康財運 Q5 ----
-    mov edx, OFFSET healthQ5Msg
-    call WriteString
-    mov edx, OFFSET qInput
-    mov ecx, 4
-    call ReadString
-    mov dl, BYTE PTR qInput
-    sub dl, '0'
-    movzx eax, dl
-    add qSum, eax
-
-    ; ==== 用 qSum 算健康財運等級 index (0~4) ====
-    mov eax, qSum
-
-    cmp eax, 8
-    jl  health_level_0
-    cmp eax, 12
-    jl  health_level_1
-    cmp eax, 16
-    jl  health_level_2
-    cmp eax, 19
-    jl  health_level_3
-    jmp health_level_4
-
-health_level_0:
-    mov eax, 0
-    jmp health_level_done
-health_level_1:
-    mov eax, 1
-    jmp health_level_done
-health_level_2:
-    mov eax, 2
-    jmp health_level_done
-health_level_3:
-    mov eax, 3
-    jmp health_level_done
-health_level_4:
-    mov eax, 4
-
-health_level_done:
-    mov ecx, eax
-    shl ecx, 2
-    mov edx, OFFSET healthLevelTable
-    add edx, ecx
-    mov edx, [edx]
-    mov healthLevelPtr, edx
-
-    jmp after_questions
-
-after_questions:
-
-
-; ===== 根據選項顯示對應等級 =====
-mov eax, choiceVal
-cmp eax, 1
-je print_love_level
-cmp eax, 2
-je print_study_level
-cmp eax, 3
-je print_health_level
-jmp no_any_level
-
-print_love_level:
-    mov edx, OFFSET loveLevelHeader
-    call WriteString
-    mov edx, loveLevelPtr
+    mov edx, ebx
     call WriteString
     call CrLf
-    call CrLf
-    jmp no_any_level
+    
+    ; 顯示等級：標題 + 等級文字同一顏色
+    mov eax, levelIndex
+    cmp eax, 0
+    je lvl0
+    cmp eax, 1
+    je lvl1
+    cmp eax, 2
+    je lvl2
+    cmp eax, 3
+    je lvl3
+    ; 其他 → lvl4
+lvl4:
+    mov edx, OFFSET colorRed         ; 夯：紅色
+    jmp show_level
+lvl3:
+    mov edx, OFFSET colorPink        ; 頂級：粉色
+    jmp show_level
+lvl2:
+    mov edx, OFFSET colorGold        ; 人上人：金色
+    jmp show_level
+lvl1:
+    mov edx, OFFSET colorCyan        ; NPC：青色
+    jmp show_level
+lvl0:
+    mov edx, OFFSET colorWhite       ; 拉完了：白色
 
-print_study_level:
-    mov edx, OFFSET studyLevelHeader
+show_level:
+    call WriteString                 ; 設定顏色
+    mov edx, OFFSET levelHeader
     call WriteString
-    mov edx, studyLevelPtr
-    call WriteString
-    call CrLf
-    call CrLf
-    jmp no_any_level
-
-print_health_level:
-    mov edx, OFFSET healthLevelHeader
-    call WriteString
-    mov edx, healthLevelPtr
+    mov edx, levelPtr                ; 「拉完了 / NPC / 人上人 / 頂級 / 夯」
     call WriteString
     call CrLf
     call CrLf
 
-no_any_level:
+    call ResetColors
+    mov edx, OFFSET pressRightMsg
+    call WriteString
+    call ReadChar
 
-
-call WaitMsg
-exit
-
-
+    exit
 start@0 ENDP
-
 END start@0
