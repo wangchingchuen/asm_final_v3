@@ -106,82 +106,82 @@ hashMsg          BYTE 0Dh,0Ah,"                      [靈魂共鳴值]: ",0
 ; 運勢資料庫
 ; ================================
 fortunesLove DWORD OFFSET l1, OFFSET l2, OFFSET l3, OFFSET l4, OFFSET l5, OFFSET l6, OFFSET l7, OFFSET l8, OFFSET l9, OFFSET l10, OFFSET l11, OFFSET l12, OFFSET l13, OFFSET l14, OFFSET l15, OFFSET l16, OFFSET l17, OFFSET l18, OFFSET l19, OFFSET l20, OFFSET l21, OFFSET l22, OFFSET l23, OFFSET l24
-l1 BYTE "大吉：桃花盛開，轉角遇到愛。",0
-l2 BYTE "大吉：心有靈犀，對方也在想你。",0
-l3 BYTE "大吉：紅線已牽，大膽行動吧。",0
-l4 BYTE "中吉：氣氛曖昧，適合約會。",0
-l5 BYTE "中吉：多說好話，感情升溫。",0
-l6 BYTE "中吉：甜蜜互動，羨煞旁人。",0
-l7 BYTE "小吉：傳個訊息，會有回應。",0
-l8 BYTE "小吉：淡淡的幸福最長久。",0
-l9 BYTE "小吉：適合在咖啡廳偶遇。",0
-l10 BYTE "吉：平平淡淡也是真愛。",0
-l11 BYTE "吉：微笑是最好的武器。",0
-l12 BYTE "吉：放輕鬆，自然更有魅力。",0
-l13 BYTE "末吉：不要太急，慢慢來。",0
-l14 BYTE "末吉：容易會錯意，多觀察。",0
-l15 BYTE "末吉：適合單戀，享受過程。",0
-l16 BYTE "凶：溝通不良，今天少說話。",0
-l17 BYTE "凶：情緒不穩，容易吵架。",0
-l18 BYTE "凶：舊愛還是最美？別想了。",0
-l19 BYTE "小凶：對方已讀不回，別在意。",0
-l20 BYTE "小凶：落花有意流水無情。",0
-l21 BYTE "小凶：別做白日夢了，醒醒。",0
-l22 BYTE "大凶：今日不宜告白，會爆。",0
-l23 BYTE "大凶：爛桃花纏身，快跑。",0
-l24 BYTE "大凶：還是愛自己比較實在。",0
+l1 BYTE "你的今日運勢為--大吉：桃花盛開，轉角遇到愛。",0
+l2 BYTE "你的今日運勢為--大吉：心有靈犀，對方也在想你。",0
+l3 BYTE "你的今日運勢為--大吉：紅線已牽，大膽行動吧。",0
+l4 BYTE "你的今日運勢為--中吉：氣氛曖昧，適合約會。",0
+l5 BYTE "你的今日運勢為--中吉：多說好話，感情升溫。",0
+l6 BYTE "你的今日運勢為--中吉：甜蜜互動，羨煞旁人。",0
+l7 BYTE "你的今日運勢為--小吉：傳個訊息，會有回應。",0
+l8 BYTE "你的今日運勢為--小吉：淡淡的幸福最長久。",0
+l9 BYTE "你的今日運勢為--小吉：適合在咖啡廳偶遇。",0
+l10 BYTE "你的今日運勢為--吉：平平淡淡也是真愛。",0
+l11 BYTE "你的今日運勢為--吉：微笑是最好的武器。",0
+l12 BYTE "你的今日運勢為--吉：放輕鬆，自然更有魅力。",0
+l13 BYTE "你的今日運勢為--末吉：不要太急，慢慢來。",0
+l14 BYTE "你的今日運勢為--末吉：容易會錯意，多觀察。",0
+l15 BYTE "你的今日運勢為--末吉：適合單戀，享受過程。",0
+l16 BYTE "你的今日運勢為--凶：溝通不良，今天少說話。",0
+l17 BYTE "你的今日運勢為--凶：情緒不穩，容易吵架。",0
+l18 BYTE "你的今日運勢為--凶：舊愛還是最美？別想了。",0
+l19 BYTE "你的今日運勢為--小凶：對方已讀不回，別在意。",0
+l20 BYTE "你的今日運勢為--小凶：落花有意流水無情。",0
+l21 BYTE "你的今日運勢為--小凶：別做白日夢了，醒醒。",0
+l22 BYTE "你的今日運勢為--大凶：今日不宜告白，會爆。",0
+l23 BYTE "你的今日運勢為--大凶：爛桃花纏身，快跑。",0
+l24 BYTE "你的今日運勢為--大凶：還是愛自己比較實在。",0
 
 fortunesStudy DWORD OFFSET s1, OFFSET s2, OFFSET s3, OFFSET s4, OFFSET s5, OFFSET s6, OFFSET s7, OFFSET s8, OFFSET s9, OFFSET s10, OFFSET s11, OFFSET s12, OFFSET s13, OFFSET s14, OFFSET s15, OFFSET s16, OFFSET s17, OFFSET s18, OFFSET s19, OFFSET s20, OFFSET s21, OFFSET s22, OFFSET s23, OFFSET s24
-s1 BYTE "大吉：文昌帝君附體，過目不忘。",0
-s2 BYTE "大吉：考運爆棚，猜的都對。",0
-s3 BYTE "大吉：難題迎刃而解，如有神助。",0
-s4 BYTE "中吉：努力有回報，進步明顯。",0
-s5 BYTE "中吉：適合規劃讀書計畫。",0
-s6 BYTE "中吉：專注力提升，效率高。",0
-s7 BYTE "小吉：多背幾個單字，會有用。",0
-s8 BYTE "小吉：適合複習舊進度。",0
-s9 BYTE "小吉：和同學討論會有收穫。",0
-s10 BYTE "吉：按部就班，穩定發揮。",0
-s11 BYTE "吉：圖書館是你的幸運地。",0
-s12 BYTE "吉：保持平常心就好。",0
-s13 BYTE "末吉：容易分心，手機收起來。",0
-s14 BYTE "末吉：進度稍微落後。",0
-s15 BYTE "末吉：要補的洞有點多。",0
-s16 BYTE "凶：書都讀不進去，去睡覺。",0
-s17 BYTE "凶：考試容易粗心大意。",0
-s18 BYTE "凶：作業寫不完，眼神死。",0
-s19 BYTE "小凶：腦袋一片空白。",0
-s20 BYTE "小凶：容易被老師點名。",0
-s21 BYTE "小凶：今天適合放空，別讀了。",0
-s22 BYTE "大凶：不想面對成績單。",0
-s23 BYTE "大凶：書本對你使用了催眠術。",0
-s24 BYTE "大凶：建議重修，下學期再來。",0
+s1 BYTE "你的今日運勢為--大吉：文昌帝君附體，過目不忘。",0
+s2 BYTE "你的今日運勢為--大吉：考運爆棚，猜的都對。",0
+s3 BYTE "你的今日運勢為--大吉：難題迎刃而解，如有神助。",0
+s4 BYTE "你的今日運勢為--中吉：努力有回報，進步明顯。",0
+s5 BYTE "你的今日運勢為--中吉：適合規劃讀書計畫。",0
+s6 BYTE "你的今日運勢為--中吉：專注力提升，效率高。",0
+s7 BYTE "你的今日運勢為--小吉：多背幾個單字，會有用。",0
+s8 BYTE "你的今日運勢為--小吉：適合複習舊進度。",0
+s9 BYTE "你的今日運勢為--小吉：和同學討論會有收穫。",0
+s10 BYTE "你的今日運勢為--吉：按部就班，穩定發揮。",0
+s11 BYTE "你的今日運勢為--吉：圖書館是你的幸運地。",0
+s12 BYTE "你的今日運勢為--吉：保持平常心就好。",0
+s13 BYTE "你的今日運勢為--末吉：容易分心，手機收起來。",0
+s14 BYTE "你的今日運勢為--末吉：進度稍微落後。",0
+s15 BYTE "你的今日運勢為--末吉：要補的洞有點多。",0
+s16 BYTE "你的今日運勢為--凶：書都讀不進去，去睡覺。",0
+s17 BYTE "你的今日運勢為--凶：考試容易粗心大意。",0
+s18 BYTE "你的今日運勢為--凶：作業寫不完，眼神死。",0
+s19 BYTE "你的今日運勢為--小凶：腦袋一片空白。",0
+s20 BYTE "你的今日運勢為--小凶：容易被老師點名。",0
+s21 BYTE "你的今日運勢為--小凶：今天適合放空，別讀了。",0
+s22 BYTE "你的今日運勢為--大凶：不想面對成績單。",0
+s23 BYTE "你的今日運勢為--大凶：書本對你使用了催眠術。",0
+s24 BYTE "你的今日運勢為--大凶：建議重修，下學期再來。",0
 
 fortunesWealth DWORD OFFSET w1, OFFSET w2, OFFSET w3, OFFSET w4, OFFSET w5, OFFSET w6, OFFSET w7, OFFSET w8, OFFSET w9, OFFSET w10, OFFSET w11, OFFSET w12, OFFSET w13, OFFSET w14, OFFSET w15, OFFSET w16, OFFSET w17, OFFSET w18, OFFSET w19, OFFSET w20, OFFSET w21, OFFSET w22, OFFSET w23, OFFSET w24
-w1 BYTE "大吉：財神爺敲門，橫財就手！",0
-w2 BYTE "大吉：投資精準，回報超乎想像。",0
-w3 BYTE "大吉：走路都會撿到錢，氣勢如虹。",0
-w4 BYTE "中吉：正財穩定，適合存錢。",0
-w5 BYTE "中吉：有意外的小獎金或禮物。",0
-w6 BYTE "中吉：買東西會遇到超值折扣。",0
-w7 BYTE "小吉：發票可能會中兩百。",0
-w8 BYTE "小吉：收支平衡，小有結餘。",0
-w9 BYTE "小吉：適合做小額儲蓄。",0
-w10 BYTE "吉：不花就是賺，守財有道。",0
-w11 BYTE "吉：朋友請客，省了一餐。",0
-w12 BYTE "吉：財務狀況平穩。",0
-w13 BYTE "末吉：衝動購物前請三思。",0
-w14 BYTE "末吉：錢包有點破洞，注意花費。",0
-w15 BYTE "末吉：別借錢給別人。",0
-w16 BYTE "凶：今日不宜投資，風險高。",0
-w17 BYTE "凶：小心遺失錢包或悠遊卡。",0
-w18 BYTE "凶：容易買到雷貨。",0
-w19 BYTE "小凶：月底吃土預警。",0
-w20 BYTE "小凶：會有必要的意外支出。",0
-w21 BYTE "小凶：股票一片綠油油。",0
-w22 BYTE "大凶：破財消災，人沒事就好。",0
-w23 BYTE "大凶：詐騙猖獗，接電話要小心。",0
-w24 BYTE "大凶：窮神附體，乖乖待在家。",0
+w1 BYTE "你的今日運勢為--大吉：財神爺敲門，橫財就手！",0
+w2 BYTE "你的今日運勢為--大吉：投資精準，回報超乎想像。",0
+w3 BYTE "你的今日運勢為--大吉：走路都會撿到錢，氣勢如虹。",0
+w4 BYTE "你的今日運勢為--中吉：正財穩定，適合存錢。",0
+w5 BYTE "你的今日運勢為--中吉：有意外的小獎金或禮物。",0
+w6 BYTE "你的今日運勢為--中吉：買東西會遇到超值折扣。",0
+w7 BYTE "你的今日運勢為--小吉：發票可能會中兩百。",0
+w8 BYTE "你的今日運勢為--小吉：收支平衡，小有結餘。",0
+w9 BYTE "你的今日運勢為--小吉：適合做小額儲蓄。",0
+w10 BYTE "你的今日運勢為--吉：不花就是賺，守財有道。",0
+w11 BYTE "你的今日運勢為--吉：朋友請客，省了一餐。",0
+w12 BYTE "你的今日運勢為--吉：財務狀況平穩。",0
+w13 BYTE "你的今日運勢為--末吉：衝動購物前請三思。",0
+w14 BYTE "你的今日運勢為--末吉：錢包有點破洞，注意花費。",0
+w15 BYTE "你的今日運勢為--末吉：別借錢給別人。",0
+w16 BYTE "你的今日運勢為--凶：今日不宜投資，風險高。",0
+w17 BYTE "你的今日運勢為--凶：小心遺失錢包或悠遊卡。",0
+w18 BYTE "你的今日運勢為--凶：容易買到雷貨。",0
+w19 BYTE "你的今日運勢為--小凶：月底吃土預警。",0
+w20 BYTE "你的今日運勢為--小凶：會有必要的意外支出。",0
+w21 BYTE "你的今日運勢為--小凶：股票一片綠油油。",0
+w22 BYTE "你的今日運勢為--大凶：破財消災，人沒事就好。",0
+w23 BYTE "你的今日運勢為--大凶：詐騙猖獗，接電話要小心。",0
+w24 BYTE "你的今日運勢為--大凶：窮神附體，乖乖待在家。",0
 
 choiceInput BYTE 4 DUP(?)
 choiceVal  DWORD ?
@@ -239,33 +239,102 @@ levelIndex DWORD ?
 hashVal   DWORD ?
 indexVal  DWORD ?
 
-; ===== 問題（改回愛情版） =====
-q1Msg BYTE 0Dh,0Ah,"                      Q1. 愛情的觸感是什麼？",0Dh,0Ah,\
-                   "                      1) 堅實的    2) 柔滑的",0Dh,0Ah,\
-                   "                      3) 輕盈的    4) 溫軟的",0Dh,0Ah,\
-                   "                      請輸入 1-4：",0
+; =========================================================
+; ★ 15 題題庫：愛情/學業/財運 各 5 題
+; =========================================================
 
-q2Msg BYTE 0Dh,0Ah,"                      Q2. 你在愛情中的步伐像什麼？",0Dh,0Ah,\
-                   "                      1) 穩穩走    2) 緩緩靠近",0Dh,0Ah,\
-                   "                      3) 偶爾衝動  4) 直覺行動",0Dh,0Ah,\
-                   "                      請輸入 1-4：",0
+; ---------- Love 5 ----------
+qL1 BYTE 0Dh,0Ah,"                      Q1. 愛情的觸感是什麼？",0Dh,0Ah,\
+          "                      1) 堅實的    2) 柔滑的",0Dh,0Ah,\
+          "                      3) 輕盈的    4) 溫軟的",0Dh,0Ah,\
+          "                      請輸入 1-4：",0
 
-q3Msg BYTE 0Dh,0Ah,"                      Q3. 如果把戀愛比喻成天氣，你是？",0Dh,0Ah,\
-                   "                      1) 晴朗無雲  2) 微風和煦",0Dh,0Ah,\
-                   "                      3) 陣雨轉晴  4) 流星夜空",0Dh,0Ah,\
-                   "                      請輸入 1-4：",0
+qL2 BYTE 0Dh,0Ah,"                      Q2. 你在愛情中的步伐像什麼？",0Dh,0Ah,\
+          "                      1) 穩穩走    2) 緩緩靠近",0Dh,0Ah,\
+          "                      3) 偶爾衝動  4) 直覺行動",0Dh,0Ah,\
+          "                      請輸入 1-4：",0
 
-q4Msg BYTE 0Dh,0Ah,"                      Q4. 你最期待的愛情狀態是？",0Dh,0Ah,\
-                   "                      1) 安定踏實  2) 溫柔互動",0Dh,0Ah,\
-                   "                      3) 心動火花  4) 劇烈浪漫",0Dh,0Ah,\
-                   "                      請輸入 1-4：",0
+qL3 BYTE 0Dh,0Ah,"                      Q3. 如果把戀愛比喻成天氣，你是？",0Dh,0Ah,\
+          "                      1) 晴朗無雲  2) 微風和煦",0Dh,0Ah,\
+          "                      3) 陣雨轉晴  4) 流星夜空",0Dh,0Ah,\
+          "                      請輸入 1-4：",0
 
-q5Msg BYTE 0Dh,0Ah,"                      Q5. 當你想念一個人時，你會？",0Dh,0Ah,\
-                   "                      1) 默默等待  2) 傳訊問候",0Dh,0Ah,\
-                   "                      3) 計畫見面  4) 直接衝去找他",0Dh,0Ah,\
-                   "                      請輸入 1-4：",0
+qL4 BYTE 0Dh,0Ah,"                      Q4. 你最期待的愛情狀態是？",0Dh,0Ah,\
+          "                      1) 安定踏實  2) 溫柔互動",0Dh,0Ah,\
+          "                      3) 心動火花  4) 劇烈浪漫",0Dh,0Ah,\
+          "                      請輸入 1-4：",0
 
-levelHeader BYTE 0Dh,0Ah,"                      [靈力等級評定]: ",0
+qL5 BYTE 0Dh,0Ah,"                      Q5. 當你想念一個人時，你會？",0Dh,0Ah,\
+          "                      1) 想念他    2) 登峰造極",0Dh,0Ah,\
+          "                      3) 計畫見面  4) 直接衝去找他",0Dh,0Ah,\
+          "                      請輸入 1-4：",0
+
+
+; ---------- Study 5 ----------
+qS1 BYTE 0Dh,0Ah,"                      Q1. 你讀書時最常用哪種模式？",0Dh,0Ah,\
+          "                      1) 先理解概念  2) 先刷題",0Dh,0Ah,\
+          "                      3) 先抄筆記    4) 先背公式",0Dh,0Ah,\
+          "                      請輸入 1-4：",0
+
+qS2 BYTE 0Dh,0Ah,"                      Q2. 遇到卡關的題目你會？",0Dh,0Ah,\
+          "                      1) 拆小步驟慢慢解  2) 去問同學/助教",0Dh,0Ah,\
+          "                      3) 直接看解答學套路  4) 先跳過不管它",0Dh,0Ah,\
+          "                      請輸入 1-4：",0
+
+qS3 BYTE 0Dh,0Ah,"                      Q3. 期末週你的節奏比較像？",0Dh,0Ah,\
+          "                      1) 每天固定讀  2) 靠行事曆規劃",0Dh,0Ah,\
+          "                      3) 靠爆肝衝刺  4) 靠靈感隨緣",0Dh,0Ah,\
+          "                      請輸入 1-4：",0
+
+qS4 BYTE 0Dh,0Ah,"                      Q4. 你覺得成績提升最關鍵的是？",0Dh,0Ah,\
+          "                      1) 專注力  2) 讀書方法",0Dh,0Ah,\
+          "                      3) 練習量  4) 睡眠與狀態",0Dh,0Ah,\
+          "                      請輸入 1-4：",0
+
+qS5 BYTE 0Dh,0Ah,"                      Q5. 考試前一天你通常會？",0Dh,0Ah,\
+          "                      1) 複習重點  2) 讀到最後一刻",0Dh,0Ah,\
+          "                      3) 做一份模擬題  4) 早點睡保平常心",0Dh,0Ah,\
+          "                      請輸入 1-4：",0
+
+
+; ---------- Wealth 5 ----------
+qW1 BYTE 0Dh,0Ah,"                      Q1. 你對金錢的態度比較像？",0Dh,0Ah,\
+          "                      1) 穩健存錢  2) 該花就花",0Dh,0Ah,\
+          "                      3) 會投資增值  4) 隨緣不強求",0Dh,0Ah,\
+          "                      請輸入 1-4：",0
+
+qW2 BYTE 0Dh,0Ah,"                      Q2. 你拿到一筆意外收入會？",0Dh,0Ah,\
+          "                      1) 全部存起來  2) 犒賞自己",0Dh,0Ah,\
+          "                      3) 分配投資/存款  4) 請朋友吃飯",0Dh,0Ah,\
+          "                      請輸入 1-4：",0
+
+qW3 BYTE 0Dh,0Ah,"                      Q3. 你買東西的決策風格是？",0Dh,0Ah,\
+          "                      1) 比價到最便宜  2) 看CP值",0Dh,0Ah,\
+          "                      3) 喜歡就買  4) 不買最省",0Dh,0Ah,\
+          "                      請輸入 1-4：",0
+
+qW4 BYTE 0Dh,0Ah,"                      Q4. 你覺得賺錢最有效的方法是？",0Dh,0Ah,\
+          "                      1) 技能升級  2) 多接案/兼職",0Dh,0Ah,\
+          "                      3) 理財投資  4) 靠人脈機會",0Dh,0Ah,\
+          "                      請輸入 1-4：",0
+
+qW5 BYTE 0Dh,0Ah,"                      Q5. 你最近的財運更像？",0Dh,0Ah,\
+          "                      1) 小確幸一直來  2) 平穩普通",0Dh,0Ah,\
+          "                      3) 有點想衝一把  4) 需要省一點",0Dh,0Ah,\
+          "                      請輸入 1-4：",0
+
+
+; =========================================================
+; ★ 題庫指標表：每組 5 題
+; =========================================================
+qLoveTable  DWORD OFFSET qL1, OFFSET qL2, OFFSET qL3, OFFSET qL4, OFFSET qL5
+qStudyTable DWORD OFFSET qS1, OFFSET qS2, OFFSET qS3, OFFSET qS4, OFFSET qS5
+qWealthTable DWORD OFFSET qW1, OFFSET qW2, OFFSET qW3, OFFSET qW4, OFFSET qW5
+
+; 依 choiceVal(1~3) 選擇題庫：Love/Study/Wealth
+qTables DWORD OFFSET qLoveTable, OFFSET qStudyTable, OFFSET qWealthTable
+
+levelHeader BYTE 0Dh,0Ah,"                      [靈力等級測驗評定]: ",0
 level1 BYTE "拉完了",0
 level2 BYTE "NPC",0
 level3 BYTE "人上人",0
@@ -1042,60 +1111,38 @@ normal_anim:
     call FancyLoading
 anim_finish:
 
-    ; 6. 問問題＆算 qSum
+    ; 6. 問問題＆算 qSum（依面向顯示對應 5 題）
     call ClearWithBg
     xor eax, eax
     mov qSum, eax
 
-    mov edx, OFFSET q1Msg
-    call WriteString
-    mov edx, OFFSET qInput
-    mov ecx, 4
-    call ReadString
-    mov dl, BYTE PTR qInput
-    sub dl, '0'
-    movzx eax, dl
-    add qSum, eax
-    
-    mov edx, OFFSET q2Msg
-    call WriteString
-    mov edx, OFFSET qInput
-    mov ecx, 4
-    call ReadString
-    mov dl, BYTE PTR qInput
-    sub dl, '0'
-    movzx eax, dl
-    add qSum, eax
+    ; esi = 指向該面向的 5 題指標表
+    mov eax, choiceVal
+    dec eax
+    shl eax, 2
+    mov esi, OFFSET qTables
+    add esi, eax
+    mov esi, [esi]
 
-    mov edx, OFFSET q3Msg
-    call WriteString
-    mov edx, OFFSET qInput
-    mov ecx, 4
-    call ReadString
-    mov dl, BYTE PTR qInput
-    sub dl, '0'
-    movzx eax, dl
-    add qSum, eax
+    mov ecx, 5
+    ask_loop:
+        mov edx, [esi]
+        call WriteString
 
-    mov edx, OFFSET q4Msg
-    call WriteString
-    mov edx, OFFSET qInput
-    mov ecx, 4
-    call ReadString
-    mov dl, BYTE PTR qInput
-    sub dl, '0'
-    movzx eax, dl
-    add qSum, eax
+        push ecx            ; 保護題數計數器
+        mov edx, OFFSET qInput
+        mov ecx, 4
+        call ReadString
+        pop ecx
 
-    mov edx, OFFSET q5Msg
-    call WriteString
-    mov edx, OFFSET qInput
-    mov ecx, 4
-    call ReadString
-    mov dl, BYTE PTR qInput
-    sub dl, '0'
-    movzx eax, dl
-    add qSum, eax
+        mov dl, BYTE PTR qInput
+        sub dl, '0'
+        movzx eax, dl
+        add qSum, eax
+
+        add esi, 4
+        loop ask_loop
+
 
     ; 7. 將 qSum 轉成 0~4 等級 index
     mov eax, qSum        ; 5~20
