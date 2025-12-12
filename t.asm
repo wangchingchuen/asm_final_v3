@@ -51,7 +51,7 @@ resetColor   BYTE ESC_CODE, "[0m", 0
 
 ; 前景色 (更鮮豔)
 colorRed     BYTE ESC_CODE, "[1;31m", 0 
-colorGold    BYTE ESC_CODE, "[1;33m", 0 
+colorGold    BYTE ESC_CODE, "[38;2;184;134;11m", 0 
 colorPink    BYTE ESC_CODE, "[1;35m", 0 
 colorCyan    BYTE ESC_CODE, "[1;36m", 0 
 colorWhite   BYTE ESC_CODE, "[1;37m", 0 
@@ -98,14 +98,13 @@ promptTitle      BYTE 0Dh,0Ah,0Dh,0Ah,"                                         
 promptEnterName  BYTE "                                             英文名字：", 0
 
 ; 結果標題
-resultHeader     BYTE 0Dh,0Ah,0Dh,0Ah,"             ✧･ﾟ: *✧･ﾟ:* 神 明 的 指 引  *:･ﾟ✧*:･ﾟ✧",0Dh,0Ah,0
+resultHeader     BYTE 0Dh,0Ah,0Dh,0Ah,"                             ✧･ﾟ: *✧･ﾟ:* 神 明 的 指 引  *:･ﾟ✧*:･ﾟ✧",0Dh,0Ah,0
 fortuneHeader    BYTE 0Dh,0Ah,"             -------------------------------------------",0Dh,0Ah,0
-hashMsg          BYTE 0Dh,0Ah,"                      [靈魂共鳴值]: ",0
+
 
 ; ================================
 ; 運勢資料庫
 ; ================================
-fortunesLove DWORD OFFSET l1, OFFSET l2, OFFSET l3, OFFSET l4, OFFSET l5, OFFSET l6, OFFSET l7, OFFSET l8, OFFSET l9, OFFSET l10, OFFSET l11, OFFSET l12, OFFSET l13, OFFSET l14, OFFSET l15, OFFSET l16, OFFSET l17, OFFSET l18, OFFSET l19, OFFSET l20, OFFSET l21, OFFSET l22, OFFSET l23, OFFSET l24
 l1 BYTE "你的今日運勢為--大吉：桃花盛開，轉角遇到愛。",0
 l2 BYTE "你的今日運勢為--大吉：心有靈犀，對方也在想你。",0
 l3 BYTE "你的今日運勢為--大吉：紅線已牽，大膽行動吧。",0
@@ -131,7 +130,9 @@ l22 BYTE "你的今日運勢為--大凶：今日不宜告白，會爆。",0
 l23 BYTE "你的今日運勢為--大凶：爛桃花纏身，快跑。",0
 l24 BYTE "你的今日運勢為--大凶：還是愛自己比較實在。",0
 
-fortunesStudy DWORD OFFSET s1, OFFSET s2, OFFSET s3, OFFSET s4, OFFSET s5, OFFSET s6, OFFSET s7, OFFSET s8, OFFSET s9, OFFSET s10, OFFSET s11, OFFSET s12, OFFSET s13, OFFSET s14, OFFSET s15, OFFSET s16, OFFSET s17, OFFSET s18, OFFSET s19, OFFSET s20, OFFSET s21, OFFSET s22, OFFSET s23, OFFSET s24
+fortunesLove DWORD OFFSET l1, OFFSET l2, OFFSET l3, OFFSET l4, OFFSET l5, OFFSET l6, OFFSET l7, OFFSET l8
+             DWORD OFFSET l9, OFFSET l10, OFFSET l11, OFFSET l12, OFFSET l13, OFFSET l14, OFFSET l15, OFFSET l16
+             DWORD OFFSET l17, OFFSET l18, OFFSET l19, OFFSET l20, OFFSET l21, OFFSET l22, OFFSET l23, OFFSET l24
 s1 BYTE "你的今日運勢為--大吉：文昌帝君附體，過目不忘。",0
 s2 BYTE "你的今日運勢為--大吉：考運爆棚，猜的都對。",0
 s3 BYTE "你的今日運勢為--大吉：難題迎刃而解，如有神助。",0
@@ -157,7 +158,9 @@ s22 BYTE "你的今日運勢為--大凶：不想面對成績單。",0
 s23 BYTE "你的今日運勢為--大凶：書本對你使用了催眠術。",0
 s24 BYTE "你的今日運勢為--大凶：建議重修，下學期再來。",0
 
-fortunesWealth DWORD OFFSET w1, OFFSET w2, OFFSET w3, OFFSET w4, OFFSET w5, OFFSET w6, OFFSET w7, OFFSET w8, OFFSET w9, OFFSET w10, OFFSET w11, OFFSET w12, OFFSET w13, OFFSET w14, OFFSET w15, OFFSET w16, OFFSET w17, OFFSET w18, OFFSET w19, OFFSET w20, OFFSET w21, OFFSET w22, OFFSET w23, OFFSET w24
+fortunesStudy DWORD OFFSET s1, OFFSET s2, OFFSET s3, OFFSET s4, OFFSET s5, OFFSET s6, OFFSET s7, OFFSET s8
+              DWORD OFFSET s9, OFFSET s10, OFFSET s11, OFFSET s12, OFFSET s13, OFFSET s14, OFFSET s15, OFFSET s16
+              DWORD OFFSET s17, OFFSET s18, OFFSET s19, OFFSET s20, OFFSET s21, OFFSET s22, OFFSET s23, OFFSET s24
 w1 BYTE "你的今日運勢為--大吉：財神爺敲門，橫財就手！",0
 w2 BYTE "你的今日運勢為--大吉：投資精準，回報超乎想像。",0
 w3 BYTE "你的今日運勢為--大吉：走路都會撿到錢，氣勢如虹。",0
@@ -182,7 +185,9 @@ w21 BYTE "你的今日運勢為--小凶：股票一片綠油油。",0
 w22 BYTE "你的今日運勢為--大凶：破財消災，人沒事就好。",0
 w23 BYTE "你的今日運勢為--大凶：詐騙猖獗，接電話要小心。",0
 w24 BYTE "你的今日運勢為--大凶：窮神附體，乖乖待在家。",0
-
+fortunesWealth DWORD OFFSET w1, OFFSET w2, OFFSET w3, OFFSET w4, OFFSET w5, OFFSET w6, OFFSET w7, OFFSET w8
+               DWORD OFFSET w9, OFFSET w10, OFFSET w11, OFFSET w12, OFFSET w13, OFFSET w14, OFFSET w15, OFFSET w16
+               DWORD OFFSET w17, OFFSET w18, OFFSET w19, OFFSET w20, OFFSET w21, OFFSET w22, OFFSET w23, OFFSET w24
 choiceInput BYTE 4 DUP(?)
 choiceVal  DWORD ?
 
@@ -352,6 +357,58 @@ loadingMsg BYTE 0Dh,0Ah,"                      祈願傳送中...",0
 heartChars    BYTE "♥o*~.+", 0
 moneyChars    BYTE "$¥€£¢", 0
 
+; 大符文邊框組件
+; 1. 符文上蓋 (拆分成多行 BYTE，記憶體是連續的，所以 WriteString 會一次印完)
+runeTop BYTE "                      ╔══════════════════════"
+        BYTE "═════════════════════════╗", 0Dh, 0Ah
+        BYTE "                      ║               ⛩  御 神 "
+        BYTE "之 諭  ⛩               ║", 0Dh, 0Ah
+        BYTE "                      ╠══════════════════════"
+        BYTE "═════════════════════════╣", 0Dh, 0Ah, 0
+
+; 2. 中間左邊框
+runeMidPrefix BYTE "                      ║  ", 0  
+
+; 3. 中間右邊框
+runeMidSuffix BYTE " ║", 0Dh, 0Ah, 0            
+
+; 4. 分隔線 (同樣拆短)
+runeSep BYTE "                      ╟──────────────────────"
+        BYTE "─────────────────────────╢", 0Dh, 0Ah, 0
+
+; 5. 底部邊框 (同樣拆短)
+runeBottom BYTE "                      ╚══════════════════════"
+           BYTE "═════════════════════════╝", 0Dh, 0Ah, 0
+; 文言文籤詩庫 (每類 5 句)
+; --- 愛情 ---
+loveB0 BYTE "「關關雎鳩，在河之洲。窈窕淑女，君子好逑。」", 0 ; 0-5
+loveB1 BYTE "「既見君子，云胡不喜。兩情相悅，白首不離。」", 0 ; 6-11
+loveB2 BYTE "「落花人獨立，微雨燕雙飛。相思無用，當惜眼前。」", 0 ; 12-14
+loveB3 BYTE "「多情卻被無情惱，道是無晴卻有晴。」", 0         ; 15-20
+loveB4 BYTE "「落花有意隨流水，流水無心戀落花。」", 0         ; 21-23
+
+; --- 學業 ---
+studyB0 BYTE "「韋編三絕，金榜題名。春風得意馬蹄疾。」", 0
+studyB1 BYTE "「學而不厭，誨人不倦。積土成山，風雨興焉。」", 0
+studyB2 BYTE "「學而不思則罔，思而不學則殆。」", 0
+studyB3 BYTE "「書山有路勤為徑，學海無涯苦作舟。」", 0
+studyB4 BYTE "「少壯不努力，老大徒傷悲。宜速速歸讀。」", 0
+
+; --- 財運 ---
+wealthB0 BYTE "「天官賜福，財源滾滾。陶朱公法，富甲一方。」", 0
+wealthB1 BYTE "「君子愛財，取之有道。積善之家，必有餘慶。」", 0
+wealthB2 BYTE "「開源節流，細水長流。不積跬步，無以至千里。」", 0
+wealthB3 BYTE "「財聚財散，平常心是道。莫貪莫求，安貧樂道。」", 0
+wealthB4 BYTE "「貪得無厭，反受其害。人為財死，鳥為食亡。」", 0
+
+;  文言文指標表
+loveBlessTable   DWORD OFFSET loveB0, OFFSET loveB1, OFFSET loveB2, OFFSET loveB3, OFFSET loveB4
+studyBlessTable  DWORD OFFSET studyB0, OFFSET studyB1, OFFSET studyB2, OFFSET studyB3, OFFSET studyB4
+wealthBlessTable DWORD OFFSET wealthB0, OFFSET wealthB1, OFFSET wealthB2, OFFSET wealthB3, OFFSET wealthB4
+
+blessTables      DWORD OFFSET loveBlessTable, OFFSET studyBlessTable, OFFSET wealthBlessTable
+; 用於儲存計算出的籤詩索引
+fortuneIndex DWORD ?
 .code
 PrintWelcome PROC USES edx
     ; line 1
@@ -1226,17 +1283,13 @@ l_done:
     mov edx, OFFSET resultHeader
     call WriteString
 
-    mov edx, OFFSET hashMsg
-    call WriteString
-    mov eax, hashVal
-    call WriteDec
-    call CrLf
 
     ; 計算運勢字串 index
     mov eax, hashVal
     mov ebx, NUM_FORTUNES_PER_CAT
     xor edx, edx
     div ebx                 ; EDX = hashVal % 24
+    mov fortuneIndex, edx
 
     mov eax, choiceVal
     dec eax
@@ -1250,14 +1303,81 @@ l_done:
     mov ebx, [ebx]          ; ebx = 某一條籤詩位址
 
     ; 顯示籤詩
-    mov edx, OFFSET fortuneHeader
-    call WriteString
-    
-    mov edx, OFFSET margin
-    call WriteString
+    ; 1. 印出紅色大符文上蓋
     mov edx, OFFSET colorRed
     call WriteString
-    mov edx, ebx
+    mov edx, OFFSET runeTop
+    call WriteString
+
+    ; 2. 印出現代籤詩 (包在邊框內，紅色)
+    mov edx, OFFSET colorRed        ; 確保是紅色
+    call WriteString
+    mov edx, OFFSET runeMidPrefix   ; 左邊框
+    call WriteString
+    mov edx, ebx                    ; 原本的現代籤詩內容
+    call WriteString
+    mov edx, OFFSET runeMidSuffix   ; 右邊框
+    call WriteString
+
+    ; 3. 印出分隔線
+    mov edx, OFFSET colorRed
+    call WriteString
+    mov edx, OFFSET runeSep
+    call WriteString
+
+    ; 4. 計算文言文索引 (將 0-23 映射到 0-4)
+    mov eax, fortuneIndex           ; 取回 0-23 索引
+    cmp eax, 6
+    jl  grp0                        ; 0-5 (大吉/中吉)
+    cmp eax, 12
+    jl  grp1                        ; 6-11 (小吉/吉)
+    cmp eax, 15
+    jl  grp2                        ; 12-14 (末吉)
+    cmp eax, 21
+    jl  grp3                        ; 15-20 (凶/小凶)
+    jmp grp4                        ; 21-23 (大凶)
+
+    grp0: mov eax, 0
+          jmp get_bless
+    grp1: mov eax, 1
+          jmp get_bless
+    grp2: mov eax, 2
+          jmp get_bless
+    grp3: mov eax, 3
+          jmp get_bless
+    grp4: mov eax, 4
+
+    get_bless:
+    ; 5. 取得對應的文言文內容
+    mov esi, choiceVal              ; 1=Love, 2=Study, 3=Wealth
+    dec esi
+    shl esi, 2
+    mov edi, OFFSET blessTables
+    add edi, esi
+    mov edi, [edi]                  ; edi 指向對應類別的表格
+
+    shl eax, 2
+    add edi, eax
+    mov edi, [edi]                  ; edi 現在指向最終的文言文字串
+
+    ; 6. 印出文言文 (包在邊框內，金色)
+    mov edx, OFFSET colorRed        ; 邊框用紅色
+    call WriteString
+    mov edx, OFFSET runeMidPrefix   ; 左邊框
+    call WriteString
+    
+    mov edx, OFFSET colorGold       ; 文言文用金色
+    call WriteString
+    mov edx, edi                    ; 印出文言文
+    call WriteString
+    
+    mov edx, OFFSET colorRed        ; 邊框用紅色
+    call WriteString
+    mov edx, OFFSET runeMidSuffix   ; 右邊框
+    call WriteString
+
+    ; 7. 印出底部
+    mov edx, OFFSET runeBottom
     call WriteString
     call CrLf
     
