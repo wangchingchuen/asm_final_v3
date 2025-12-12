@@ -355,6 +355,52 @@ heartChars    BYTE "♥o*~.+", 0
 moneyChars    BYTE "$¥€£¢", 0
 
 .code
+; ==================================================
+; PrintBlockCentered
+; edx = OFFSET 要印的字串（內含 0Dh,0Ah）
+; 每一行自動補 margin
+; ==================================================
+PrintBlockCentered PROC USES eax ebx edx esi
+    mov esi, edx            ; esi 指向字串
+    mov bl, 1               ; 行首旗標（1 = 要補 margin）
+
+next_char:
+    mov al, [esi]
+    cmp al, 0
+    je done
+
+    ; 如果是新行開頭，先印 margin
+    cmp bl, 1
+    jne print_char
+    mov edx, OFFSET margin
+    call WriteString
+    mov bl, 0
+
+print_char:
+    ; 檢查換行
+    cmp al, 0Dh
+    jne normal_char
+
+    ; 印 CR LF
+    call WriteChar
+    inc esi
+    mov al, [esi]
+    call WriteChar
+
+    mov bl, 1               ; 下一行要補 margin
+    inc esi
+    jmp next_char
+
+normal_char:
+    call WriteChar
+    inc esi
+    jmp next_char
+
+done:
+    call CrLf
+    ret
+PrintBlockCentered ENDP
+
 PrintWelcome PROC USES edx
     ; line 1
     mov edx, OFFSET dateIndent
@@ -1182,8 +1228,10 @@ anim_finish:
 
     mov ecx, 5
     ask_loop:
-        mov edx, [esi]
+        mov edx, OFFSET margin     ;  置中用
         call WriteString
+        mov edx, [esi]
+        call PrintBlockCentered
 
         push ecx            ; 保護題數計數器
         mov edx, OFFSET qInput
@@ -1235,9 +1283,13 @@ l_done:
     ; 8. 顯示結果（不再播放 PlayWinSound）
     call ClearWithBg
 
+    mov edx, OFFSET margin
+    call WriteString
     mov edx, OFFSET resultHeader
     call WriteString
 
+    mov edx, OFFSET margin
+    call WriteString
     mov edx, OFFSET hashMsg
     call WriteString
     mov eax, hashVal
@@ -1262,6 +1314,8 @@ l_done:
     mov ebx, [ebx]          ; ebx = 某一條籤詩位址
 
     ; 顯示籤詩
+    mov edx, OFFSET margin
+    call WriteString
     mov edx, OFFSET fortuneHeader
     call WriteString
     
@@ -1301,6 +1355,7 @@ lvl0:
 
 show_level:
     call WriteString                 ; 設定顏色
+    mov edx, OFFSET margin  
     mov edx, OFFSET levelHeader
     call WriteString
     mov edx, levelPtr                ; 「拉完了 / NPC / 人上人 / 頂級 / 夯」
