@@ -222,11 +222,14 @@ arrowMark  BYTE "👉   ", 0
 spaceMark  BYTE "      ", 0
 clearLine  BYTE ESC_CODE, "[K", 0    
 cursorUp12 BYTE ESC_CODE, "[12A", 0  
-pressRightMsg BYTE 0Dh, 0Ah, "                      按任意鍵領取神旨...", 0
+pressRightMsg BYTE 0Dh, 0Ah, "                      按任意鍵離開神廟...", 0
 
-pressEnterMsg BYTE 0Dh, 0Ah, "                  ⛩ 進入開運御神籤抽籤，請按 Enter 開始 ⛩", 0Dh, 0Ah, 0
-vbsIntro      BYTE "wscript play_intro.vbs", 0
-vbsStop       BYTE "wscript stop_music.vbs", 0
+pressEnterMsg BYTE 0Dh, 0Ah, "                  ⛩ 進入開運御神抽籤，請按 Enter 開始 ⛩", 0Dh, 0Ah, 0
+vbsIntro      BYTE "wscript C:\asm_final_v3\asm_final_v3\play_intro.vbs", 0
+vbsStop       BYTE "wscript C:\asm_final_v3\asm_final_v3\stop_music.vbs", 0
+vbsLove       BYTE "wscript C:\asm_final_v3\asm_final_v3\play_love.vbs", 0
+vbsStudy      BYTE "wscript C:\asm_final_v3\asm_final_v3\play_study.vbs", 0
+vbsWealth     BYTE "wscript C:\asm_final_v3\asm_final_v3\play_wealth.vbs", 0
 
 fortunesTables DWORD OFFSET fortunesLove, OFFSET fortunesStudy, OFFSET fortunesWealth
 
@@ -1032,6 +1035,24 @@ StopBGM PROC USES eax edx
     ret
 StopBGM ENDP
 
+; --- 播放愛情音樂 ---
+PlayLoveBGM PROC USES eax edx
+    INVOKE WinExec, ADDR vbsLove, 0
+    ret
+PlayLoveBGM ENDP
+
+; --- 播放學業音樂 ---
+PlayStudyBGM PROC USES eax edx
+    INVOKE WinExec, ADDR vbsStudy, 0
+    ret
+PlayStudyBGM ENDP
+
+; --- 播放財運音樂 ---
+PlayWealthBGM PROC USES eax edx
+    INVOKE WinExec, ADDR vbsWealth, 0
+    ret
+PlayWealthBGM ENDP
+
 ; ==================================================
 ; ★ 主程式
 ; ==================================================
@@ -1066,14 +1087,37 @@ invalid_choice:
     mov choiceVal, 1
 
 valid_choice:
-    call StopBGM 
+    call StopBGM
+
+    ; 等久一點讓 stop 完成
+    mov eax, 500
+    call Delay
+    
+    ; 根據選擇播放對應音樂
+    cmp choiceVal, 1
+    je play_love
+    cmp choiceVal, 2
+    je play_study
+    jmp play_wealth
+
+play_love:
+    call PlayLoveBGM
+    jmp after_music
+play_study:
+    call PlayStudyBGM
+    jmp after_music
+play_wealth:
+    call PlayWealthBGM
+
+after_music:
+    mov eax, choiceVal
+    mov currentBg, eax    
+    call ClearWithBg
     call PlayCoinSound
     mov eax, choiceVal
     mov currentBg, eax    
     call ClearWithBg      
 
-    ; 3. 輸入資料 (置中)
-    call ClearWithBg
     mov edx, OFFSET promptTitle
     call WriteString
     mov edx, OFFSET promptEnterName
