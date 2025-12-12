@@ -56,7 +56,7 @@ colorRed     BYTE ESC_CODE, "[1;31m", 0
 colorGold    BYTE ESC_CODE, "[38;2;184;134;11m", 0 
 colorPink    BYTE ESC_CODE, "[1;35m", 0 
 colorCyan    BYTE ESC_CODE, "[1;36m", 0 
-colorWhite   BYTE ESC_CODE, "[1;37m", 0 
+colorWhite   BYTE ESC_CODE, "[1;30m", 0 
 
 currentBg    DWORD 0   ; 0=預設, 1=愛, 2=學, 3=財
 
@@ -105,88 +105,88 @@ fortuneHeader    BYTE 0Dh,0Ah,"             ------------------------------------
 
 
 ; ================================
-; 運勢資料庫
+; 運勢資料庫;凶：舊愛還是最美？別想了。
 ; ================================
-l1 BYTE "你的今日運勢為--大吉：桃花盛開，轉角遇到愛。",0
-l2 BYTE "你的今日運勢為--大吉：心有靈犀，對方也在想你。",0
-l3 BYTE "你的今日運勢為--大吉：紅線已牽，大膽行動吧。",0
+l1 BYTE "你的今日運勢為--大吉：桃花盛開，轉角遇到愛",0
+l2 BYTE "你的今日運勢為--大吉：心有靈犀，對方在想你",0
+l3 BYTE "你的今日運勢為--大吉：紅線已牽，大膽行動吧",0
 l4 BYTE "你的今日運勢為--中吉：氣氛曖昧，適合約會。",0
 l5 BYTE "你的今日運勢為--中吉：多說好話，感情升溫。",0
 l6 BYTE "你的今日運勢為--中吉：甜蜜互動，羨煞旁人。",0
 l7 BYTE "你的今日運勢為--小吉：傳個訊息，會有回應。",0
-l8 BYTE "你的今日運勢為--小吉：淡淡的幸福最長久。",0
-l9 BYTE "你的今日運勢為--小吉：適合在咖啡廳偶遇。",0
-l10 BYTE "你的今日運勢為--吉：平平淡淡也是真愛。",0
-l11 BYTE "你的今日運勢為--吉：微笑是最好的武器。",0
+l8 BYTE "你的今日運勢為--小吉：淡淡的幸福非常長久。",0
+l9 BYTE "你的今日運勢為--小吉吉：適合在咖啡廳偶遇。",0
+l10 BYTE "你的今日運勢為--吉：平平淡淡也是真愛對吧。",0
+l11 BYTE "你的今日運勢為--吉：微笑或許是最好的武器。",0
 l12 BYTE "你的今日運勢為--吉：放輕鬆，自然更有魅力。",0
-l13 BYTE "你的今日運勢為--末吉：不要太急，慢慢來。",0
+l13 BYTE "你的今日運勢為--末吉：不要太急吧，慢慢來。",0
 l14 BYTE "你的今日運勢為--末吉：容易會錯意，多觀察。",0
 l15 BYTE "你的今日運勢為--末吉：適合單戀，享受過程。",0
 l16 BYTE "你的今日運勢為--凶：溝通不良，今天少說話。",0
-l17 BYTE "你的今日運勢為--凶：情緒不穩，容易吵架。",0
+l17 BYTE "你的今日運勢為--凶：情緒不穩定，容易吵架。",0
 l18 BYTE "你的今日運勢為--凶：舊愛還是最美？別想了。",0
-l19 BYTE "你的今日運勢為--小凶：對方已讀不回，別在意。",0
-l20 BYTE "你的今日運勢為--小凶：落花有意流水無情。",0
+l19 BYTE "你的今日運勢為--小凶：對方已讀不回，別在意",0
+l20 BYTE "你的今日運勢為--小凶：落花有意流水水無情。",0
 l21 BYTE "你的今日運勢為--小凶：別做白日夢了，醒醒。",0
 l22 BYTE "你的今日運勢為--大凶：今日不宜告白，會爆。",0
-l23 BYTE "你的今日運勢為--大凶：爛桃花纏身，快跑。",0
+l23 BYTE "你的今日運勢為--大凶：爛桃花纏身，快跑呀。",0
 l24 BYTE "你的今日運勢為--大凶：還是愛自己比較實在。",0
 
 fortunesLove DWORD OFFSET l1, OFFSET l2, OFFSET l3, OFFSET l4, OFFSET l5, OFFSET l6, OFFSET l7, OFFSET l8
              DWORD OFFSET l9, OFFSET l10, OFFSET l11, OFFSET l12, OFFSET l13, OFFSET l14, OFFSET l15, OFFSET l16
              DWORD OFFSET l17, OFFSET l18, OFFSET l19, OFFSET l20, OFFSET l21, OFFSET l22, OFFSET l23, OFFSET l24
-s1 BYTE "你的今日運勢為--大吉：文昌帝君附體，過目不忘。",0
+s1 BYTE "你的今日運勢為--大吉：文昌帝君附體過目不忘",0
 s2 BYTE "你的今日運勢為--大吉：考運爆棚，猜的都對。",0
-s3 BYTE "你的今日運勢為--大吉：難題迎刃而解，如有神助。",0
-s4 BYTE "你的今日運勢為--中吉：努力有回報，進步明顯。",0
-s5 BYTE "你的今日運勢為--中吉：適合規劃讀書計畫。",0
+s3 BYTE "你的今日運勢為--大吉：難題迎刃而解如有神助",0
+s4 BYTE "你的今日運勢為--中吉：努力有回報，進步明顯",0
+s5 BYTE "你的今日運勢為--中吉：適合規劃讀書計畫喔喔",0
 s6 BYTE "你的今日運勢為--中吉：專注力提升，效率高。",0
-s7 BYTE "你的今日運勢為--小吉：多背幾個單字，會有用。",0
-s8 BYTE "你的今日運勢為--小吉：適合複習舊進度。",0
+s7 BYTE "你的今日運勢為--小吉：多背幾個單字，會有用",0
+s8 BYTE "你的今日運勢為--小吉：適合複習舊進度和舊愛",0
 s9 BYTE "你的今日運勢為--小吉：和同學討論會有收穫。",0
-s10 BYTE "你的今日運勢為--吉：按部就班，穩定發揮。",0
-s11 BYTE "你的今日運勢為--吉：圖書館是你的幸運地。",0
-s12 BYTE "你的今日運勢為--吉：保持平常心就好。",0
-s13 BYTE "你的今日運勢為--末吉：容易分心，手機收起來。",0
-s14 BYTE "你的今日運勢為--末吉：進度稍微落後。",0
-s15 BYTE "你的今日運勢為--末吉：要補的洞有點多。",0
+s10 BYTE "你的今日運勢為--吉：按部就班，穩定發揮!!!",0
+s11 BYTE "你的今日運勢為--吉：圖書館是你的幸運地!!!",0
+s12 BYTE "你的今日運勢為--吉：保持平常心就好。我都在",0
+s13 BYTE "你的今日運勢為--末吉：容易分心，手機收起。",0
+s14 BYTE "你的今日運勢為--末吉：進度微落後給我去讀書",0
+s15 BYTE "你的今日運勢為--末吉：要補的腦洞有點多喔。",0
 s16 BYTE "你的今日運勢為--凶：書都讀不進去，去睡覺。",0
-s17 BYTE "你的今日運勢為--凶：考試容易粗心大意。",0
-s18 BYTE "你的今日運勢為--凶：作業寫不完，眼神死。",0
-s19 BYTE "你的今日運勢為--小凶：腦袋一片空白。",0
-s20 BYTE "你的今日運勢為--小凶：容易被老師點名。",0
-s21 BYTE "你的今日運勢為--小凶：今天適合放空，別讀了。",0
-s22 BYTE "你的今日運勢為--大凶：不想面對成績單。",0
-s23 BYTE "你的今日運勢為--大凶：書本對你使用了催眠術。",0
-s24 BYTE "你的今日運勢為--大凶：建議重修，下學期再來。",0
+s17 BYTE "你的今日運勢為--凶：考試很容易粗心大意喔。",0
+s18 BYTE "你的今日運勢為--凶：作業寫不完，眼神死嗚嗚",0
+s19 BYTE "你的今日運勢為--小凶：腦袋一片空白阿阿阿。",0
+s20 BYTE "你的今日運勢為--小凶：容易被老師點名小心了",0
+s21 BYTE "你的今日運勢為--小凶：今天適合放空，別讀了",0
+s22 BYTE "你的今日運勢為--大凶：不想面對成績單和組語",0
+s23 BYTE "你的今日運勢為--大凶：書本對你使用了催眠術",0
+s24 BYTE "你的今日運勢為--大凶：建議重修，下學期再來",0
 
 fortunesStudy DWORD OFFSET s1, OFFSET s2, OFFSET s3, OFFSET s4, OFFSET s5, OFFSET s6, OFFSET s7, OFFSET s8
               DWORD OFFSET s9, OFFSET s10, OFFSET s11, OFFSET s12, OFFSET s13, OFFSET s14, OFFSET s15, OFFSET s16
               DWORD OFFSET s17, OFFSET s18, OFFSET s19, OFFSET s20, OFFSET s21, OFFSET s22, OFFSET s23, OFFSET s24
-w1 BYTE "你的今日運勢為--大吉：財神爺敲門，橫財就手！",0
-w2 BYTE "你的今日運勢為--大吉：投資精準，回報超乎想像。",0
-w3 BYTE "你的今日運勢為--大吉：走路都會撿到錢，氣勢如虹。",0
+w1 BYTE "你的今日運勢為--大吉：財神爺敲門，橫財就手",0
+w2 BYTE "你的今日運勢為--大吉：投資精準，回報超想像",0
+w3 BYTE "你的今日運勢為--大吉：走路撿到錢，氣勢如虹",0
 w4 BYTE "你的今日運勢為--中吉：正財穩定，適合存錢。",0
 w5 BYTE "你的今日運勢為--中吉：有意外的小獎金或禮物。",0
 w6 BYTE "你的今日運勢為--中吉：買東西會遇到超值折扣。",0
-w7 BYTE "你的今日運勢為--小吉：發票可能會中兩百。",0
-w8 BYTE "你的今日運勢為--小吉：收支平衡，小有結餘。",0
-w9 BYTE "你的今日運勢為--小吉：適合做小額儲蓄。",0
+w7 BYTE "你的今日運勢為--小吉：發票可能會中兩百塊喔。",0
+w8 BYTE "你的今日運勢為--小吉：收支平衡，小小有結餘。",0
+w9 BYTE "你的今日運勢為--小吉：適合做小小的額儲蓄喔。",0
 w10 BYTE "你的今日運勢為--吉：不花就是賺，守財有道。",0
-w11 BYTE "你的今日運勢為--吉：朋友請客，省了一餐。",0
-w12 BYTE "你的今日運勢為--吉：財務狀況平穩。",0
-w13 BYTE "你的今日運勢為--末吉：衝動購物前請三思。",0
-w14 BYTE "你的今日運勢為--末吉：錢包有點破洞，注意花費。",0
-w15 BYTE "你的今日運勢為--末吉：別借錢給別人。",0
+w11 BYTE "你的今日運勢為--吉：朋友請客，省了一餐錢。",0
+w12 BYTE "你的今日運勢為--吉：財務狀況平穩非常棒優。",0
+w13 BYTE "你的今日運勢為--末吉：衝動購物前請三思呀。",0
+w14 BYTE "你的今日運勢為--末吉：錢包破洞，注意花費。",0
+w15 BYTE "你的今日運勢為--末吉：別隨便借錢給別人啦。",0
 w16 BYTE "你的今日運勢為--凶：今日不宜投資，風險高。",0
 w17 BYTE "你的今日運勢為--凶：小心遺失錢包或悠遊卡。",0
-w18 BYTE "你的今日運勢為--凶：容易買到雷貨。",0
-w19 BYTE "你的今日運勢為--小凶：月底吃土預警。",0
+w18 BYTE "你的今日運勢為--凶：真的非常容易買到雷貨。",0
+w19 BYTE "你的今日運勢為--小凶：哈哈哈月底吃土預警。",0
 w20 BYTE "你的今日運勢為--小凶：會有必要的意外支出。",0
-w21 BYTE "你的今日運勢為--小凶：股票一片綠油油。",0
-w22 BYTE "你的今日運勢為--大凶：破財消災，人沒事就好。",0
-w23 BYTE "你的今日運勢為--大凶：詐騙猖獗，接電話要小心。",0
-w24 BYTE "你的今日運勢為--大凶：窮神附體，乖乖待在家。",0
+w21 BYTE "你的今日運勢為--小凶：股票一片綠油油的拉。",0
+w22 BYTE "你的今日運勢為--大凶：破財消災人沒事就好",0
+w23 BYTE "你的今日運勢為--大凶：詐騙猖獗接電話要小心",0
+w24 BYTE "你的今日運勢為--大凶：窮神附體，乖乖待在家",0
 fortunesWealth DWORD OFFSET w1, OFFSET w2, OFFSET w3, OFFSET w4, OFFSET w5, OFFSET w6, OFFSET w7, OFFSET w8
                DWORD OFFSET w9, OFFSET w10, OFFSET w11, OFFSET w12, OFFSET w13, OFFSET w14, OFFSET w15, OFFSET w16
                DWORD OFFSET w17, OFFSET w18, OFFSET w19, OFFSET w20, OFFSET w21, OFFSET w22, OFFSET w23, OFFSET w24
@@ -369,10 +369,10 @@ runeTop BYTE "                      ╔═════════════�
         BYTE "═════════════════════════╣", 0Dh, 0Ah, 0
 
 ; 2. 中間左邊框
-runeMidPrefix BYTE "                      ║  ", 0  
+runeMidPrefix BYTE "                      ║   ", 0  
 
 ; 3. 中間右邊框
-runeMidSuffix BYTE " ║", 0Dh, 0Ah, 0            
+runeMidSuffix BYTE "  ║  ", 0Dh, 0Ah, 0            
 
 ; 4. 分隔線 (同樣拆短)
 runeSep BYTE "                      ╟──────────────────────"
@@ -383,25 +383,25 @@ runeBottom BYTE "                      ╚════════════�
            BYTE "═════════════════════════╝", 0Dh, 0Ah, 0
 ; 文言文籤詩庫 (每類 5 句)
 ; --- 愛情 ---
-loveB0 BYTE "「關關雎鳩，在河之洲。窈窕淑女，君子好逑。」", 0 ; 0-5
-loveB1 BYTE "「既見君子，云胡不喜。兩情相悅，白首不離。」", 0 ; 6-11
-loveB2 BYTE "「落花人獨立，微雨燕雙飛。相思無用，當惜眼前。」", 0 ; 12-14
-loveB3 BYTE "「多情卻被無情惱，道是無晴卻有晴。」", 0         ; 15-20
-loveB4 BYTE "「落花有意隨流水，流水無心戀落花。」", 0         ; 21-23
+loveB0 BYTE "「關關雎鳩，在河之洲。窈窕淑女，君子好逑」", 0 ; 0-5
+loveB1 BYTE "「既見君子，云胡不喜。兩情相悅，白首不離」", 0 ; 6-11
+loveB2 BYTE "「落花人獨，微雨雙飛。相思無用，組語好難」", 0 ; 12-14
+loveB3 BYTE "「多情無情，你媽有情，我爸無情，看我心情」", 0         ; 15-20
+loveB4 BYTE "「落花有意，流水無情，湯湯水水，一同水水」", 0         ; 21-23
 
 ; --- 學業 ---
-studyB0 BYTE "「韋編三絕，金榜題名。春風得意馬蹄疾。」", 0
-studyB1 BYTE "「學而不厭，誨人不倦。積土成山，風雨興焉。」", 0
-studyB2 BYTE "「學而不思則罔，思而不學則殆。」", 0
-studyB3 BYTE "「書山有路勤為徑，學海無涯苦作舟。」", 0
-studyB4 BYTE "「少壯不努力，老大徒傷悲。宜速速歸讀。」", 0
+studyB0 BYTE "「韋編三絕，金榜題名，考上台大，精子銀行」", 0
+studyB1 BYTE "「學而不厭，誨人不倦。積土成山，風雨興焉」", 0
+studyB2 BYTE "「學而不思，思而不學，這就是我，美麗人生」", 0
+studyB3 BYTE "「書山有路，學海無涯，苦中作樂，樂極生悲」", 0
+studyB4 BYTE "「少不努力，老徒傷悲。速速歸讀`，速破諾瓦」", 0
 
 ; --- 財運 ---
-wealthB0 BYTE "「天官賜福，財源滾滾。陶朱公法，富甲一方。」", 0
-wealthB1 BYTE "「君子愛財，取之有道。積善之家，必有餘慶。」", 0
-wealthB2 BYTE "「開源節流，細水長流。不積跬步，無以至千里。」", 0
-wealthB3 BYTE "「財聚財散，平常心是道。莫貪莫求，安貧樂道。」", 0
-wealthB4 BYTE "「貪得無厭，反受其害。人為財死，鳥為食亡。」", 0
+wealthB0 BYTE "「天官賜福，財源滾滾。陶朱公法，富甲一方」", 0
+wealthB1 BYTE "「君子愛財，取之有道。積善之家，必有餘慶」", 0
+wealthB2 BYTE "「開源節流，細水長流。不積跬步，以至千里」", 0
+wealthB3 BYTE "「財聚財散，平心是道。莫貪莫求，安貧樂道」", 0
+wealthB4 BYTE "「貪得無厭，反受其害。人為財死，鳥為食亡」", 0
 
 ;  文言文指標表
 loveBlessTable   DWORD OFFSET loveB0, OFFSET loveB1, OFFSET loveB2, OFFSET loveB3, OFFSET loveB4
@@ -454,7 +454,7 @@ normal_char:
     jmp next_char
 
 done:
-    call CrLf
+    ;call CrLf
     ret
 PrintBlockCentered ENDP
 
@@ -1345,16 +1345,6 @@ l_done:
     mov edx, OFFSET resultHeader
     call WriteString
 
-<<<<<<< HEAD
-    mov edx, OFFSET margin
-    call WriteString
-    mov edx, OFFSET hashMsg
-    call WriteString
-    mov eax, hashVal
-    call WriteDec
-    call CrLf
-=======
->>>>>>> wenain2
 
     ; 計算運勢字串 index
     mov eax, hashVal
@@ -1375,17 +1365,7 @@ l_done:
     mov ebx, [ebx]          ; ebx = 某一條籤詩位址
 
     ; 顯示籤詩
-<<<<<<< HEAD
-    mov edx, OFFSET margin
-    call WriteString
-    mov edx, OFFSET fortuneHeader
-    call WriteString
-    
-    mov edx, OFFSET margin
-    call WriteString
-=======
     ; 1. 印出紅色大符文上蓋
->>>>>>> wenain2
     mov edx, OFFSET colorRed
     call WriteString
     mov edx, OFFSET runeTop
