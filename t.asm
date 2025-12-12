@@ -77,20 +77,21 @@ torii10 BYTE "             |___________________________________________________|
 ; ================================
 ; 選單與介面 (全部置中)
 ; ================================
-welcomeTitle BYTE 0Dh,0Ah,
-             "                  ╔════════════════════════════════════╗",0Dh,0Ah,
-             "                  ║      ⛩  日式開運御神籤  ⛩          ║",0Dh,0Ah,
-             "                  ╚════════════════════════════════════╝",0Dh,0Ah,0
+; ====== 歡迎畫面（短字串，不含縮排） ======
+welcomeLine1 BYTE "╔════════════════════════════════════╗", 0
+welcomeLine2 BYTE "║        ⛩  日式開運御神籤  ⛩        ║", 0
+welcomeLine3 BYTE "╚════════════════════════════════════╝", 0
 
-menuPrompt BYTE 0Dh,0Ah,
-           "                    1. 愛情結緣",0Dh,0Ah,
-           "                    2. 學業成就",0Dh,0Ah,
-           "                    3. 金運招財",0Dh,0Ah,
-           0Dh,0Ah,
-           "                  ------------------------------------",0Dh,0Ah,
-           "                          請輸入選擇 (1-3)：",0
+; ====== 主選單文字 ======
+menuLine1 BYTE "1. 愛情結緣", 0
+menuLine2 BYTE "2. 學業成就", 0
+menuLine3 BYTE "3. 金運招財", 0
+menuDash  BYTE "------------------------------------", 0
+menuInput BYTE "請輸入選擇 (1-3)：", 0
 
-errorMsg     BYTE 0Dh,0Ah,"                      [輸入錯誤，神明幫你選 1]",0Dh,0Ah,0
+; ====== 錯誤訊息 ======
+errorMsgLine BYTE "[輸入錯誤，神明幫你選 1]", 0
+
 
 ; 輸入介面 (置中)
 promptTitle      BYTE 0Dh,0Ah,0Dh,0Ah,"                                                     === ✍ 請填寫參拜單 ✍ ===",0Dh,0Ah,0
@@ -280,7 +281,70 @@ heartChars    BYTE "♥o*~.+", 0
 moneyChars    BYTE "$¥€£¢", 0
 
 .code
+PrintWelcome PROC USES edx
+    ; line 1
+    mov edx, OFFSET dateIndent
+    call WriteString
+    mov edx, OFFSET welcomeLine1
+    call WriteString
+    call CrLf
 
+    ; line 2
+    mov edx, OFFSET dateIndent
+    call WriteString
+    mov edx, OFFSET welcomeLine2
+    call WriteString
+    call CrLf
+
+    ; line 3
+    mov edx, OFFSET dateIndent
+    call WriteString
+    mov edx, OFFSET welcomeLine3
+    call WriteString
+    call CrLf
+    call CrLf
+    ret
+PrintWelcome ENDP
+PrintMenu PROC USES edx
+    mov edx, OFFSET dateIndent
+    call WriteString
+    mov edx, OFFSET menuLine1
+    call WriteString
+    call CrLf
+
+    mov edx, OFFSET dateIndent
+    call WriteString
+    mov edx, OFFSET menuLine2
+    call WriteString
+    call CrLf
+
+    mov edx, OFFSET dateIndent
+    call WriteString
+    mov edx, OFFSET menuLine3
+    call WriteString
+    call CrLf
+    call CrLf
+
+    mov edx, OFFSET dateIndent
+    call WriteString
+    mov edx, OFFSET menuDash
+    call WriteString
+    call CrLf
+
+    mov edx, OFFSET dateIndent
+    call WriteString
+    mov edx, OFFSET menuInput
+    call WriteString
+    ret
+PrintMenu ENDP
+PrintError PROC USES edx
+    mov edx, OFFSET dateIndent
+    call WriteString
+    mov edx, OFFSET errorMsgLine
+    call WriteString
+    call CrLf
+    ret
+PrintError ENDP
 ; ==================================================
 ; ★ 3. 音樂函式庫
 ; ==================================================
@@ -861,6 +925,32 @@ do_c:
     ret
 ClearWithBg ENDP
 
+SetCurrentBgOnly PROC USES edx
+    cmp currentBg, 1
+    je bg_love
+    cmp currentBg, 2
+    je bg_study
+    cmp currentBg, 3
+    je bg_wealth
+
+    ; 預設：神社白底
+    mov edx, OFFSET setShrineBg
+    jmp apply
+
+bg_love:
+    mov edx, OFFSET setLoveBg
+    jmp apply
+bg_study:
+    mov edx, OFFSET setStudyBg
+    jmp apply
+bg_wealth:
+    mov edx, OFFSET setWealthBg
+
+apply:
+    call WriteString
+    ret
+SetCurrentBgOnly ENDP
+
 ResetColors PROC
     mov edx, OFFSET resetColor
     call WriteString
@@ -884,10 +974,8 @@ start@0 PROC
     
     ; 2. 選單 (置中)
     call SetShrineBackground
-    mov edx, OFFSET welcomeTitle
-    call WriteString
-    mov edx, OFFSET menuPrompt
-    call WriteString
+    call PrintWelcome
+    call PrintMenu
 
     mov edx, OFFSET choiceInput
     mov ecx, 4
@@ -905,8 +993,7 @@ start@0 PROC
     jmp valid_choice
 
 invalid_choice:
-    mov edx, OFFSET errorMsg
-    call WriteString
+    call PrintError
     mov choiceVal, 1
 
 valid_choice:
@@ -1118,7 +1205,9 @@ show_level:
     call CrLf
     call CrLf
 
-    call ResetColors
+    ; ★ 讓背景恢復成目前選的主題色（粉/綠/金/白）
+    call SetCurrentBgOnly    
+
     mov edx, OFFSET pressRightMsg
     call WriteString
     call ReadChar
