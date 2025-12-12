@@ -60,19 +60,50 @@ colorWhite   BYTE ESC_CODE, "[1;30m", 0
 
 currentBg    DWORD 0   ; 0=預設, 1=愛, 2=學, 3=財
 
+; 大小人三個動作 (黑色)
+colorBlack   BYTE ESC_CODE, "[1;30m", 0
+
+man1_1  BYTE "  O   /", 0
+man1_2  BYTE "   \ / ", 0
+man1_3  BYTE "  / \ ", 0
+man1_4  BYTE " /   \  ", 0
+man1_5  BYTE "      \  ", 0
+man1_6  BYTE "     / \   ", 0
+man1_7  BYTE "    /   \  ", 0
+
+man2_1  BYTE "    O  ", 0
+man2_2  BYTE "__ __\ __ __ ", 0
+man2_3  BYTE "      \   ", 0
+man2_4  BYTE "       \  ", 0
+man2_5  BYTE "        \    ", 0
+man2_6  BYTE "        / \  ", 0
+man2_7  BYTE "       /   \", 0
+
+man3_1  BYTE "  \ O   ", 0
+man3_2  BYTE "   \ \  ", 0
+man3_3  BYTE "      \ \  ", 0
+man3_4  BYTE "       \ \  ", 0
+man3_5  BYTE "        \   ", 0
+man3_6  BYTE "       / \   ", 0
+man3_7  BYTE "      /   \  ", 0
+
+manFrame DWORD 0
+manRow   DWORD 0
+
 ; ================================
 ; ★ 2. 巨型置中鳥居 (Fancy 版)
 ; ================================
-torii1  BYTE "                  ___________________________________________      ", 0Dh, 0Ah, 0
-torii2  BYTE "                 /___________________________________________\     ", 0Dh, 0Ah, 0
-torii3  BYTE "                  ||           |               |           ||      ", 0Dh, 0Ah, 0
-torii4  BYTE "                  ||           |   ★ 開 運 ★   |           ||      ", 0Dh, 0Ah, 0
-torii5  BYTE "                  ||           |___ _______ ___|           ||      ", 0Dh, 0Ah, 0
-torii6  BYTE "                  ||           |  御 |   | 守  |           ||      ", 0Dh, 0Ah, 0
-torii7  BYTE "                  ||           |  神 |   | 護  |           ||      ", 0Dh, 0Ah, 0
-torii8  BYTE "                  ||           |  籤 |   | 所  |           ||      ", 0Dh, 0Ah, 0
-torii9  BYTE "              ____||___________|_____|___|_____|___________||____  ", 0Dh, 0Ah, 0
-torii10 BYTE "             |___________________________________________________| ", 0Dh, 0Ah, 0
+torii1  BYTE 0Dh,0Ah,0Dh,0Ah,0Dh,0Ah,0Dh,0Ah,0Dh,0Ah,0Dh,0Ah,0Dh,0Ah,0Dh,0Ah,
+             "                                           ___________________________________________      ", 0Dh, 0Ah, 0
+torii2  BYTE "                                          /___________________________________________\     ", 0Dh, 0Ah, 0
+torii3  BYTE "                                           ||           |               |           ||      ", 0Dh, 0Ah, 0
+torii4  BYTE "                                           ||           |   ★ 開 運 ★   |           ||      ", 0Dh, 0Ah, 0
+torii5  BYTE "                                           ||           |___ _______ ___|           ||      ", 0Dh, 0Ah, 0
+torii6  BYTE "                                           ||           |  御 |   | 守  |           ||      ", 0Dh, 0Ah, 0
+torii7  BYTE "                                           ||           |  神 |   | 護  |           ||      ", 0Dh, 0Ah, 0
+torii8  BYTE "                                           ||           |  籤 |   | 所  |           ||      ", 0Dh, 0Ah, 0
+torii9  BYTE "                                       ____||___________|_____|___|_____|___________||____  ", 0Dh, 0Ah, 0
+torii10 BYTE "                                      |___________________________________________________| ", 0Dh, 0Ah, 0
 
 
 
@@ -231,7 +262,8 @@ clearLine  BYTE ESC_CODE, "[K", 0
 cursorUp12 BYTE ESC_CODE, "[12A", 0  
 pressRightMsg BYTE 0Dh, 0Ah, "                      按任意鍵離開神廟...", 0
 
-pressEnterMsg BYTE 0Dh, 0Ah, "                  ⛩ 進入開運御神抽籤，請按 Enter 開始 ⛩", 0Dh, 0Ah, 0
+pressEnterMsg BYTE "⛩ 進入開運御神抽籤，請按 Enter 開始 ⛩", 0
+
 vbsIntro      BYTE "wscript play_intro.vbs", 0
 vbsStop       BYTE "wscript stop_music.vbs", 0
 vbsLove       BYTE "wscript play_love.vbs", 0
@@ -569,11 +601,343 @@ PlayIntroBGM ENDP
 ; ==================================================
 ; ★ 4. Fancy 霓虹神社開場 (置中 + 閃爍)
 ; ==================================================
+; --- 畫小人 ---
+DrawMan PROC USES eax edx
+    ; 設定神社背景色
+    mov edx, OFFSET setShrineBg
+    call WriteString
+
+    cmp manFrame, 0
+    je draw_man1
+    cmp manFrame, 1
+    je draw_man2
+    jmp draw_man3
+
+draw_man1:
+    mov edx, OFFSET man1_1
+    call WriteString
+    call Crlf
+    mov dl, 60
+    mov dh, 0
+    add dh, BYTE PTR manRow
+    inc dh
+    call Gotoxy
+    mov edx, OFFSET man1_2
+    call WriteString
+    call Crlf
+    mov dl, 60
+    mov dh, 0
+    add dh, BYTE PTR manRow
+    add dh, 2
+    call Gotoxy
+    mov edx, OFFSET man1_3
+    call WriteString
+    call Crlf
+    mov dl, 60
+    mov dh, 0
+    add dh, BYTE PTR manRow
+    add dh, 3
+    call Gotoxy
+    mov edx, OFFSET man1_4
+    call WriteString
+    call Crlf
+    mov dl, 60
+    mov dh, 0
+    add dh, BYTE PTR manRow
+    add dh, 4
+    call Gotoxy
+    mov edx, OFFSET man1_5
+    call WriteString
+    call Crlf
+    mov dl, 60
+    mov dh, 0
+    add dh, BYTE PTR manRow
+    add dh, 5
+    call Gotoxy
+    mov edx, OFFSET man1_6
+    call WriteString
+    call Crlf
+    mov dl, 60
+    mov dh, 0
+    add dh, BYTE PTR manRow
+    add dh, 6
+    call Gotoxy
+    mov edx, OFFSET man1_7
+    call WriteString
+    jmp draw_done
+
+draw_man2:
+    mov edx, OFFSET man2_1
+    call WriteString
+    call Crlf
+    mov dl, 60
+    mov dh, 0
+    add dh, BYTE PTR manRow
+    inc dh
+    call Gotoxy
+    mov edx, OFFSET man2_2
+    call WriteString
+    call Crlf
+    mov dl, 60
+    mov dh, 0
+    add dh, BYTE PTR manRow
+    add dh, 2
+    call Gotoxy
+    mov edx, OFFSET man2_3
+    call WriteString
+    call Crlf
+    mov dl, 60
+    mov dh, 0
+    add dh, BYTE PTR manRow
+    add dh, 3
+    call Gotoxy
+    mov edx, OFFSET man2_4
+    call WriteString
+    call Crlf
+    mov dl, 60
+    mov dh, 0
+    add dh, BYTE PTR manRow
+    add dh, 4
+    call Gotoxy
+    mov edx, OFFSET man2_5
+    call WriteString
+    call Crlf
+    mov dl, 60
+    mov dh, 0
+    add dh, BYTE PTR manRow
+    add dh, 5
+    call Gotoxy
+    mov edx, OFFSET man2_6
+    call WriteString
+    call Crlf
+    mov dl, 60
+    mov dh, 0
+    add dh, BYTE PTR manRow
+    add dh, 6
+    call Gotoxy
+    mov edx, OFFSET man2_7
+    call WriteString
+    jmp draw_done
+
+draw_man3:
+    mov edx, OFFSET man3_1
+    call WriteString
+    call Crlf
+    mov dl, 60
+    mov dh, 0
+    add dh, BYTE PTR manRow
+    inc dh
+    call Gotoxy
+    mov edx, OFFSET man3_2
+    call WriteString
+    call Crlf
+    mov dl, 60
+    mov dh, 0
+    add dh, BYTE PTR manRow
+    add dh, 2
+    call Gotoxy
+    mov edx, OFFSET man3_3
+    call WriteString
+    call Crlf
+    mov dl, 60
+    mov dh, 0
+    add dh, BYTE PTR manRow
+    add dh, 3
+    call Gotoxy
+    mov edx, OFFSET man3_4
+    call WriteString
+    call Crlf
+    mov dl, 60
+    mov dh, 0
+    add dh, BYTE PTR manRow
+    add dh, 4
+    call Gotoxy
+    mov edx, OFFSET man3_5
+    call WriteString
+    call Crlf
+    mov dl, 60
+    mov dh, 0
+    add dh, BYTE PTR manRow
+    add dh, 5
+    call Gotoxy
+    mov edx, OFFSET man3_6
+    call WriteString
+    call Crlf
+    mov dl, 60
+    mov dh, 0
+    add dh, BYTE PTR manRow
+    add dh, 6
+    call Gotoxy
+    mov edx, OFFSET man3_7
+    call WriteString
+
+draw_done:
+    ; 重設顏色
+    mov edx, OFFSET resetColor
+    call WriteString
+    ret
+DrawMan ENDP
+
+; --- 第一頁：小人下墜到底部 ---
+FallAnimation PROC USES eax ecx edx
+    mov manRow, 0
+
+fall_loop:
+    cmp manRow, 18
+    jge fall_done
+    
+    ; 清螢幕
+    call ClearWithBg
+    
+    ; 設定游標位置
+    mov dh, BYTE PTR manRow
+    mov dl, 60
+    call Gotoxy
+    
+    ; 畫小人
+    call DrawMan
+    
+    ; 換動作
+    inc manFrame
+    cmp manFrame, 3
+    jl frame_ok
+    mov manFrame, 0
+frame_ok:
+    
+    ; 延遲 500ms
+    mov eax, 500
+    call Delay
+    
+    add manRow, 2
+    jmp fall_loop
+
+fall_done:
+    ret
+FallAnimation ENDP
+
+; --- 第二頁：鳥居在底部，小人掉進去 ---
+FallToShrine PROC USES eax ecx edx
+    mov manRow, 0
+
+fall2_loop:
+    cmp manRow, 30
+    jge fall2_done
+    
+    ; 清螢幕
+    call ClearWithBg
+    
+    ; 畫鳥居
+    mov dh, 20
+    mov dl, 30
+    call Gotoxy
+    mov edx, OFFSET colorRed
+    call WriteString
+    call DrawTorii
+    mov edx, OFFSET resetColor
+    call WriteString
+    
+    ; 畫小人
+    mov dh, BYTE PTR manRow
+    mov dl, 60
+    call Gotoxy
+    call DrawMan 
+
+    ; 換動作
+    inc manFrame
+    cmp manFrame, 3
+    jl frame2_ok
+    mov manFrame, 0
+frame2_ok:
+    
+    ; 延遲 500ms
+    mov eax, 500
+    call Delay
+    
+    add manRow, 2
+    jmp fall2_loop
+
+fall2_done:
+    ; 最後定格
+    call ClearWithBg
+    
+    ; 畫小人
+    mov manRow, 30
+    mov dh, 30
+    mov dl, 60
+    call Gotoxy
+    call DrawMan
+    
+    ; 畫鳥居（紅色）
+    mov dh, 20
+    mov dl, 30
+    call Gotoxy
+    mov edx, OFFSET setShrineBg
+    call WriteString
+    mov edx, OFFSET colorRed
+    call WriteString
+    call DrawTorii
+
+    ; 閃爍兩次：紅→金→紅→金
+    mov ecx, 2
+flash_shrine:
+    push ecx
+    
+    ; 金色
+    mov dh, 20
+    mov dl, 30
+    call Gotoxy
+    mov edx, OFFSET setShrineBg
+    call WriteString
+    mov edx, OFFSET colorGold
+    call WriteString
+    call DrawTorii
+    mov eax, 500
+    call Delay
+    
+    ; 紅色
+    mov dh, 20
+    mov dl, 30
+    call Gotoxy
+    mov edx, OFFSET setShrineBg
+    call WriteString
+    mov edx, OFFSET colorRed
+    call WriteString
+    call DrawTorii
+    mov eax, 500
+    call Delay
+    
+    pop ecx
+    dec ecx
+    cmp ecx, 0
+    jg flash_shrine
+
+    ; 重設顏色
+    mov edx, OFFSET resetColor
+    call WriteString
+
+    ; 移到指定位置
+    mov dh, 38      ; 行數，改大往下
+    mov dl, 45      ; 列數，改大往右
+    call Gotoxy
+    
+    ; 設定背景色
+    mov edx, OFFSET setShrineBg
+    call WriteString
+    
+    ; 顯示按 Enter 開始提示
+    mov edx, OFFSET pressEnterMsg
+    call WriteString
+
+wait_enter2:
+    call ReadChar
+    cmp al, 13
+    jne wait_enter2
+    
+    ret
+FallToShrine ENDP
+
 ShrineIntro PROC USES eax ecx edx
     call SetShrineBackground
-    
-    ; 播放開場音樂
-    call PlayIntroBGM
     
     ; 霓虹燈閃爍效果
     mov ecx, 3 
@@ -1162,12 +1526,18 @@ PlayWealthBGM ENDP
 ; ★ 主程式
 ; ==================================================
 start@0 PROC
-    call Randomize
-        
-    ; 1. 豪華開場
-    call ShrineIntro
+    call Randomize          
     
-    ; 2. 選單 (置中)
+    ; 0. 播放背景音樂
+    call PlayIntroBGM
+    
+    ; 1. 小人下墜動畫 (第一頁)
+    call FallAnimation
+    
+    ; 2. 小人下墜到寺廟 (第二頁) + 按 Enter 開始
+    call FallToShrine
+    
+    ; 4. 選單 (置中)
     call SetShrineBackground
     call PrintWelcome
     call PrintMenu
