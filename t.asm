@@ -225,11 +225,11 @@ cursorUp12 BYTE ESC_CODE, "[12A", 0
 pressRightMsg BYTE 0Dh, 0Ah, "                      按任意鍵離開神廟...", 0
 
 pressEnterMsg BYTE 0Dh, 0Ah, "                  ⛩ 進入開運御神抽籤，請按 Enter 開始 ⛩", 0Dh, 0Ah, 0
-vbsIntro      BYTE "wscript C:\asm_final_v3\asm_final_v3\play_intro.vbs", 0
-vbsStop       BYTE "wscript C:\asm_final_v3\asm_final_v3\stop_music.vbs", 0
-vbsLove       BYTE "wscript C:\asm_final_v3\asm_final_v3\play_love.vbs", 0
-vbsStudy      BYTE "wscript C:\asm_final_v3\asm_final_v3\play_study.vbs", 0
-vbsWealth     BYTE "wscript C:\asm_final_v3\asm_final_v3\play_wealth.vbs", 0
+vbsIntro      BYTE "wscript play_intro.vbs", 0
+vbsStop       BYTE "wscript stop_music.vbs", 0
+vbsLove       BYTE "wscript play_love.vbs", 0
+vbsStudy      BYTE "wscript play_study.vbs", 0
+vbsWealth     BYTE "wscript play_wealth.vbs", 0
 
 fortunesTables DWORD OFFSET fortunesLove, OFFSET fortunesStudy, OFFSET fortunesWealth
 
