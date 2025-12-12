@@ -1,5 +1,10 @@
 INCLUDE Irvine32.inc
 
+
+WinExec PROTO,
+    lpCmdLine:PTR BYTE,
+    uCmdShow:DWORD
+
 ; =============================================================
 ; ★ 修復點 1：顯式宣告 Windows API Beep 原型
 ; =============================================================
@@ -66,6 +71,8 @@ torii7  BYTE "                  ||           |  神 |   | 護  |           ||   
 torii8  BYTE "                  ||           |  籤 |   | 所  |           ||      ", 0Dh, 0Ah, 0
 torii9  BYTE "              ____||___________|_____|___|_____|___________||____  ", 0Dh, 0Ah, 0
 torii10 BYTE "             |___________________________________________________| ", 0Dh, 0Ah, 0
+
+
 
 ; ================================
 ; 選單與介面 (全部置中)
@@ -216,6 +223,10 @@ clearLine  BYTE ESC_CODE, "[K", 0
 cursorUp12 BYTE ESC_CODE, "[12A", 0  
 pressRightMsg BYTE 0Dh, 0Ah, "                      按任意鍵領取神旨...", 0
 
+pressEnterMsg BYTE 0Dh, 0Ah, "                  ⛩ 進入開運御神籤抽籤，請按 Enter 開始 ⛩", 0Dh, 0Ah, 0
+vbsIntro      BYTE "wscript play_intro.vbs", 0
+vbsStop       BYTE "wscript stop_music.vbs", 0
+
 fortunesTables DWORD OFFSET fortunesLove, OFFSET fortunesStudy, OFFSET fortunesWealth
 
 nameBuf   BYTE MAX_NAME_LEN   DUP(?)
@@ -308,6 +319,12 @@ PlayWinSound PROC USES eax
     ret
 PlayWinSound ENDP
 
+; --- 播放開場背景音樂 ---
+PlayIntroBGM PROC USES eax edx
+    INVOKE WinExec, ADDR vbsIntro, 0
+    ret
+PlayIntroBGM ENDP
+
 ; ==================================================
 ; ★ 4. Fancy 霓虹神社開場 (置中 + 閃爍)
 ; ==================================================
@@ -315,7 +332,7 @@ ShrineIntro PROC USES eax ecx edx
     call SetShrineBackground
     
     ; 播放開場音樂
-    call PlayIntroMusic
+    call PlayIntroBGM
     
     ; 霓虹燈閃爍效果
     mov ecx, 3 
@@ -354,6 +371,15 @@ flash_loop:
     call WriteString
     call DrawTorii
     
+      ; 顯示按 Enter 開始提示
+    mov edx, OFFSET pressEnterMsg
+    call WriteString
+
+wait_enter:
+    call ReadChar
+    cmp al, 13
+    jne wait_enter
+
     ret
 ShrineIntro ENDP
 
@@ -841,6 +867,12 @@ ResetColors PROC
     ret
 ResetColors ENDP
 
+; --- 停止背景音樂 ---
+StopBGM PROC USES eax edx
+    INVOKE WinExec, ADDR vbsStop, 0
+    ret
+StopBGM ENDP
+
 ; ==================================================
 ; ★ 主程式
 ; ==================================================
@@ -878,6 +910,7 @@ invalid_choice:
     mov choiceVal, 1
 
 valid_choice:
+    call StopBGM 
     call PlayCoinSound
     mov eax, choiceVal
     mov currentBg, eax    
@@ -1090,6 +1123,7 @@ show_level:
     call WriteString
     call ReadChar
 
+    call StopBGM 
     exit
 start@0 ENDP
 END start@0

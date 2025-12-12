@@ -35,7 +35,7 @@ REM user32.lib
 LINK /INCREMENTAL:no /debug /subsystem:console /entry:start /out:t.exe t.obj Kernel32.lib irvine32.lib user32.lib
 if errorlevel 1 goto terminate
 
-wt -w 0 -d . cmd /c "chcp 65001 && t.exe"
+wt -w 0 -d . cmd /c "chcp 65001 && t.exe & wscript stop_music.vbs"
 
 REM Display all files related to this program:
 DIR t.*
