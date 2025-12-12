@@ -72,13 +72,13 @@ torii10 BYTE "             |___________________________________________________|
 ; ================================
 welcomeTitle BYTE 0Dh,0Ah,
              "                  ╔════════════════════════════════════╗",0Dh,0Ah,
-             "                  ║      ⛩  日式開運御神籤  ⛩      ║",0Dh,0Ah,
+             "                  ║      ⛩  日式開運御神籤  ⛩          ║",0Dh,0Ah,
              "                  ╚════════════════════════════════════╝",0Dh,0Ah,0
 
 menuPrompt BYTE 0Dh,0Ah,
-           "                    1. 🌸 愛情結緣 (浪漫風格)",0Dh,0Ah,
-           "                    2. 📖 學業成就 (書香風格)",0Dh,0Ah,
-           "                    3. 💰 金運招財 (土豪風格)",0Dh,0Ah,
+           "                    1. 愛情結緣",0Dh,0Ah,
+           "                    2. 學業成就",0Dh,0Ah,
+           "                    3. 金運招財",0Dh,0Ah,
            0Dh,0Ah,
            "                  ------------------------------------",0Dh,0Ah,
            "                          請輸入選擇 (1-3)：",0
@@ -86,10 +86,8 @@ menuPrompt BYTE 0Dh,0Ah,
 errorMsg     BYTE 0Dh,0Ah,"                      [輸入錯誤，神明幫你選 1]",0Dh,0Ah,0
 
 ; 輸入介面 (置中)
-promptTitle      BYTE 0Dh,0Ah,0Dh,0Ah,"                      === ✍ 請填寫參拜單 ✍ ===",0Dh,0Ah,0
-promptEnterName  BYTE "                      英文名字: ",0
-promptEnterBirth BYTE "                      出生日期: ",0
-promptEnterZod   BYTE "                      你的星座: ",0
+promptTitle      BYTE 0Dh,0Ah,0Dh,0Ah,"                                                     === ✍ 請填寫參拜單 ✍ ===",0Dh,0Ah,0
+promptEnterName  BYTE "                                             英文名字：", 0
 
 ; 結果標題
 resultHeader     BYTE 0Dh,0Ah,0Dh,0Ah,"             ✧･ﾟ: *✧･ﾟ:* 神 明 的 指 引  *:･ﾟ✧*:･ﾟ✧",0Dh,0Ah,0
@@ -180,8 +178,23 @@ w24 BYTE "大凶：窮神附體，乖乖待在家。",0
 choiceInput BYTE 4 DUP(?)
 choiceVal  DWORD ?
 
+; 日期選擇用
+yearVal      DWORD 2000
+monthVal     DWORD 1
+dayVal       DWORD 1
+dateField    DWORD 0
+
+datePrompt   BYTE "                                             生日：(左右鍵切換，上下鍵調整，Enter確認)", 0Dh, 0Ah, 0
+dateIndent   BYTE "                                             ", 0
+dateDash     BYTE " - ", 0
+dateYearHL   BYTE ESC_CODE, "[7m", 0
+dateNormal   BYTE ESC_CODE, "[27m", 0
+cursorUp1    BYTE ESC_CODE, "[1A", 0
+zodiacIndent BYTE "                                             ", 0
+
 ; 星座選單
-zodiacMenu BYTE 0Dh, 0Ah, "                      請選擇星座 (上下鍵，Enter確認)：", 0Dh, 0Ah, 0
+zodiacFirstDraw DWORD 1    ; 1=第一次畫, 0=更新
+zodiacPrompt BYTE 0Dh, 0Ah, "                                             星座：(上下鍵選擇，Enter確認)", 0Dh, 0Ah, 0
 zodiac1  BYTE "Aries      ", 0
 zodiac2  BYTE "Taurus     ", 0
 zodiac3  BYTE "Gemini     ", 0
@@ -197,8 +210,8 @@ zodiac12 BYTE "Pisces     ", 0
 zodiacList DWORD OFFSET zodiac1, OFFSET zodiac2, OFFSET zodiac3, OFFSET zodiac4, OFFSET zodiac5, OFFSET zodiac6
            DWORD OFFSET zodiac7, OFFSET zodiac8, OFFSET zodiac9, OFFSET zodiac10, OFFSET zodiac11, OFFSET zodiac12
 zodiacSel  DWORD 0           
-arrowMark  BYTE "  👉 ", 0      
-spaceMark  BYTE "     ", 0
+arrowMark  BYTE "👉   ", 0      
+spaceMark  BYTE "      ", 0
 clearLine  BYTE ESC_CODE, "[K", 0    
 cursorUp12 BYTE ESC_CODE, "[12A", 0  
 pressRightMsg BYTE 0Dh, 0Ah, "                      按任意鍵領取神旨...", 0
@@ -422,19 +435,25 @@ WealthRain ENDP
 ; 輔助函式
 ; ==================================================
 
+
 SelectZodiac PROC USES eax ebx ecx edx esi
     mov zodiacSel, 0
-    mov edx, OFFSET zodiacMenu
+    mov zodiacFirstDraw, 1    ; 重設為第一次畫
+    
+    ; 印出星座提示
+    mov edx, OFFSET zodiacPrompt
     call WriteString
+    
+    ; 印出 12 個星座
     call DrawZodiacList
 
 select_loop:
     call ReadKey
-    cmp ah, 72        ; 上鍵
+    cmp ah, 72
     je go_up
-    cmp ah, 80        ; 下鍵
+    cmp ah, 80
     je go_down
-    cmp al, 13        ; Enter
+    cmp al, 13
     je select_done
     jmp select_loop
 
@@ -445,6 +464,7 @@ go_up:
     call PlayMoveSound
     call DrawZodiacList
     jmp select_loop
+
 go_down:
     cmp zodiacSel, 11
     je select_loop
@@ -452,6 +472,7 @@ go_down:
     call PlayMoveSound
     call DrawZodiacList
     jmp select_loop
+
 select_done:
     call PlayCoinSound
     mov eax, zodiacSel
@@ -472,20 +493,282 @@ copy_done:
     ret
 SelectZodiac ENDP
 
-DrawZodiacList PROC USES eax ebx ecx edx esi
-    mov edx, OFFSET cursorUp12
+SelectDate PROC USES eax ebx ecx edx
+    mov yearVal, 2000
+    mov monthVal, 1
+    mov dayVal, 1
+    mov dateField, 0
+    
+    mov edx, OFFSET datePrompt
     call WriteString
-    mov ecx, 0      
-draw_loop:
-    cmp ecx, 12
-    jge draw_done
+    
+    ; 先印一行（讓 DrawDate 的 cursorUp1 有東西可以覆蓋）
+    mov edx, OFFSET dateIndent
+    call WriteString
+    mov eax, yearVal
+    call WriteDec
+    mov edx, OFFSET dateDash
+    call WriteString
+    mov al, '0'
+    call WriteChar
+    mov eax, monthVal
+    call WriteDec
+    mov edx, OFFSET dateDash
+    call WriteString
+    mov al, '0'
+    call WriteChar
+    mov eax, dayVal
+    call WriteDec
+    call CrLf
+    
+    call DrawDate
+
+date_loop:
+    call ReadKey
+    
+    cmp ah, 75        ; 左鍵
+    je date_left
+    cmp ah, 77        ; 右鍵
+    je date_right
+    cmp ah, 72        ; 上鍵
+    je date_up
+    cmp ah, 80        ; 下鍵
+    je date_down
+    cmp al, 13        ; Enter
+    je date_done
+    jmp date_loop
+
+date_left:
+    cmp dateField, 0
+    je date_loop
+    dec dateField
+    call DrawDate
+    jmp date_loop
+
+date_right:
+    cmp dateField, 2
+    je date_loop
+    inc dateField
+    call DrawDate
+    jmp date_loop
+
+date_up:
+    cmp dateField, 0
+    je inc_year
+    cmp dateField, 1
+    je inc_month
+    jmp inc_day
+
+inc_year:
+    cmp yearVal, 2025
+    jge date_loop
+    inc yearVal
+    call DrawDate
+    jmp date_loop
+
+inc_month:
+    cmp monthVal, 12
+    jge date_loop
+    inc monthVal
+    call DrawDate
+    jmp date_loop
+
+inc_day:
+    cmp dayVal, 31
+    jge date_loop
+    inc dayVal
+    call DrawDate
+    jmp date_loop
+
+date_down:
+    cmp dateField, 0
+    je dec_year
+    cmp dateField, 1
+    je dec_month
+    jmp dec_day
+
+dec_year:
+    cmp yearVal, 1950
+    jle date_loop
+    dec yearVal
+    call DrawDate
+    jmp date_loop
+
+dec_month:
+    cmp monthVal, 1
+    jle date_loop
+    dec monthVal
+    call DrawDate
+    jmp date_loop
+
+dec_day:
+    cmp dayVal, 1
+    jle date_loop
+    dec dayVal
+    call DrawDate
+    jmp date_loop
+
+date_done:
+    ; 把日期組成字串存到 birthBuf
+    ; 格式: YYYY-MM-DD
+    mov edi, OFFSET birthBuf
+    
+    ; 年
+    mov eax, yearVal
+    mov ebx, 1000
+    xor edx, edx
+    div ebx
+    add al, '0'
+    mov [edi], al
+    inc edi
+    
+    mov eax, edx
+    mov ebx, 100
+    xor edx, edx
+    div ebx
+    add al, '0'
+    mov [edi], al
+    inc edi
+    
+    mov eax, edx
+    mov ebx, 10
+    xor edx, edx
+    div ebx
+    add al, '0'
+    mov [edi], al
+    inc edi
+    
+    add dl, '0'
+    mov [edi], dl
+    inc edi
+    
+    mov BYTE PTR [edi], '-'
+    inc edi
+    
+    ; 月
+    mov eax, monthVal
+    mov ebx, 10
+    xor edx, edx
+    div ebx
+    add al, '0'
+    mov [edi], al
+    inc edi
+    add dl, '0'
+    mov [edi], dl
+    inc edi
+    
+    mov BYTE PTR [edi], '-'
+    inc edi
+    
+    ; 日
+    mov eax, dayVal
+    mov ebx, 10
+    xor edx, edx
+    div ebx
+    add al, '0'
+    mov [edi], al
+    inc edi
+    add dl, '0'
+    mov [edi], dl
+    inc edi
+    
+    mov BYTE PTR [edi], 0
+    
+    call CrLf
+    ret
+SelectDate ENDP
+
+DrawDate PROC USES eax ebx edx
+    mov edx, OFFSET cursorUp1
+    call WriteString
     mov edx, OFFSET clearLine
     call WriteString
     
-    ; 置中空白
-    mov edx, OFFSET margin
+    ; 縮排對齊
+    mov edx, OFFSET dateIndent
     call WriteString
+    
+    ; 印年
+    cmp dateField, 0
+    jne year_normal
+    mov edx, OFFSET dateYearHL
+    call WriteString
+year_normal:
+    mov eax, yearVal
+    call WriteDec
+    mov edx, OFFSET dateNormal
+    call WriteString
+    
+    mov edx, OFFSET dateDash
+    call WriteString
+    
+    ; 印月
+    cmp dateField, 1
+    jne month_normal
+    mov edx, OFFSET dateYearHL
+    call WriteString
+month_normal:
+    mov eax, monthVal
+    cmp eax, 10
+    jge month_print
+    mov al, '0'
+    call WriteChar
+    mov eax, monthVal
+month_print:
+    call WriteDec
+    mov edx, OFFSET dateNormal
+    call WriteString
+    
+    mov edx, OFFSET dateDash
+    call WriteString
+    
+    ; 印日
+    cmp dateField, 2
+    jne day_normal
+    mov edx, OFFSET dateYearHL
+    call WriteString
+day_normal:
+    mov eax, dayVal
+    cmp eax, 10
+    jge day_print
+    mov al, '0'
+    call WriteChar
+    mov eax, dayVal
+day_print:
+    call WriteDec
+    mov edx, OFFSET dateNormal
+    call WriteString
+    
+    call CrLf
+    ret
+DrawDate ENDP
 
+DrawZodiacList PROC USES eax ebx ecx edx esi
+    ; 只有非第一次才往上移
+    cmp zodiacFirstDraw, 1
+    je skip_cursor_up
+    mov edx, OFFSET cursorUp12
+    call WriteString
+    jmp start_draw
+    
+skip_cursor_up:
+    mov zodiacFirstDraw, 0    ; 之後就不是第一次了
+    
+start_draw:
+    mov ecx, 0
+
+draw_loop:
+    cmp ecx, 12
+    jge draw_done
+    
+    mov edx, OFFSET clearLine
+    call WriteString
+    
+    ; 縮排
+    mov edx, OFFSET zodiacIndent
+    call WriteString
+    
+    ; 印箭頭或空白
     cmp ecx, zodiacSel
     jne no_arrow
     mov edx, OFFSET arrowMark
@@ -494,6 +777,7 @@ draw_loop:
 no_arrow:
     mov edx, OFFSET spaceMark
     call WriteString
+
 print_name:
     mov eax, ecx
     shl eax, 2
@@ -502,8 +786,22 @@ print_name:
     mov edx, [esi]
     call WriteString
     call CrLf
+    
     inc ecx
     jmp draw_loop
+
+skip_extra_space:
+    mov eax, ecx
+    shl eax, 2
+    mov esi, OFFSET zodiacList
+    add esi, eax
+    mov edx, [esi]
+    call WriteString
+    call CrLf
+    
+    inc ecx
+    jmp draw_loop
+
 draw_done:
     ret
 DrawZodiacList ENDP
@@ -594,16 +892,9 @@ valid_choice:
     mov edx, OFFSET nameBuf
     mov ecx, MAX_NAME_LEN
     call ReadString
-    mov edx, OFFSET promptEnterBirth
-    call WriteString
-    mov edx, OFFSET birthBuf
-    mov ecx, MAX_BIRTH_LEN
-    call ReadString
-
-    mov ecx, 12
-print_blank:
     call CrLf
-    loop print_blank
+    call SelectDate
+
     call SelectZodiac
 
     ; 4. 計算 Hash（簡化版：只用名字）
