@@ -1060,16 +1060,7 @@ PlayWealthBGM ENDP
 ; ==================================================
 start@0 PROC
     call Randomize
-    ; ===== 產生「今日亂數種子」=====
-    mov eax, yearVal
-    imul eax, 10000        ; YYYY0000
-    mov ebx, monthVal
-    imul ebx, 100
-    add eax, ebx           ; YYYYMM00
-    add eax, dayVal        ; YYYYMMDD
-    mov todaySeed, eax  
-          
-    
+        
     ; 1. 豪華開場
     call ShrineIntro
     
@@ -1138,6 +1129,15 @@ after_music:
     call ReadString
     call CrLf
     call SelectDate
+    ; ===== 今天的 seed =====
+    mov eax, yearVal
+    imul eax, 10000        ; YYYY0000
+    mov ebx, monthVal
+    imul ebx, 100
+    add eax, ebx           ; YYYYMM00
+    add eax, dayVal        ; YYYYMMDD
+    mov todaySeed, eax
+
 
     call SelectZodiac
 
@@ -1155,14 +1155,8 @@ hash_loop:
     inc esi
     jmp hash_loop
 hash_done:
-    add eax, todaySeed     ; ★ 加上今日日期
+    add eax, todaySeed     ; 同一天固定
     mov hashVal, eax
-
-     ; ★ 加入時間隨機性（0 ~ 999）
-    mov eax, 1000
-    call RandomRange     ; eax = 0 ~ 999
-    add hashVal, eax
-
 
     ; 5. 動畫轉場
     cmp choiceVal, 3
