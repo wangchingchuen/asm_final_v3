@@ -35,6 +35,8 @@ NUM_FORTUNES_PER_CAT EQU 24
 .data
 ESC_CODE EQU 27
 
+todaySeed DWORD ?
+
 ; ================================
 ; ★ 1. 視覺風格設定 (置中與顏色)
 ; ================================
@@ -1057,7 +1059,16 @@ PlayWealthBGM ENDP
 ; ★ 主程式
 ; ==================================================
 start@0 PROC
-    call Randomize          
+    call Randomize
+    ; ===== 產生「今日亂數種子」=====
+    mov eax, yearVal
+    imul eax, 10000        ; YYYY0000
+    mov ebx, monthVal
+    imul ebx, 100
+    add eax, ebx           ; YYYYMM00
+    add eax, dayVal        ; YYYYMMDD
+    mov todaySeed, eax  
+          
     
     ; 1. 豪華開場
     call ShrineIntro
@@ -1144,7 +1155,14 @@ hash_loop:
     inc esi
     jmp hash_loop
 hash_done:
+    add eax, todaySeed     ; ★ 加上今日日期
     mov hashVal, eax
+
+     ; ★ 加入時間隨機性（0 ~ 999）
+    mov eax, 1000
+    call RandomRange     ; eax = 0 ~ 999
+    add hashVal, eax
+
 
     ; 5. 動畫轉場
     cmp choiceVal, 3
