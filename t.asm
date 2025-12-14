@@ -5,6 +5,9 @@ WinExec PROTO,
     lpCmdLine:PTR BYTE,
     uCmdShow:DWORD
 
+GetLocalTime PROTO,
+    lpSystemTime:PTR SYSTEMTIME
+
 ; =============================================================
 ; ★ 修復點 1：顯式宣告 Windows API Beep 原型
 ; =============================================================
@@ -36,6 +39,9 @@ NUM_FORTUNES_PER_CAT EQU 24
 ESC_CODE EQU 27
 
 todaySeed DWORD ?
+sysTime SYSTEMTIME <>
+birthSeed DWORD ?
+
 
 ; ================================
 ; ★ 1. 視覺風格設定 (置中與顏色)
@@ -275,7 +281,7 @@ qL5 BYTE 0Dh,0Ah,"                      Q5. 當你想念一個人時，你會？
           "                      請輸入 1-4：",0
 
 
-; ---------- Study 5 ----------
+; --`-------- Study 5 ----------
 qS1 BYTE 0Dh,0Ah,"                      Q1. 你讀書時最常用哪種模式？",0Dh,0Ah,\
           "                      1) 先理解概念  2) 先刷題",0Dh,0Ah,\
           "                      3) 先抄筆記    4) 先背公式",0Dh,0Ah,\
@@ -1175,33 +1181,66 @@ after_music:
     call ReadString
     call CrLf
     call SelectDate
-    ; ===== 今天的 seed =====
+    ; ===== 使用者生日 seed =====
     mov eax, yearVal
-    imul eax, 10000        ; YYYY0000
+    imul eax, 10000
+
     mov ebx, monthVal
     imul ebx, 100
-    add eax, ebx           ; YYYYMM00
-    add eax, dayVal        ; YYYYMMDD
-    mov todaySeed, eax
+    add eax, ebx
 
+    add eax, dayVal
+    mov birthSeed, eax
 
     call SelectZodiac
 
-    ; 4. 計算 Hash（簡化版：只用名字）
+    ; ===== 取得系統日期 (todaySeed) =====
+    INVOKE GetLocalTime, ADDR sysTime
+
+    movzx eax, sysTime.wYear
+    imul eax, 10000
+
+    movzx ebx, sysTime.wMonth
+    imul ebx, 100
+    add eax, ebx
+
+    movzx ebx, sysTime.wDay
+    add eax, ebx
+
+    mov todaySeed, eax     ; 今天
+
+    ; 4. 計算 Hash
     xor eax, eax
     mov ebx, 131
     mov esi, OFFSET nameBuf
-hash_loop:
-    mov dl, [esi]
-    cmp dl, 0
-    je hash_done
-    imul eax, ebx
-    movzx edx, dl
-    add eax, edx
-    inc esi
-    jmp hash_loop
-hash_done:
-    add eax, todaySeed     ; 同一天固定
+
+    name_hash:
+        mov dl, [esi]
+        cmp dl, 0
+        je name_done
+        imul eax, ebx
+        movzx edx, dl
+        add eax, edx
+        inc esi
+        jmp name_hash
+    name_done:
+    ; ===== zodiac hash =====
+    mov esi, OFFSET zodiacBuf
+
+    zodiac_hash:
+        mov dl, [esi]
+        cmp dl, 0
+        je zodiac_done
+        imul eax, ebx          ; 同樣用 131
+        movzx edx, dl
+        add eax, edx
+        inc esi
+        jmp zodiac_hash
+    zodiac_done:
+
+    add eax, birthSeed
+    add eax, todaySeed
+
     mov hashVal, eax
 
     ; 5. 動畫轉場
