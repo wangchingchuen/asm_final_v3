@@ -452,8 +452,8 @@ fortuneIndex DWORD ?
 .code
 ; ==================================================
 ; PrintBlockCentered
-; edx = OFFSET 要印的字串（內含 0Dh,0Ah）
-; 每一行自動補 margin
+; edx = OFFSET of the string to be printed (contains 0Dh, 0Ah)
+; Automatically adds left margin for each line
 ; ==================================================
 PrintBlockCentered PROC USES eax ebx edx esi
     mov esi, edx            ; esi 指向字串
@@ -464,7 +464,8 @@ next_char:
     cmp al, 0
     je done
 
-    ; 如果是新行開頭，先印 margin
+    ; If at the start of a new line, print the margin first
+
     cmp bl, 1
     jne print_char
     mov edx, OFFSET margin
@@ -472,17 +473,17 @@ next_char:
     mov bl, 0
 
 print_char:
-    ; 檢查換行
+    ; Check for newline
     cmp al, 0Dh
     jne normal_char
 
-    ; 印 CR LF
+    ; print CR LF
     call WriteChar
     inc esi
     mov al, [esi]
     call WriteChar
 
-    mov bl, 1               ; 下一行要補 margin
+    mov bl, 1               ; adds margin
     inc esi
     jmp next_char
 
@@ -1019,10 +1020,10 @@ DrawTorii PROC USES edx
 DrawTorii ENDP
 
 ; ==================================================
-; ★ 5. 華麗的置中動畫
+;  5. Centered Animation
 ; ==================================================
 
-; 通用等待動畫
+; WealthRain Animation
 FancyLoading PROC USES eax ecx edx
     mov edx, OFFSET loadingMsg
     call WriteString
@@ -1039,18 +1040,17 @@ loading_loop:
     ret
 FancyLoading ENDP
 
-; 金幣雨動畫
 WealthRain PROC USES eax ecx edx esi
     mov edx, OFFSET colorGold
     call WriteString
     mov ecx, 60
 w_loop:
-    mov eax, 20      ; 行
+    mov eax, 20      
     call RandomRange
     mov dh, al
-    mov eax, 60      ; 列 (限制在中間區域)
+    mov eax, 60    
     call RandomRange
-    add al, 10       ; 左邊偏移
+    add al, 10      
     mov dl, al
     call Gotoxy
     
@@ -1069,9 +1069,8 @@ w_loop:
 WealthRain ENDP
 
 ; ==================================================
-; 輔助函式
+; ;Auxiliary Function
 ; ==================================================
-
 
 SelectZodiac PROC USES eax ebx ecx edx esi
     mov zodiacSel, 0
@@ -1529,7 +1528,7 @@ PlayWealthBGM PROC USES eax edx
 PlayWealthBGM ENDP
 
 ; ==================================================
-; ★ 主程式
+; Main Function
 ; ==================================================
 start@0 PROC
     call Randomize          
@@ -1608,7 +1607,7 @@ after_music:
     call ReadString
     call CrLf
     call SelectDate
-    ; ===== 使用者生日 seed =====
+    ; ===== (birth seed) =====
     mov eax, yearVal
     imul eax, 10000
 
@@ -1621,7 +1620,7 @@ after_music:
 
     call SelectZodiac
 
-    ; ===== 取得系統日期 (todaySeed) =====
+    ; ===== (todaySeed) =====
     INVOKE GetLocalTime, ADDR sysTime
 
     movzx eax, sysTime.wYear
@@ -1634,7 +1633,7 @@ after_music:
     movzx ebx, sysTime.wDay
     add eax, ebx
 
-    mov todaySeed, eax     ; 今天
+    mov todaySeed, eax     
 
     ; 4. 計算 Hash
     xor eax, eax
@@ -1658,7 +1657,7 @@ after_music:
         mov dl, [esi]
         cmp dl, 0
         je zodiac_done
-        imul eax, ebx          ; 同樣用 131
+        imul eax, ebx          ;with 131
         movzx edx, dl
         add eax, edx
         inc esi
@@ -1670,7 +1669,7 @@ after_music:
 
     mov hashVal, eax
 
-    ; 5. 動畫轉場
+    ; Animation
     cmp choiceVal, 3
     jne normal_anim
     call WealthRain
@@ -1679,12 +1678,12 @@ normal_anim:
     call FancyLoading
 anim_finish:
 
-    ; 6. 問問題＆算 qSum（依面向顯示對應 5 題）
+    ; calculate qSum
     call ClearWithBg
     xor eax, eax
     mov qSum, eax
 
-    ; esi = 指向該面向的 5 題指標表
+    ; esi points to five quetions
     mov eax, choiceVal
     dec eax
     shl eax, 2
@@ -1694,12 +1693,12 @@ anim_finish:
 
     mov ecx, 5
     ask_loop:
-        mov edx, OFFSET margin     ;  置中用
+        mov edx, OFFSET margin     ;  Centered
         call WriteString
         mov edx, [esi]
         call PrintBlockCentered
 
-        push ecx            ; 保護題數計數器
+        push ecx           
         mov edx, OFFSET qInput
         mov ecx, 4
         call ReadString
@@ -1714,7 +1713,7 @@ anim_finish:
         loop ask_loop
 
 
-    ; 7. 將 qSum 轉成 0~4 等級 index
+    ; 7. change qSum to 0~4  index
     mov eax, qSum        ; 5~20
 
     cmp eax, 8
@@ -1737,7 +1736,7 @@ l_4: mov eax, 3
      jmp l_done
 l_5: mov eax, 4
 l_done:
-    mov levelIndex, eax          ; 記住等級 0~4
+    mov levelIndex, eax          ; remind level 0~4
 
     mov ecx, eax
     shl ecx, 2
@@ -1746,7 +1745,7 @@ l_done:
     mov edx, [edx]
     mov levelPtr, edx
 
-    ; 8. 顯示結果（不再播放 PlayWinSound）
+    ; Put the Result
     call ClearWithBg
 
     mov edx, OFFSET margin
@@ -1755,7 +1754,7 @@ l_done:
     call WriteString
 
 
-    ; 計算運勢字串 index
+    ; String hash
     mov eax, hashVal
     mov ebx, NUM_FORTUNES_PER_CAT
     xor edx, edx
@@ -1819,40 +1818,40 @@ l_done:
     grp4: mov eax, 4
 
     get_bless:
-    ; 5. 取得對應的文言文內容
+    ; get 對應的文言文內容
     mov esi, choiceVal              ; 1=Love, 2=Study, 3=Wealth
     dec esi
     shl esi, 2
     mov edi, OFFSET blessTables
     add edi, esi
-    mov edi, [edi]                  ; edi 指向對應類別的表格
+    mov edi, [edi]                  ; edi point to 對應類別
 
     shl eax, 2
     add edi, eax
-    mov edi, [edi]                  ; edi 現在指向最終的文言文字串
+    mov edi, [edi]                  ; edi print to 文言文
 
     ; 6. 印出文言文 (包在邊框內，金色)
-    mov edx, OFFSET colorRed        ; 邊框用紅色
+    mov edx, OFFSET colorRed        ; red frame
     call WriteString
-    mov edx, OFFSET runeMidPrefix   ; 左邊框
+    mov edx, OFFSET runeMidPrefix   
     call WriteString
     
     mov edx, OFFSET colorGold       ; 文言文用金色
     call WriteString
-    mov edx, edi                    ; 印出文言文
+    mov edx, edi                    ; 文言文
     call WriteString
     
-    mov edx, OFFSET colorRed        ; 邊框用紅色
+    mov edx, OFFSET colorRed        ; red frame
     call WriteString
-    mov edx, OFFSET runeMidSuffix   ; 右邊框
+    mov edx, OFFSET runeMidSuffix   
     call WriteString
 
-    ; 7. 印出底部
+    ; print bottom
     mov edx, OFFSET runeBottom
     call WriteString
     call CrLf
     
-    ; 顯示等級：標題 + 等級文字同一顏色
+    ; show level
     mov eax, levelIndex
     cmp eax, 0
     je lvl0
@@ -1862,7 +1861,7 @@ l_done:
     je lvl2
     cmp eax, 3
     je lvl3
-    ; 其他 → lvl4
+    ; others → lvl4
 lvl4:
     mov edx, OFFSET colorRed         ; 夯：紅色
     jmp show_level
@@ -1888,7 +1887,6 @@ show_level:
     call CrLf
     call CrLf
 
-    ; ★ 讓背景恢復成目前選的主題色（粉/綠/金/白）
     call SetCurrentBgOnly    
 
     mov edx, OFFSET pressRightMsg
