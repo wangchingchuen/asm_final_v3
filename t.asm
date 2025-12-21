@@ -8,14 +8,12 @@ WinExec PROTO,
 GetLocalTime PROTO,
     lpSystemTime:PTR SYSTEMTIME
 
-; =============================================================
-; ★ 修復點 1：顯式宣告 Windows API Beep 原型
-; =============================================================
+;Windows API Beep PROTO
 Beep PROTO,
     dwFreq:DWORD,
     dwDuration:DWORD
 
-; 頻率表 (Hz)
+; Hz
 NOTE_C4  EQU 262
 NOTE_D4  EQU 294
 NOTE_E4  EQU 330
@@ -42,13 +40,10 @@ todaySeed DWORD ?
 sysTime SYSTEMTIME <>
 birthSeed DWORD ?
 
-
-; ================================
-; ★ 1. 視覺風格設定 (置中與顏色)
-; ================================
+;visual style settings (centering and colors)
 margin       BYTE "                      ", 0 ; 通用左邊距
 
-; 背景色
+;background color
 setShrineBg  BYTE ESC_CODE, "[47;30m", 0                 ; 神社白底黑字
 setLoveBg    BYTE ESC_CODE, "[48;2;255;235;235;30m", 0   ; 愛情粉
 setStudyBg   BYTE ESC_CODE, "[48;2;240;255;240;30m", 0   ; 課業青
@@ -57,7 +52,7 @@ setWealthBg  BYTE ESC_CODE, "[48;2;255;250;205;30m", 0   ; 財運金
 clearAll     BYTE ESC_CODE, "[2J", ESC_CODE, "[H", 0
 resetColor   BYTE ESC_CODE, "[0m", 0
 
-; 前景色 (更鮮豔)
+; foreground color
 colorRed     BYTE ESC_CODE, "[1;31m", 0 
 colorGold    BYTE ESC_CODE, "[38;2;184;134;11m", 0 
 colorPink    BYTE ESC_CODE, "[1;35m", 0 
@@ -66,7 +61,7 @@ colorWhite   BYTE ESC_CODE, "[1;30m", 0
 
 currentBg    DWORD 0   ; 0=預設, 1=愛, 2=學, 3=財
 
-; 大小人三個動作 (黑色)
+;three character poses (black)
 colorBlack   BYTE ESC_CODE, "[1;30m", 0
 
 man1_1  BYTE "  O   /", 0
@@ -96,9 +91,7 @@ man3_7  BYTE "      /   \  ", 0
 manFrame DWORD 0
 manRow   DWORD 0
 
-; ================================
-; ★ 2. 巨型置中鳥居 (Fancy 版)
-; ================================
+;centered torii gate
 torii1  BYTE 0Dh,0Ah,0Dh,0Ah,0Dh,0Ah,0Dh,0Ah,0Dh,0Ah,0Dh,0Ah,0Dh,0Ah,0Dh,0Ah,
              "                                           ___________________________________________      ", 0Dh, 0Ah, 0
 torii2  BYTE "                                          /___________________________________________\     ", 0Dh, 0Ah, 0
@@ -112,38 +105,33 @@ torii9  BYTE "                                       ____||___________|_____|___
 torii10 BYTE "                                      |___________________________________________________| ", 0Dh, 0Ah, 0
 
 
+;menu and interface
 
-; ================================
-; 選單與介面 (全部置中)
-; ================================
-; ====== 歡迎畫面（短字串，不含縮排） ======
+;welcome screen
 welcomeLine1 BYTE "╔════════════════════════════════════╗", 0
 welcomeLine2 BYTE "║        ⛩  日式開運御神籤  ⛩        ║", 0
 welcomeLine3 BYTE "╚════════════════════════════════════╝", 0
 
-; ====== 主選單文字 ======
+;main menu text
 menuLine1 BYTE "1. 愛情結緣", 0
 menuLine2 BYTE "2. 學業成就", 0
 menuLine3 BYTE "3. 金運招財", 0
 menuDash  BYTE "------------------------------------", 0
 menuInput BYTE "請輸入選擇 (1-3)：", 0
 
-; ====== 錯誤訊息 ======
+;error message
 errorMsgLine BYTE "[輸入錯誤，神明幫你選 1]", 0
 
 
-; 輸入介面 (置中)
+;input interface
 promptTitle      BYTE 0Dh,0Ah,0Dh,0Ah,"                                                     === ✍ 請填寫參拜單 ✍ ===",0Dh,0Ah,0
 promptEnterName  BYTE "                                             英文名字：", 0
 
-; 結果標題
+;result title
 resultHeader     BYTE 0Dh,0Ah,0Dh,0Ah,"                             ✧･ﾟ: *✧･ﾟ:* 神 明 的 指 引  *:･ﾟ✧*:･ﾟ✧",0Dh,0Ah,0
 fortuneHeader    BYTE 0Dh,0Ah,"             -------------------------------------------",0Dh,0Ah,0
 
-
-; ================================
-; 運勢資料庫;凶：舊愛還是最美？別想了。
-; ================================
+;fortune database
 l1 BYTE "你的今日運勢為--大吉：桃花盛開，轉角遇到愛",0
 l2 BYTE "你的今日運勢為--大吉：心有靈犀，對方在想你",0
 l3 BYTE "你的今日運勢為--大吉：紅線已牽，大膽行動吧",0
@@ -230,7 +218,7 @@ fortunesWealth DWORD OFFSET w1, OFFSET w2, OFFSET w3, OFFSET w4, OFFSET w5, OFFS
 choiceInput BYTE 4 DUP(?)
 choiceVal  DWORD ?
 
-; 日期選擇用
+;date choices
 yearVal      DWORD 2000
 monthVal     DWORD 1
 dayVal       DWORD 1
@@ -244,7 +232,7 @@ dateNormal   BYTE ESC_CODE, "[27m", 0
 cursorUp1    BYTE ESC_CODE, "[1A", 0
 zodiacIndent BYTE "                                             ", 0
 
-; 星座選單
+;zodiac choices
 zodiacFirstDraw DWORD 1    ; 1=第一次畫, 0=更新
 zodiacPrompt BYTE 0Dh, 0Ah, "                                             星座：(上下鍵選擇，Enter確認)", 0Dh, 0Ah, 0
 zodiac1  BYTE "Aries      ", 0
@@ -287,11 +275,9 @@ levelIndex DWORD ?
 hashVal   DWORD ?
 indexVal  DWORD ?
 
-; =========================================================
-; ★ 15 題題庫：愛情/學業/財運 各 5 題
-; =========================================================
+;question
 
-; ---------- Love 5 ----------
+;Love 5
 qL1 BYTE 0Dh,0Ah,"                      Q1. 愛情的觸感是什麼？",0Dh,0Ah,\
           "                      1) 堅實的    2) 柔滑的",0Dh,0Ah,\
           "                      3) 輕盈的    4) 溫軟的",0Dh,0Ah,\
@@ -318,7 +304,7 @@ qL5 BYTE 0Dh,0Ah,"                      Q5. 當你想念一個人時，你會？
           "                      請輸入 1-4：",0
 
 
-; --`-------- Study 5 ----------
+;Study 5
 qS1 BYTE 0Dh,0Ah,"                      Q1. 你讀書時最常用哪種模式？",0Dh,0Ah,\
           "                      1) 先理解概念  2) 先刷題",0Dh,0Ah,\
           "                      3) 先抄筆記    4) 先背公式",0Dh,0Ah,\
@@ -345,7 +331,7 @@ qS5 BYTE 0Dh,0Ah,"                      Q5. 考試前一天你通常會？",0Dh,
           "                      請輸入 1-4：",0
 
 
-; ---------- Wealth 5 ----------
+;Wealth 5
 qW1 BYTE 0Dh,0Ah,"                      Q1. 你對金錢的態度比較像？",0Dh,0Ah,\
           "                      1) 穩健存錢  2) 該花就花",0Dh,0Ah,\
           "                      3) 會投資增值  4) 隨緣不強求",0Dh,0Ah,\
@@ -371,15 +357,12 @@ qW5 BYTE 0Dh,0Ah,"                      Q5. 你最近的財運更像？",0Dh,0Ah
           "                      3) 有點想衝一把  4) 需要省一點",0Dh,0Ah,\
           "                      請輸入 1-4：",0
 
-
-; =========================================================
-; ★ 題庫指標表：每組 5 題
-; =========================================================
+;question bank index table
 qLoveTable  DWORD OFFSET qL1, OFFSET qL2, OFFSET qL3, OFFSET qL4, OFFSET qL5
 qStudyTable DWORD OFFSET qS1, OFFSET qS2, OFFSET qS3, OFFSET qS4, OFFSET qS5
 qWealthTable DWORD OFFSET qW1, OFFSET qW2, OFFSET qW3, OFFSET qW4, OFFSET qW5
 
-; 依 choiceVal(1~3) 選擇題庫：Love/Study/Wealth
+;select question bank by choiceVal (1~3): love/study/wealth
 qTables DWORD OFFSET qLoveTable, OFFSET qStudyTable, OFFSET qWealthTable
 
 levelHeader BYTE 0Dh,0Ah,"                      [靈力等級測驗評定]: ",0
@@ -393,12 +376,12 @@ levelPtr DWORD ?
 
 loadingMsg BYTE 0Dh,0Ah,"                      祈願傳送中...",0
 
-; 動畫符號
+;animation of emoji
 heartChars    BYTE "♥o*~.+", 0
 moneyChars    BYTE "$¥€£¢", 0
 
-; 大符文邊框組件
-; 1. 符文上蓋 (拆分成多行 BYTE，記憶體是連續的，所以 WriteString 會一次印完)
+;large rune border component
+;rune top cover (split into multiple BYTE lines, memory is contiguous so WriteString prints all at once)
 runeTop BYTE "                      ╔══════════════════════"
         BYTE "═════════════════════════╗", 0Dh, 0Ah
         BYTE "                      ║               ⛩  御 神 "
@@ -406,49 +389,51 @@ runeTop BYTE "                      ╔═════════════�
         BYTE "                      ╠══════════════════════"
         BYTE "═════════════════════════╣", 0Dh, 0Ah, 0
 
-; 2. 中間左邊框
+;middle left border
 runeMidPrefix BYTE "                      ║   ", 0  
 
-; 3. 中間右邊框
+;middle right border
 runeMidSuffix BYTE "  ║  ", 0Dh, 0Ah, 0            
 
-; 4. 分隔線 (同樣拆短)
+;separator line (also split short)
 runeSep BYTE "                      ╟──────────────────────"
         BYTE "─────────────────────────╢", 0Dh, 0Ah, 0
 
-; 5. 底部邊框 (同樣拆短)
+;bottom border (also split short)
 runeBottom BYTE "                      ╚══════════════════════"
            BYTE "═════════════════════════╝", 0Dh, 0Ah, 0
-; 文言文籤詩庫 (每類 5 句)
-; --- 愛情 ---
+
+;classical chinese fortune poem bank (5 verses per category)
+;love
 loveB0 BYTE "「關關雎鳩，在河之洲。窈窕淑女，君子好逑」", 0 ; 0-5
 loveB1 BYTE "「既見君子，云胡不喜。兩情相悅，白首不離」", 0 ; 6-11
 loveB2 BYTE "「落花人獨，微雨雙飛。相思無用，組語好難」", 0 ; 12-14
 loveB3 BYTE "「多情無情，你媽有情，我爸無情，看我心情」", 0         ; 15-20
 loveB4 BYTE "「落花有意，流水無情，湯湯水水，一同水水」", 0         ; 21-23
 
-; --- 學業 ---
+;study
 studyB0 BYTE "「韋編三絕，金榜題名，考上台大，精子銀行」", 0
 studyB1 BYTE "「學而不厭，誨人不倦。積土成山，風雨興焉」", 0
 studyB2 BYTE "「學而不思，思而不學，這就是我，美麗人生」", 0
 studyB3 BYTE "「書山有路，學海無涯，苦中作樂，樂極生悲」", 0
 studyB4 BYTE "「少不努力，老徒傷悲。速速歸讀`，速破諾瓦」", 0
 
-; --- 財運 ---
+;wealth
 wealthB0 BYTE "「天官賜福，財源滾滾。陶朱公法，富甲一方」", 0
 wealthB1 BYTE "「君子愛財，取之有道。積善之家，必有餘慶」", 0
 wealthB2 BYTE "「開源節流，細水長流。不積跬步，以至千里」", 0
 wealthB3 BYTE "「財聚財散，平心是道。莫貪莫求，安貧樂道」", 0
 wealthB4 BYTE "「貪得無厭，反受其害。人為財死，鳥為食亡」", 0
 
-;  文言文指標表
+;classical chinese index table
 loveBlessTable   DWORD OFFSET loveB0, OFFSET loveB1, OFFSET loveB2, OFFSET loveB3, OFFSET loveB4
 studyBlessTable  DWORD OFFSET studyB0, OFFSET studyB1, OFFSET studyB2, OFFSET studyB3, OFFSET studyB4
 wealthBlessTable DWORD OFFSET wealthB0, OFFSET wealthB1, OFFSET wealthB2, OFFSET wealthB3, OFFSET wealthB4
 
 blessTables      DWORD OFFSET loveBlessTable, OFFSET studyBlessTable, OFFSET wealthBlessTable
-; 用於儲存計算出的籤詩索引
+;used to store calculated fortune poem index
 fortuneIndex DWORD ?
+
 .code
 ; ==================================================
 ; PrintBlockCentered
@@ -456,8 +441,8 @@ fortuneIndex DWORD ?
 ; Automatically adds left margin for each line
 ; ==================================================
 PrintBlockCentered PROC USES eax ebx edx esi
-    mov esi, edx            ; esi 指向字串
-    mov bl, 1               ; 行首旗標（1 = 要補 margin）
+    mov esi, edx            ; esi point to string
+    mov bl, 1               ; line start flag (1 = needs margin)
 
 next_char:
     mov al, [esi]
@@ -498,21 +483,21 @@ done:
 PrintBlockCentered ENDP
 
 PrintWelcome PROC USES edx
-    ; line 1
+    ;line 1
     mov edx, OFFSET dateIndent
     call WriteString
     mov edx, OFFSET welcomeLine1
     call WriteString
     call CrLf
 
-    ; line 2
+    ;line 2
     mov edx, OFFSET dateIndent
     call WriteString
     mov edx, OFFSET welcomeLine2
     call WriteString
     call CrLf
 
-    ; line 3
+    ;line 3
     mov edx, OFFSET dateIndent
     call WriteString
     mov edx, OFFSET welcomeLine3
@@ -521,6 +506,7 @@ PrintWelcome PROC USES edx
     call CrLf
     ret
 PrintWelcome ENDP
+
 PrintMenu PROC USES edx
     mov edx, OFFSET dateIndent
     call WriteString
@@ -553,6 +539,7 @@ PrintMenu PROC USES edx
     call WriteString
     ret
 PrintMenu ENDP
+
 PrintError PROC USES edx
     mov edx, OFFSET dateIndent
     call WriteString
@@ -562,10 +549,10 @@ PrintError PROC USES edx
     ret
 PrintError ENDP
 ; ==================================================
-; ★ 3. 音樂函式庫
+; music library
 ; ==================================================
 
-; --- 開場主題曲 ---
+;opening theme song
 PlayIntroMusic PROC USES eax
     INVOKE Beep, NOTE_C4, 150
     INVOKE Beep, NOTE_E4, 150
@@ -576,20 +563,20 @@ PlayIntroMusic PROC USES eax
     ret
 PlayIntroMusic ENDP
 
-; --- 確認音效 ---
+;confirmation sound effect
 PlayCoinSound PROC USES eax
     INVOKE Beep, NOTE_B4, 100
     INVOKE Beep, NOTE_E5, 200
     ret
 PlayCoinSound ENDP
 
-; --- 移動游標音效 ---
+;cursor move sound effect
 PlayMoveSound PROC USES eax
     INVOKE Beep, NOTE_A4, 50
     ret
 PlayMoveSound ENDP
 
-; --- 結果發表音效（目前不呼叫） ---
+;result announcement sound effect (currently not called)
 PlayWinSound PROC USES eax
     INVOKE Beep, NOTE_C5, 100
     INVOKE Beep, NOTE_D5, 100
@@ -599,18 +586,18 @@ PlayWinSound PROC USES eax
     ret
 PlayWinSound ENDP
 
-; --- 播放開場背景音樂 ---
+;play opening background music
 PlayIntroBGM PROC USES eax edx
     INVOKE WinExec, ADDR vbsIntro, 0
     ret
 PlayIntroBGM ENDP
 
 ; ==================================================
-; ★ 4. Fancy 霓虹神社開場 (置中 + 閃爍)
+; shrine opening
 ; ==================================================
-; --- 畫小人 ---
+; draw character
 DrawMan PROC USES eax edx
-    ; 設定神社背景色
+    ;set shrine background color
     mov edx, OFFSET setShrineBg
     call WriteString
 
@@ -779,13 +766,13 @@ draw_man3:
     call WriteString
 
 draw_done:
-    ; 重設顏色
+    ;reset color
     mov edx, OFFSET resetColor
     call WriteString
     ret
 DrawMan ENDP
 
-; --- 第一頁：小人下墜到底部 ---
+;page one: character falls to bottom
 FallAnimation PROC USES eax ecx edx
     mov manRow, 0
 
@@ -793,25 +780,25 @@ fall_loop:
     cmp manRow, 18
     jge fall_done
     
-    ; 清螢幕
+    ;clear screen
     call ClearWithBg
     
-    ; 設定游標位置
+    ;set cursor position
     mov dh, BYTE PTR manRow
     mov dl, 60
     call Gotoxy
     
-    ; 畫小人
+    ;draw character
     call DrawMan
     
-    ; 換動作
+    ;change movement
     inc manFrame
     cmp manFrame, 3
     jl frame_ok
     mov manFrame, 0
 frame_ok:
     
-    ; 延遲 500ms
+    ;delay 500ms
     mov eax, 500
     call Delay
     
@@ -822,7 +809,7 @@ fall_done:
     ret
 FallAnimation ENDP
 
-; --- 第二頁：鳥居在底部，小人掉進去 ---
+;page two: torii gate at bottom, character falls into it
 FallToShrine PROC USES eax ecx edx
     mov manRow, 0
 
@@ -830,10 +817,10 @@ fall2_loop:
     cmp manRow, 30
     jge fall2_done
     
-    ; 清螢幕
+    ;clear screen
     call ClearWithBg
     
-    ; 畫鳥居
+    ;draw shrine
     mov dh, 20
     mov dl, 30
     call Gotoxy
@@ -843,20 +830,20 @@ fall2_loop:
     mov edx, OFFSET resetColor
     call WriteString
     
-    ; 畫小人
+    ;draw character
     mov dh, BYTE PTR manRow
     mov dl, 60
     call Gotoxy
     call DrawMan 
 
-    ; 換動作
+    ;change movement
     inc manFrame
     cmp manFrame, 3
     jl frame2_ok
     mov manFrame, 0
 frame2_ok:
     
-    ; 延遲 500ms
+    ;delay 500ms
     mov eax, 500
     call Delay
     
@@ -864,17 +851,17 @@ frame2_ok:
     jmp fall2_loop
 
 fall2_done:
-    ; 最後定格
+    ;final freeze frame
     call ClearWithBg
     
-    ; 畫小人
+    ;draw character
     mov manRow, 30
     mov dh, 30
     mov dl, 60
     call Gotoxy
     call DrawMan
     
-    ; 畫鳥居（紅色）
+    ; draw shrine(red)
     mov dh, 20
     mov dl, 30
     call Gotoxy
@@ -884,12 +871,12 @@ fall2_done:
     call WriteString
     call DrawTorii
 
-    ; 閃爍兩次：紅→金→紅→金
+    ;blink twice: red → gold → red → gold
     mov ecx, 2
 flash_shrine:
     push ecx
     
-    ; 金色
+    ;gold
     mov dh, 20
     mov dl, 30
     call Gotoxy
@@ -901,7 +888,7 @@ flash_shrine:
     mov eax, 500
     call Delay
     
-    ; 紅色
+    ;red
     mov dh, 20
     mov dl, 30
     call Gotoxy
@@ -918,20 +905,20 @@ flash_shrine:
     cmp ecx, 0
     jg flash_shrine
 
-    ; 重設顏色
+    ;reset color
     mov edx, OFFSET resetColor
     call WriteString
 
-    ; 移到指定位置
+    ;move to specified position
     mov dh, 38      ; 行數，改大往下
     mov dl, 45      ; 列數，改大往右
     call Gotoxy
     
-    ; 設定背景色
+    ;set background color
     mov edx, OFFSET setShrineBg
     call WriteString
     
-    ; 顯示按 Enter 開始提示
+    ;display press enter to start prompt
     mov edx, OFFSET pressEnterMsg
     call WriteString
 
@@ -942,58 +929,6 @@ wait_enter2:
     
     ret
 FallToShrine ENDP
-
-ShrineIntro PROC USES eax ecx edx
-    call SetShrineBackground
-    
-    ; 霓虹燈閃爍效果
-    mov ecx, 3 
-flash_loop:
-    push ecx
-    
-    ; 顏色 1: 紅
-    mov edx, OFFSET colorRed
-    call WriteString
-    call DrawTorii
-    mov eax, 300
-    call Delay
-    call ClearWithBg
-    
-    ; 顏色 2: 金
-    mov edx, OFFSET colorGold
-    call WriteString
-    call DrawTorii
-    mov eax, 300
-    call Delay
-    call ClearWithBg
-
-    ; 顏色 3: 白
-    mov edx, OFFSET colorWhite
-    call WriteString
-    call DrawTorii
-    mov eax, 300
-    call Delay
-    call ClearWithBg
-
-    pop ecx
-    loop flash_loop
-
-    ; 最後定格在紅色
-    mov edx, OFFSET colorRed
-    call WriteString
-    call DrawTorii
-    
-      ; 顯示按 Enter 開始提示
-    mov edx, OFFSET pressEnterMsg
-    call WriteString
-
-wait_enter:
-    call ReadChar
-    cmp al, 13
-    jne wait_enter
-
-    ret
-ShrineIntro ENDP
 
 DrawTorii PROC USES edx
     mov edx, OFFSET torii1
@@ -1074,13 +1009,13 @@ WealthRain ENDP
 
 SelectZodiac PROC USES eax ebx ecx edx esi
     mov zodiacSel, 0
-    mov zodiacFirstDraw, 1    ; 重設為第一次畫
+    mov zodiacFirstDraw, 1    ;reset to first draw
     
-    ; 印出星座提示
+    ;print zodiac prompt
     mov edx, OFFSET zodiacPrompt
     call WriteString
     
-    ; 印出 12 個星座
+    ;print 12 zodiac signs
     call DrawZodiacList
 
 select_loop:
@@ -1138,7 +1073,7 @@ SelectDate PROC USES eax ebx ecx edx
     mov edx, OFFSET datePrompt
     call WriteString
     
-    ; 先印一行（讓 DrawDate 的 cursorUp1 有東西可以覆蓋）
+    ;first print one line (so DrawDate's cursorUp1 has something to overwrite)
     mov edx, OFFSET dateIndent
     call WriteString
     mov eax, yearVal
@@ -1162,15 +1097,15 @@ SelectDate PROC USES eax ebx ecx edx
 date_loop:
     call ReadKey
     
-    cmp ah, 75        ; 左鍵
+    cmp ah, 75        ;left key
     je date_left
-    cmp ah, 77        ; 右鍵
+    cmp ah, 77        ;right key
     je date_right
-    cmp ah, 72        ; 上鍵
+    cmp ah, 72        ;up key
     je date_up
-    cmp ah, 80        ; 下鍵
+    cmp ah, 80        ;down key
     je date_down
-    cmp al, 13        ; Enter
+    cmp al, 13        ;Enter
     je date_done
     jmp date_loop
 
@@ -1245,11 +1180,11 @@ dec_day:
     jmp date_loop
 
 date_done:
-    ; 把日期組成字串存到 birthBuf
-    ; 格式: YYYY-MM-DD
+    ; assemble date into string and store in birthBuf
+    ; format: YYYY-MM-DD
     mov edi, OFFSET birthBuf
     
-    ; 年
+    ;year
     mov eax, yearVal
     mov ebx, 1000
     xor edx, edx
@@ -1281,7 +1216,7 @@ date_done:
     mov BYTE PTR [edi], '-'
     inc edi
     
-    ; 月
+    ;month
     mov eax, monthVal
     mov ebx, 10
     xor edx, edx
@@ -1296,7 +1231,7 @@ date_done:
     mov BYTE PTR [edi], '-'
     inc edi
     
-    ; 日
+    ;date
     mov eax, dayVal
     mov ebx, 10
     xor edx, edx
@@ -1320,11 +1255,11 @@ DrawDate PROC USES eax ebx edx
     mov edx, OFFSET clearLine
     call WriteString
     
-    ; 縮排對齊
+    ;indentation alignment
     mov edx, OFFSET dateIndent
     call WriteString
     
-    ; 印年
+    ;print year
     cmp dateField, 0
     jne year_normal
     mov edx, OFFSET dateYearHL
@@ -1338,7 +1273,7 @@ year_normal:
     mov edx, OFFSET dateDash
     call WriteString
     
-    ; 印月
+    ;print month
     cmp dateField, 1
     jne month_normal
     mov edx, OFFSET dateYearHL
@@ -1358,7 +1293,7 @@ month_print:
     mov edx, OFFSET dateDash
     call WriteString
     
-    ; 印日
+    ;print date
     cmp dateField, 2
     jne day_normal
     mov edx, OFFSET dateYearHL
@@ -1380,7 +1315,7 @@ day_print:
 DrawDate ENDP
 
 DrawZodiacList PROC USES eax ebx ecx edx esi
-    ; 只有非第一次才往上移
+    ;only move up if not first time
     cmp zodiacFirstDraw, 1
     je skip_cursor_up
     mov edx, OFFSET cursorUp12
@@ -1388,7 +1323,7 @@ DrawZodiacList PROC USES eax ebx ecx edx esi
     jmp start_draw
     
 skip_cursor_up:
-    mov zodiacFirstDraw, 0    ; 之後就不是第一次了
+    mov zodiacFirstDraw, 0    ;after this it's no longer first time
     
 start_draw:
     mov ecx, 0
@@ -1400,11 +1335,11 @@ draw_loop:
     mov edx, OFFSET clearLine
     call WriteString
     
-    ; 縮排
+    ;indentation
     mov edx, OFFSET zodiacIndent
     call WriteString
     
-    ; 印箭頭或空白
+    ;print arrow or space
     cmp ecx, zodiacSel
     jne no_arrow
     mov edx, OFFSET arrowMark
@@ -1479,7 +1414,7 @@ SetCurrentBgOnly PROC USES edx
     cmp currentBg, 3
     je bg_wealth
 
-    ; 預設：神社白底
+    ;default: shrine white background
     mov edx, OFFSET setShrineBg
     jmp apply
 
@@ -1503,25 +1438,25 @@ ResetColors PROC
     ret
 ResetColors ENDP
 
-; --- 停止背景音樂 ---
+; stop background music
 StopBGM PROC USES eax edx
     INVOKE WinExec, ADDR vbsStop, 0
     ret
 StopBGM ENDP
 
-; --- 播放愛情音樂 ---
+;play love music
 PlayLoveBGM PROC USES eax edx
     INVOKE WinExec, ADDR vbsLove, 0
     ret
 PlayLoveBGM ENDP
 
-; --- 播放學業音樂 ---
+;play study music
 PlayStudyBGM PROC USES eax edx
     INVOKE WinExec, ADDR vbsStudy, 0
     ret
 PlayStudyBGM ENDP
 
-; --- 播放財運音樂 ---
+;play wealth music
 PlayWealthBGM PROC USES eax edx
     INVOKE WinExec, ADDR vbsWealth, 0
     ret
@@ -1533,16 +1468,16 @@ PlayWealthBGM ENDP
 start@0 PROC
     call Randomize          
     
-    ; 0. 播放背景音樂
+    ;play background music
     call PlayIntroBGM
     
-    ; 1. 小人下墜動畫 (第一頁)
+    ;character falling animation
     call FallAnimation
     
-    ; 2. 小人下墜到寺廟 (第二頁) + 按 Enter 開始
+    ;character falls to temple (page two) + press enter to start
     call FallToShrine
     
-    ; 4. 選單 (置中)
+    ;menu
     call SetShrineBackground
     call PrintWelcome
     call PrintMenu
@@ -1569,11 +1504,11 @@ invalid_choice:
 valid_choice:
     call StopBGM
 
-    ; 等久一點讓 stop 完成
+    ;wait longer for stop to complete
     mov eax, 500
     call Delay
     
-    ; 根據選擇播放對應音樂
+    ;play corresponding music based on selection
     cmp choiceVal, 1
     je play_love
     cmp choiceVal, 2
@@ -1635,7 +1570,7 @@ after_music:
 
     mov todaySeed, eax     
 
-    ; 4. 計算 Hash
+    ;calculate hash
     xor eax, eax
     mov ebx, 131
     mov esi, OFFSET nameBuf
@@ -1650,7 +1585,7 @@ after_music:
         inc esi
         jmp name_hash
     name_done:
-    ; ===== zodiac hash =====
+    ;zodiac hash
     mov esi, OFFSET zodiacBuf
 
     zodiac_hash:
@@ -1766,37 +1701,37 @@ l_done:
     shl eax, 2
     mov ebx, OFFSET fortunesTables
     add ebx, eax
-    mov ebx, [ebx]          ; ebx = 該類別 fortunes 開頭
+    mov ebx, [ebx]          ;ebx = start of fortunes for this category
 
     shl edx, 2
     add ebx, edx
-    mov ebx, [ebx]          ; ebx = 某一條籤詩位址
+    mov ebx, [ebx]          ;ebx = address of a specific fortune poem
 
-    ; 顯示籤詩
-    ; 1. 印出紅色大符文上蓋
+    ;display fortune poem
+    ;print red large rune top cover
     mov edx, OFFSET colorRed
     call WriteString
     mov edx, OFFSET runeTop
     call WriteString
 
-    ; 2. 印出現代籤詩 (包在邊框內，紅色)
-    mov edx, OFFSET colorRed        ; 確保是紅色
+    ;print modern fortune poem (wrapped in border, red)
+    mov edx, OFFSET colorRed        ;ensure is red
     call WriteString
-    mov edx, OFFSET runeMidPrefix   ; 左邊框
+    mov edx, OFFSET runeMidPrefix   ;left border
     call WriteString
-    mov edx, ebx                    ; 原本的現代籤詩內容
+    mov edx, ebx                    ;original modern fortune poem content
     call WriteString
-    mov edx, OFFSET runeMidSuffix   ; 右邊框
+    mov edx, OFFSET runeMidSuffix   ;right border
     call WriteString
 
-    ; 3. 印出分隔線
+    ;print separator line
     mov edx, OFFSET colorRed
     call WriteString
     mov edx, OFFSET runeSep
     call WriteString
 
-    ; 4. 計算文言文索引 (將 0-23 映射到 0-4)
-    mov eax, fortuneIndex           ; 取回 0-23 索引
+    ;calculate classical chinese index (map 0-23 to 0-4)
+    mov eax, fortuneIndex           ;retrieve 0-23 index
     cmp eax, 6
     jl  grp0                        ; 0-5 (大吉/中吉)
     cmp eax, 12
@@ -1836,7 +1771,7 @@ l_done:
     mov edx, OFFSET runeMidPrefix   
     call WriteString
     
-    mov edx, OFFSET colorGold       ; 文言文用金色
+    mov edx, OFFSET colorGold       ;classical chinese in gold color
     call WriteString
     mov edx, edi                    ; 文言文
     call WriteString
@@ -1863,22 +1798,22 @@ l_done:
     je lvl3
     ; others → lvl4
 lvl4:
-    mov edx, OFFSET colorRed         ; 夯：紅色
+    mov edx, OFFSET colorRed         ; 夯：red
     jmp show_level
 lvl3:
-    mov edx, OFFSET colorPink        ; 頂級：粉色
+    mov edx, OFFSET colorPink        ; 頂級：pink
     jmp show_level
 lvl2:
-    mov edx, OFFSET colorGold        ; 人上人：金色
+    mov edx, OFFSET colorGold        ; 人上人：gold
     jmp show_level
 lvl1:
-    mov edx, OFFSET colorCyan        ; NPC：青色
+    mov edx, OFFSET colorCyan        ; NPC：green
     jmp show_level
 lvl0:
-    mov edx, OFFSET colorWhite       ; 拉完了：白色
+    mov edx, OFFSET colorWhite       ; 拉完了：white
 
 show_level:
-    call WriteString                 ; 設定顏色
+    call WriteString                 ; set color
     mov edx, OFFSET margin  
     mov edx, OFFSET levelHeader
     call WriteString
